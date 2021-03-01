@@ -2,6 +2,18 @@
 
 define("KCW_OLD_GALLERY_ROOT", wp_get_upload_dir()["basedir"] . '/' . "Gallery");
 
+$kcw_gallery_known_image_types = ["png", "jpg", "jpeg"];
+//Verify that the given file is a supported image
+function kcw_gallery_FileIsImage($file) {
+    global $kcw_gallery_known_image_types;
+
+    $dotpos = strrpos($file, '.');
+    $ext = strtolower(substr($file, $dotpos + 1));
+    foreach ($kcw_gallery_known_image_types as $type) 
+        if ($ext == $type)
+            return true;
+    return false;
+}
 //Extract the filename from a path {
 function kcw_gallery_GetFileName($file) {
     return kcw_gallery_GetFolderName($file);
@@ -15,6 +27,27 @@ function kcw_gallery_GetFolderName($folder) {
     //Split the name off the folder name
     $name = substr($folder,  $last_slash + 1);
     return $name;
+}
+//Get relevent information from the file
+function kcw_gallery_GetFileDetails($file) {
+    $data = array();
+    $data["path"] = $file;
+
+    //Make errors raise to warnings
+    set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context) {
+        throw new ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
+    }, E_WARNING);
+
+    try {
+        $exif = exif_read_data($file);
+        $data["taken"] = $exif["DateTimeOriginal"];
+    } catch (Exception $e) {
+        $data["taken"] = filemtime($file);
+    }
+
+    restore_error_handler();
+
+    return $data;
 }
 //Get an object describing the gallery folders contents
 function kcw_gallery_GetFolderData($folder) {
@@ -42,6 +75,7 @@ function kcw_gallery_GetFolderData($folder) {
 function kcw_gallery_GetGalleryData($folderdata, $parent = NULL) {
     $data = NULL;
     if (count($folderdata["dirs"]) > 0) {
+        $data = array();
         //Build the parent dir name
         $nextparent = "";
         if ($parent != NULL) $nextparent = $parent . '/' . $folderdata["name"];
@@ -54,12 +88,26 @@ function kcw_gallery_GetGalleryData($folderdata, $parent = NULL) {
             if ($dirdata != NULL) {
                 //If the parent ISNT null (I.E. Its the top level folder)
                 if ($parent != NULL) $dirdata["category"] = $nextparent;
+                //Init the dirs key if it isnt already
+                if ($data["dirs"] == NULL) $data["dirs"] = array();
                 //Add the gallery data to the data array
-                $data[] = $dirdata;
+                $data["dirs"][] = $dirdata;
             }
         }
-    } else if (count($folderdata["files"]) > 0) {
-        $data = $folderdata;
+    }
+
+    if (count($folderdata["files"]) > 0) {
+        if ($data == NULL) $data = array();
+        $data["name"] = $folderdata["name"];
+        $data["path"] = $folderdata["path"];
+        $data["files"] = array();
+        //Get the file data for each file in this folder
+        foreach ($folderdata["files"] as $file) {
+            if (kcw_gallery_FileIsImage($file)) {
+                $path = $folderdata["path"] . $file;
+                $data["files"][] = kcw_gallery_GetFileDetails($path);
+            }
+        }
     }
     return $data;
 }
