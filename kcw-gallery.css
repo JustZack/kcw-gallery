@@ -1,0 +1,21 @@
+table.kcw-gallery-list {
+    width: 100%;
+}
+table.kcw-gallery-list tr {
+    width: 100%;
+}
+td.kcw-gallery-list-title {
+    width: 60%;
+}
+td.kcw-gallery-list-category {
+    width: 20%;
+}
+td.kcw-gallery-list-files {
+    width: 20%;
+}
+table.kcw-gallery-list tr > td {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 0px;
+}
+

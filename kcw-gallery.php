@@ -9,14 +9,53 @@
 */
 
 include_once "old-gallery-helpers.php";
+include_once "data-helpers.php";
 
+function  kcw_gallery_register_dependencies() {
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.0.0");
+}
+add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
+
+function kcw_gallery_enqueue_dependencies() {
+    wp_enqueue_style("kcw-gallery");
+}
+
+function kcw_gallery_BuildGalleryListItem($gallery, $id) {
+    $name = $gallery["name"];
+    $cat = $gallery["category"];
+    $files = $gallery["files"];
+    $html = "<tr data-id='$id'><td class='kcw-gallery-list-title'>$name</td><td class='kcw-gallery-list-category'>$cat</td><td class='kcw-gallery-list-files'>$files</td></tr>";
+    return $html;
+}
+function kcw_gallery_BuildGalleryList() {
+    $html = "<table class='kcw-gallery-list'>";
+    $data = kcw_gallery_GetListData();
+    for ($i = 0;$i < count($data);$i++) {
+
+        $html .= kcw_gallery_BuildGalleryListItem($data[$i], $i);
+    }
+    $html .= "</table>";
+
+    return $html;
+}
 function kcw_gallery_GetHTML() {
 
 }
+function kcw_gallery_StartBlock() {
+    return "<div class='kcw-gallery-wrapper'>";
+}
+function kcw_gallery_EndBlock() {
+    return "</div>";
+}
 function kcw_gallery_Init() {
-    $folderdata = kcw_gallery_GetFolderData(KCW_OLD_GALLERY_ROOT);
-    $gallerydata = kcw_gallery_GetGalleryData($folderdata);
-    var_dump($gallerydata);
+    kcw_gallery_enqueue_dependencies();
+
+    $html = kcw_gallery_StartBlock();
+    if (count($_GET) == 0) {
+        $html .= kcw_gallery_BuildGalleryList();
+    }
+    $html .= kcw_gallery_EndBlock();
+    echo $html;
 }
 add_shortcode("kcw-gallery", 'kcw_gallery_Init');
 ?>
