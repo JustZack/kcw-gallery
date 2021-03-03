@@ -8,8 +8,6 @@
 * Author:            Zack Jones
 */
 
-include_once "old-gallery-helpers.php";
-include_once "data-helpers.php";
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
@@ -35,7 +33,7 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
 }
 function kcw_gallery_BuildGalleryList() {
     $html = "<table class='kcw-gallery-list'>";
-    $data = kcw_gallery_GetListData();
+    $data = kcw_gallery_api_GetGalleryList();
     for ($i = 0;$i < count($data);$i++) {
 
         $html .= kcw_gallery_BuildGalleryListItem($data[$i], $i);
@@ -45,8 +43,10 @@ function kcw_gallery_BuildGalleryList() {
     return $html;
 }
 
-function kcw_gallery_BuildGalleryDisplay($guid) {
-    kcw_gallery_GetGalleryData($guid);
+function kcw_gallery_BuildGalleryDisplay($guid, $gpage) {
+    $data["guid"] = $guid; $data["gpage"] = $gpage;
+    $gallery = kcw_gallery_api_GetGalleryPage($data);
+    
 }
 function kcw_gallery_GetHTML() {
 
@@ -61,8 +61,11 @@ function kcw_gallery_Init() {
     kcw_gallery_enqueue_dependencies();
 
     $html = kcw_gallery_StartBlock();
-    if (isset($_GET["guid"])) {
-        $html .= kcw_gallery_BuildGalleryDisplay($_GET["guid"]);
+    $guid = $_GET["guid"];
+    $gpage = $_GET["gpage"];
+    if (isset($guid)) {
+        if (isset($gpage)) $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
+        else $html .= kcw_gallery_BuildGalleryDisplay($guid, 1);
     } else {
         $html .= kcw_gallery_BuildGalleryList();
     }

@@ -3,7 +3,13 @@
 include_once "cache-helpers.php";
 include_once "old-gallery-helpers.php";
 
-define("KCW_OLD_GALLERY_ROOT", wp_get_upload_dir()["basedir"] . '/' . "Gallery");
+
+function kcw_gallery_RootFolder() {
+    return wp_get_upload_dir()["basedir"] . '/' . "Gallery";
+}
+function kcw_gallery_RootUrl() {
+    return wp_get_upload_dir()["baseurl"] . '/' . "Gallery";
+}
 
 function kcw_gallery_BuildUid($cat, $name) {
     $uid = $cat . '.' . $name . '.' . dechex(rand());
@@ -12,7 +18,7 @@ function kcw_gallery_BuildUid($cat, $name) {
 }
 //Construct the list of filesystem gallerys
 function kcw_gallery_BuildFilesystemListData() {
-    $oldgallery = kcw_gallery_BuildOldGalleryListData(KCW_OLD_GALLERY_ROOT);
+    $oldgallery = kcw_gallery_BuildOldGalleryListData(kcw_gallery_RootFolder());
     for ($i = 0;$i < count($oldgallery);$i++) {
         $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($oldgallery[$i]["category"], $oldgallery[$i]["name"]);
     }
@@ -22,10 +28,8 @@ function kcw_gallery_BuildFilesystemGalleryData($guid) {
     $list = kcw_gallery_GetListData();
     $gallery = NULL;
     foreach ($list as $item) {
-        var_dump($item);
-        var_dump($guid);
         if ($item["uid"] == $guid) {
-            $gallery = kcw_gallery_BuildOldGalleryData($item, KCW_OLD_GALLERY_ROOT);
+            $gallery = kcw_gallery_BuildOldGalleryData($item, kcw_gallery_RootFolder(), kcw_gallery_RootUrl());
             break;
         }
     }
@@ -100,8 +104,7 @@ function kcw_gallery_GetGalleryData($guid) {
 
     if (!file_exists($g_file)) {
         $gallery_data = kcw_gallery_BuildFilesystemGalleryData($guid);
-        if ($gallery_data != NULL) 
-            $gallery_data = kcw_gallery_Cache($g_file, $gallery_data);
+        if ($gallery_data != NULL) kcw_gallery_Cache($g_file, $gallery_data);
     } else {
         $gallery_data = kcw_gallery_GetCacheDataJSON($g_file);
     }

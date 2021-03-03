@@ -118,13 +118,13 @@ function kcw_gallery_GetFoldersWithFiles($folderdata, $parent = NULL) {
     return $data;
 }
 
-function kcw_gallery_SortFilesByKey($files, $key) {
+function kcw_gallery_SortFilesByTakenTime($files) {
     //Selection sort
     for ($i = 0;$i < count($files) - 1;$i++) {
-        $mindate = strtotime($files[$i][$key]);
+        $mindate = strtotime($files[$i]["taken"]);
         $minj = $i;
         for ($j = $i + 1;$j < count($files);$j++) {
-            $curdate = strtotime($files[$j][$key]);
+            $curdate = strtotime($files[$j]["taken"]);
             if ($curdate < $mindate) {
                 $minj = $j;
                 $mindate = $curdate;
@@ -138,5 +138,6 @@ function kcw_gallery_SortFilesByKey($files, $key) {
             $files[$minj] = $tmpl;
         }
     }
+    return $files;
 }
 ?>
