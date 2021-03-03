@@ -14,7 +14,11 @@ function kcw_gallery_GetCacheFile($type) {
 }
 //Return cache data given the filename
 function kcw_gallery_GetCacheData($cachefilename) {
-    return file_get_contents($cachefilename);
+    return  file_get_contents($cachefilename);
+}
+//Return cache data as json given the filename
+function kcw_gallery_GetCacheDataJSON($cachefilename) {
+    return  json_decode(kcw_gallery_GetCacheData($cachefilename), true);
 }
 //Cache the given data to the specified cache type
 function kcw_gallery_Cache($file, $data) {
