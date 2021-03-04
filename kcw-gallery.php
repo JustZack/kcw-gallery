@@ -28,7 +28,7 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
     $uid = $gallery["uid"];
 
     $html = "<li data-id='$uid'>
-                <div class='kcw-gallery-list-title'>$name</div>
+                <a class='kcw-gallery-list-title'>$name</a>
             </li>\n";
     return $html;
 }
@@ -96,7 +96,10 @@ function kcw_gallery_EndBlock() {
     return "</div>";
 }
 function kcw_gallery_GetHTML() {
-    $html = "";
+    $html = 
+    "<div>
+
+    </div>";
     return $html;
 }
 function kcw_gallery_Init() {
@@ -110,6 +113,8 @@ function kcw_gallery_Init() {
     $html .= "<div class='kcw-gallery-list-home'>List</div>";
 
     $html .= kcw_gallery_DoDisplay($guid, $gpage);
+
+    $html .= kcw_gallery_GetHTML();
 
     $html .= kcw_gallery_EndBlock();
     echo $html;

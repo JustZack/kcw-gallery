@@ -18,14 +18,17 @@ function kcw_gallery_api_Success($data) {
     $data["time"] = time();
     return $data;
 }
-//Return the galery list
+//Return the gallery list
 function kcw_gallery_api_GetGalleryList() {
     $list = kcw_gallery_GetListData();
-    /*for($i = 0;$i < count($list);$i++) {
-        $gallery =  kcw_gallery_GetGalleryData($list[$i]["uid"]);
-        $list[$i]["images"] = count($gallery["images"]);
-    }*/
-    return $list;
+    return kcw_gallery_api_Success($list);
+}
+//Return meta data about a given gallery
+function kcw_gallery_api_GetGalleryMeta($data) {
+    $meta = kcw_gallery_GetGalleryData($data["guid"]);
+    //Trade the entire array of images for a small bit of meta data
+    $meta["images"] = count($meta["images"]);
+    return kcw_gallery_api_Success($meta);
 }
 //Return the given gallery, with an assumed first page
 function kcw_gallery_api_GetGallery($data) {
@@ -41,16 +44,17 @@ function kcw_gallery_api_GetGalleryPage($data) {
     if ($gallery == NULL) return kcw_gallery_api_Error("Unrecognized Gallery UID: " . $guid . ", with Page: " . $gpage);
 
     $per_page = 30;
+    $total = count($gallery["images"]);
 
     $start = ($gpage - 1) * $per_page; $end = 0;
-    if ($start >= count($gallery["images"])) {
-        $start = count($gallery["images"]);  
+    if ($start >= $total) {
+        $start = $total;  
         $end = $start;
         return kcw_gallery_api_Error("Unknown PageID: " . $gpage . ", with Gallery: " . $guid);
     } else {
         $end = $start + $per_page;
-        if ($end > count($gallery["images"])) 
-            $end = count($gallery["images"]);
+        if ($end > $total) 
+            $end = $total;
         $end--;
     }
 
@@ -58,6 +62,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery["end"] = $end;
     $gallery["page"] = $gpage;
     $gallery["per_page"] = $per_page;
+    $gallery["total"] = $total;
 
     $gallery_page = $gallery;
     $gallery_page["images"] = array();
@@ -79,6 +84,11 @@ function kcw_gallery_api_RegisterRestRoutes() {
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGallery',
+    ));
+    //Route for /gallery-id/meta
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)/meta', array(
+        'methods' => 'GET',
+        'callback' => 'kcw_gallery_api_GetGalleryMeta',
     ));
     //Route for /gallery-id/page
     register_rest_route("$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)/(?P<gpage>\d+)', array(        'methods' => 'GET',

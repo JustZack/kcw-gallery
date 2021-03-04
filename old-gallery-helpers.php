@@ -29,6 +29,7 @@ function kcw_gallery_GetOldGalleryData($baseurl, $files) {
     foreach ($files as $file) {
         $f = array();
         $f["name"] = kcw_gallery_GetFileName($file);
+        //This is throwing an error for files without exif
         $f["taken"] = kcw_gallery_GetExifData($file)["taken"];
         $data["images"][] = $f;
     }

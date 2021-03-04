@@ -17,6 +17,7 @@ function kcw_gallery_FileIsImage($file) {
 function kcw_gallery_GetFileName($file) {
     return kcw_gallery_GetFolderName($file);
 }
+
 //Extract the folder name from a path
 function kcw_gallery_GetFolderName($folder) {
     //Determine where the last slash is

@@ -7,6 +7,7 @@ include_once "old-gallery-helpers.php";
 function kcw_gallery_RootFolder() {
     return wp_get_upload_dir()["basedir"] . '/' . "Gallery";
 }
+
 function kcw_gallery_RootUrl() {
     return wp_get_upload_dir()["baseurl"] . '/' . "Gallery";
 }
