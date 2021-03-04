@@ -47,7 +47,7 @@ function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
 
     return $data;
 }
-//Return the gallery list
+//Return the gallery list with an assumed first page
 function kcw_gallery_api_GetGalleryList() {
     $data = array();
     $data["lpage"] = 1;
