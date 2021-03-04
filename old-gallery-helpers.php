@@ -33,6 +33,7 @@ function kcw_gallery_GetOldGalleryData($baseurl, $files) {
         $data["images"][] = $f;
     }
     $data["baserurl"] = $baseurl;
+    $data["thumbsurl"] = $baseurl . 'thumbs/';
     return $data;
 }
 //Return data for the given gallery folder

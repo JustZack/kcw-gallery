@@ -1,7 +1,5 @@
 <?php
 
-include_once "data-helpers.php";
-
 //Return the path to the cache folder
 function kcw_gallery_GetCacheFolder() {
     $cachedir = __DIR__ . DIRECTORY_SEPARATOR . "cache";

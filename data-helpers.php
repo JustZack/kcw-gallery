@@ -11,8 +11,8 @@ function kcw_gallery_RootUrl() {
     return wp_get_upload_dir()["baseurl"] . '/' . "Gallery";
 }
 
-function kcw_gallery_BuildUid($cat, $name) {
-    $uid = $cat . '.' . $name . '.' . dechex(rand());
+function kcw_gallery_BuildUid($cat, $name, $dirtime) {
+    $uid = $cat . '.' . $name . '.' . dechex($dirtime);
     $uid = str_replace(' ', '-', $uid);
     return $uid;
 }
@@ -20,7 +20,11 @@ function kcw_gallery_BuildUid($cat, $name) {
 function kcw_gallery_BuildFilesystemListData() {
     $oldgallery = kcw_gallery_BuildOldGalleryListData(kcw_gallery_RootFolder());
     for ($i = 0;$i < count($oldgallery);$i++) {
-        $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($oldgallery[$i]["category"], $oldgallery[$i]["name"]);
+        $category = $oldgallery[$i]["category"];
+        $name = $oldgallery[$i]["name"];
+        $path = kcw_gallery_RootFolder() . '/' . $category . '/' . $name;
+        $dirtime = filectime($path);
+        $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $dirtime);
     }
     return $oldgallery;
 }
@@ -95,6 +99,7 @@ function kcw_gallery_GetListData() {
         $status["forums"] = $now;
         kcw_gallery_UpdateListStatusData($status);
     }
+
     return $list;
 }
 
@@ -108,7 +113,6 @@ function kcw_gallery_GetGalleryData($guid) {
     } else {
         $gallery_data = kcw_gallery_GetCacheDataJSON($g_file);
     }
-    $gallery["done"] = true;
     return $gallery_data;
 }
 ?>
