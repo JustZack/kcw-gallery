@@ -18,7 +18,6 @@ function kcw_gallery_api_Success($data) {
     $data["time"] = time();
     return $data;
 }
-
 //Return a page of the given data
 function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
     $data = array();
