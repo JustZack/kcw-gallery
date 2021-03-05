@@ -75,15 +75,34 @@ function kcw_gallery_SetJSData() {
     return $html;
 }
 
-function kcw_gallery_DoDisplay($guid, $gpage) {
+function kcw_gallery_GetListHTML() {
+    $html = "<div class='kcw-gallery-list-container'>";
+    $html .= "<ul class='kcw-gallery-list'></ul>";
+    $html .= "</div>";
+    return $html;
+}
+function kcw_gallery_GetGalleryHTML() {
+    $html = "<div class='kcw-gallery-display'>";
+    $html .= "<div class='kcw-gallery-title'></div>";
+    $html .= "<ul class='kcw-gallery-thumbs'></ul>";
+    $html .= "</div>";
+    return $html;
+}
+
+function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
     $html = "";
 
     $html .= kcw_gallery_SetJSData();
+
+    //$html .= kcw_gallery_BuildGalleryListHome();
+
     if (isset($guid)) {
-        if (isset($gpage)) $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
-        else               $html .= kcw_gallery_BuildGalleryDisplay($guid, 1);
+        $html .= kcw_gallery_GetListHTML();
+        if (!isset($gpage)) $gpage = 1;
+        $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
     } else {
         $html .= kcw_gallery_BuildGalleryListDisplay();
+        $html .= kcw_gallery_GetGalleryHTML();
     }
 
     return $html;
@@ -95,26 +114,16 @@ function kcw_gallery_StartBlock() {
 function kcw_gallery_EndBlock() {
     return "</div>";
 }
-function kcw_gallery_GetHTML() {
-    $html = 
-    "<div>
-
-    </div>";
-    return $html;
-}
 function kcw_gallery_Init() {
     kcw_gallery_enqueue_dependencies();
 
     $guid = $_GET["guid"];
     $gpage = $_GET["gpage"];
+    $lpage = $_GET["lpage"];
 
     $html = kcw_gallery_StartBlock();
 
-    $html .= "<div class='kcw-gallery-list-home'>List</div>";
-
-    $html .= kcw_gallery_DoDisplay($guid, $gpage);
-
-    $html .= kcw_gallery_GetHTML();
+    $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
 
     $html .= kcw_gallery_EndBlock();
     echo $html;
