@@ -23,18 +23,17 @@ function kcw_gallery_BuildOldGalleryListData($root) {
 }
 
 //Construct the gallery data for the given gallery files
-function kcw_gallery_GetOldGalleryData($baseurl, $files) {
+function kcw_gallery_GetOldGalleryData($files) {
     $data = array();
     $data["images"] = array();
     foreach ($files as $file) {
         $f = array();
         $f["name"] = kcw_gallery_GetFileName($file);
-        //This is throwing an error for files without exif
-        $f["taken"] = kcw_gallery_GetExifData($file)["taken"];
+        $exif = kcw_gallery_GetExifData($file);
+        $f["taken"] = $exif["taken"];
         $data["images"][] = $f;
     }
-    $data["baserurl"] = $baseurl;
-    $data["thumbsurl"] = $baseurl . 'thumbs/';
+
     return $data;
 }
 //Return data for the given gallery folder
@@ -44,11 +43,15 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     $folder = $rootdir . $relativepath;
 
     $files = kcw_gallery_GetFolderData($folder, true)["files"];
-    $data = kcw_gallery_GetOldGalleryData($baseurl, $files);
+    $data = kcw_gallery_GetOldGalleryData($files);
     //Not positive this is working
-    $data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
+    //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
     $data["uid"] = $gallery["uid"];
     $data["name"] = $gallery["category"] . ' / ' . $gallery["name"];
+    $data["baseurl"] = $baseurl;
+    $data["thumbsurl"] = $baseurl . 'thumbs/';
+    $data["basedir"] = $folder;
+    $data["thumbsdir"] = $folder . 'thumbs/';;
     return $data;
 }
 

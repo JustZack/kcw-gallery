@@ -35,9 +35,8 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
 function kcw_gallery_BuildGalleryListDisplay() {
     $html = "<ul class='kcw-gallery-list'>";
     $list = kcw_gallery_api_GetGalleryList();
-    for ($i = 0;$i < count($list);$i++) {
-
-        $html .= kcw_gallery_BuildGalleryListItem($list[$i], $i);
+    for ($i = 0;$i < count($list["items"]);$i++) {
+        $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
     }
     $html .= "</ul>";
     $html .= kcw_gallery_PutJSData(json_encode($list, true), "list");
@@ -63,14 +62,14 @@ function kcw_gallery_BuildGalleryDisplay($guid, $gpage) {
 
 function kcw_gallery_PutJSData($data, $key) {
     $html = "<script>";
-    $html .= "kcw_gallery_data.$key = $data;";
+    $html .= "kcw_gallery.$key = $data;";
     $html .= "</script>";
     return $html;
 }
 function kcw_gallery_SetJSData() {
     global $kcw_gallery_api_url;
     $html = "<script>";
-    $html .= "var kcw_gallery_data = {api_url: '$kcw_gallery_api_url'};";
+    $html .= "var kcw_gallery = {api_url: '$kcw_gallery_api_url'};";
     $html .= "</script>";
     return $html;
 }

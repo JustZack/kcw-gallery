@@ -1,6 +1,6 @@
 <?php
 
-$kcw_gallery_known_image_types = ["png", "jpg", "jpeg"];
+$kcw_gallery_known_image_types = ["png", "jpg", "jpeg", "gif"];
 //Verify that the given file is a supported image
 function kcw_gallery_FileIsImage($file) {
     global $kcw_gallery_known_image_types;
@@ -33,21 +33,11 @@ function kcw_gallery_GetFolderName($folder) {
 function kcw_gallery_GetExifData($file) {
     $data = array();
     $data["path"] = $file;
-
-    //Make errors raise to warnings
-    set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context) {
-        throw new ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
-    }, E_WARNING);
-
-    try {
-        $exif = exif_read_data($file);
-        $data["taken"] = $exif["DateTimeOriginal"];
-    } catch (Exception $e) {
-        $data["taken"] = filemtime($file);
-    }
-
-    restore_error_handler();
-
+    $data["taken"] = NULL;
+    $exif = @exif_read_data($file, 'IFD0');
+    
+    if ($exif != NULL) $data["taken"] = strtotime($exif["DateTimeOriginal"]);
+    else $data["taken"] = filemtime($file);
     return $data;
 }
 
@@ -119,6 +109,7 @@ function kcw_gallery_GetFoldersWithFiles($folderdata, $parent = NULL) {
     return $data;
 }
 
+//Sort files by date time
 function kcw_gallery_SortFilesByTakenTime($files) {
     //Selection sort
     for ($i = 0;$i < count($files) - 1;$i++) {

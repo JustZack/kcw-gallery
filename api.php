@@ -1,6 +1,7 @@
 <?php
 
 include_once "data-helpers.php";
+include_once "img-helpers.php";
 
 $kcw_gallery_api_namespace = "kcwgallery";
 $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/');
@@ -65,6 +66,8 @@ function kcw_gallery_api_GetGalleryMeta($data) {
     $meta = kcw_gallery_GetGalleryData($data["guid"]);
     //Trade the entire array of images for a small bit of meta data
     $meta["images"] = count($meta["images"]);
+    //Get rid of information that should not be included in the response
+    unset($meta["basedir"]); unset($meta["thumbsdir"]);
     return kcw_gallery_api_Success($meta);
 }
 //Return the given gallery, with an assumed first page
@@ -79,8 +82,25 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery = kcw_gallery_GetGalleryData($guid);
 
     if ($gallery == NULL) return kcw_gallery_api_Error("Unrecognized Gallery UID: " . $guid . ", with Page: " . $gpage);
-
+    //Get the right page
     $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 30, "images");
+    //Build the response
+    $gallery_page["uid"] = $guid;
+    $gallery_page["baseurl"] = $gallery["baseurl"];
+    $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
+    $gallery_page["read"] = array();
+    $gallery_page["added"] = array();
+    
+    //Be sure all the thumbnails for this page exist
+    foreach ($gallery_page["images"] as $img) {
+        $imgfile = $gallery["basedir"] . $img["name"];
+        $pinf = pathinfo($imgfile);
+        $thumbfile = $gallery["thumbsdir"] . $pinf["filename"] . ".jpg";
+        if (!file_exists($thumbfile)) {
+            $folder = kcw_gallery_generate_thumb($imgfile, 200, 300);
+        }
+    }
+
     return kcw_gallery_api_Success($gallery_page);
 }
 
