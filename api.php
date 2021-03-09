@@ -86,6 +86,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 30, "images");
     //Build the response
     $gallery_page["uid"] = $guid;
+    $gallery_page["name"] = $gallery["name"];
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
     $gallery_page["read"] = array();

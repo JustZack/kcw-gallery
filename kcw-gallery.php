@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.0.0");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.0.0");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.1.0");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.1.0");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -33,12 +33,14 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
     return $html;
 }
 function kcw_gallery_BuildGalleryListDisplay() {
-    $html = "<ul class='kcw-gallery-list'>";
+    $html = "<div class='kcw-gallery-list-container'>";
+    $html .= "<ul class='kcw-gallery-list'>";
     $list = kcw_gallery_api_GetGalleryList();
     for ($i = 0;$i < count($list["items"]);$i++) {
         $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
     }
     $html .= "</ul>";
+    $html .= "</div>";
     $html .= kcw_gallery_PutJSData(json_encode($list, true), "list");
     return $html;
 }
@@ -81,9 +83,12 @@ function kcw_gallery_GetListHTML() {
     return $html;
 }
 function kcw_gallery_GetGalleryHTML() {
-    $html = "<div class='kcw-gallery-display'>";
+    $html = "<div class='kcw-gallery-display' style='opacity: 0'>";
+    $html .= "<a class='kcw-gallery-list-home'>List Home</a>";
     $html .= "<div class='kcw-gallery-title'></div>";
-    $html .= "<ul class='kcw-gallery-thumbs'></ul>";
+    $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-top'></ul></div>";
+    $html .= "<center><ul class='kcw-gallery-thumbs'></ul></center>";
+    $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-bottom'></ul></div>";
     $html .= "</div>";
     return $html;
 }
