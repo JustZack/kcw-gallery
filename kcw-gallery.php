@@ -105,7 +105,7 @@ function kcw_gallery_SetJSData() {
 }
 
 function kcw_gallery_GetListHTML() {
-    $html = "<div class='kcw-gallery-list-container'>";
+    $html = "<div class='kcw-gallery-list-container' style='opacity: 0; display: none;'>";
     $list = json_encode(kcw_gallery_api_GetGalleryList());
     $html .= "<ul class='kcw-gallery-list'></ul>";
     $html .= "</div>";
