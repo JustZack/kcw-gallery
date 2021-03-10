@@ -89,8 +89,6 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery_page["name"] = $gallery["name"];
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
-    $gallery_page["read"] = array();
-    $gallery_page["added"] = array();
     
     //Be sure all the thumbnails for this page exist
     foreach ($gallery_page["images"] as $img) {
