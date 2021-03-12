@@ -30,7 +30,7 @@ jQuery(document).ready(function() {
                kcw_gallery.gallery.thumbsurl = data.thumbsurl;
 
                kcw_gallery.gallery.pages = [];
-               console.log("init gallery cache");
+               console.log("init gallery cache for " + kcw_gallery.gallery.uid);
         }
         kcw_gallery.gallery.current = data.page;
         kcw_gallery.gallery.pages[data.page-1] = data.images;
@@ -100,7 +100,6 @@ jQuery(document).ready(function() {
     }
 
     function ShowGalleryPage(guid, gpage) {
-        console.log(guid+"/"+gpage);
         //If no gallery is cached,
         //the requested gallery differs from the cache, or the current gallery page does not exist
         if (kcw_gallery.gallery == undefined 
@@ -117,7 +116,7 @@ jQuery(document).ready(function() {
     function ShowGalleryListPage(lpage) {
         if (kcw_gallery.list == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
-            ApiCall("list", "", ShowGalleryListPage_callback);
+            ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
          } else {
             kcw_gallery.list.current = lpage;
             DisplayGalleryList(lpage-1);
@@ -166,6 +165,9 @@ jQuery(document).ready(function() {
         jQuery("div.kcw-gallery-list-container").animate({opacity: 1}, function (){
             jQuery("div.kcw-gallery-list-container").css({display: "block"});
         });
+
+        SetQueryParameters(true);
+
         jQuery("div.kcw-gallery-display").animate({opacity: 0});
     }
 
@@ -199,15 +201,18 @@ jQuery(document).ready(function() {
         if (gallery_guid != null) DisplayPagingLinks(kcw_gallery.gallery);
     }
     //Set variables into the query string
-    function SetQueryParameters() {
-        if (kcw_gallery.gallery != undefined) {
+    function SetQueryParameters(exclude_gallery) {
+        if (kcw_gallery.gallery == undefined || exclude_gallery != undefined) {
+            var list_page = kcw_gallery.list.current;
+            updateQueryStringParam("lpage", list_page);
+            removeQueryStringParam("guid");
+            removeQueryStringParam("gpage");
+        } else {
             var gallery_guid = kcw_gallery.gallery.uid;
             var gallery_page = kcw_gallery.gallery.current;
             updateQueryStringParam("guid", gallery_guid);
             updateQueryStringParam("gpage", gallery_page);
-        } else {
-            removeQueryStringParam("guid");
-            removeQueryStringParam("gpage");
+            removeQueryStringParam("lpage");
         }
     }
     //Stolen from: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript

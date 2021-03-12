@@ -22,10 +22,12 @@ function kcw_gallery_api_Success($data) {
 //Return a page of the given data
 function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
     $data = array();
+
     $total = count($fulldata);
     $data["total"] = $total;
     $data["page"] = $page;
     $data["per_page"] = $per_page;
+    $data[$data_key] = array();
 
     $start = ($page - 1) * $per_page; $end = 0;
     if ($start >= $total) {
@@ -36,15 +38,12 @@ function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
         if ($end > $total)
             $end = $total;
         $end--;
+
+        for ($i = $start;$i <= $end;$i++) $data[$data_key][] = $fulldata[$i];
     }
 
     $data["start"] = $start;
     $data["end"] = $end;
-
-    $data[$data_key] = array();
-    for ($i = $start;$i <= $end;$i++) {
-        $data[$data_key][] = $fulldata[$i];
-    }
 
     return $data;
 }
