@@ -87,7 +87,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
 
     if ($gallery == NULL) return kcw_gallery_api_Error("Unrecognized Gallery UID: " . $guid . ", with Page: " . $gpage);
     //Get the right page
-    $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 32, "images");
+    $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 42, "images");
     //Build the response
     $gallery_page["uid"] = $guid;
     $gallery_page["name"] = $gallery["name"];

@@ -83,7 +83,7 @@ ul.kcw-gallery-thumbs {
     border: 1px solid #ccc;
     background-color: transparent;
     border-radius: 5px;
-    padding: 12.5px 12.5px;
+    padding: 10px;
 }
 
 ul.kcw-gallery-thumbs li {
@@ -117,7 +117,7 @@ img.kcw-gallery-loading {
     }
     ul.kcw-gallery-pagination li a {
         padding: 5px 12.5px;
-        font-size: 30px;
+        font-size: 25px;
     }
 }
 @media only screen and (max-aspect-ratio: 1/1) {
@@ -161,7 +161,7 @@ img.kcw-gallery-loading {
     }
     ul.kcw-gallery-pagination li a {
         padding: 0px 5px;
-        font-size: 30px;
+        font-size: 25px;
     }
 }
 
@@ -176,7 +176,7 @@ img.kcw-gallery-loading {
     }
     ul.kcw-gallery-pagination li a {
         padding: 0px 5px;
-        font-size: 25px;
+        font-size: 20px;
     }
 }
 

@@ -89,24 +89,29 @@ jQuery(document).ready(function() {
         }
         last = 0;
         show_pages.forEach(function(i) {
+            function build_element(j, elippsis) {
+                var li_elem = "<li data-page='" + (j+1) + "'>";
+                li_elem += "<a";
+                if (j == current) li_elem += " class='current_page'";
+                li_elem += ">";
+                if (elippsis) li_elem += "...";
+                else li_elem += ""+(j+1);
+                li_elem += "</a></li>";
+                return li_elem;
+            }
+
             var elem = "";
             if (last + 1 < i) {
-                elem += "<li><pre>..</pre></li>";
+                var mid = last + Math.floor(.5 * (i - last));
+                if (mid + 1 == i) elem += build_element(mid, false);
+                else elem += build_element(mid, true);
             }
-            elem += "<li data-page='" + (i+1) + "'>";
-            elem += "<a";
-            
-            if (i == current) elem += " class='current_page'";
-            elem += ">" + (i+1) + "</a></li>";
+            elem += build_element(i, false);
 
             jQuery("ul.pagination-top").append(elem);
             jQuery("ul.pagination-bottom").append(elem);
             last = i;
         });
-        for (var i = 0;i < num_pages;i++) {
-
-        }
-
     }
 
     function DisplayGalleryData(gpage) {
