@@ -11,7 +11,8 @@ jQuery(document).ready(function() {
         ShowGalleryListPage(1)
     });
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function() {
-        ShowGalleryPage(kcw_gallery.gallery.uid, jQuery(this).data('page'));
+        var page = jQuery(this).data('page');
+        if (page != undefined) ShowGalleryPage(kcw_gallery.gallery.uid, page);
     });
 
     /*
@@ -54,15 +55,56 @@ jQuery(document).ready(function() {
         jQuery("ul.pagination-top").empty();
         jQuery("ul.pagination-bottom").empty();
 
-        for (var i = 0;i < num_pages;i++) {
-            elem = "<li data-page='" + (i+1) + "'>";
+        var max_visible_pages = 8;
+        var show_pages = [];
+        //If there are more pages in this gallery than should be shown
+        if (num_pages > max_visible_pages) {
+            //Show the first 2 pages
+            show_pages.push(0, 1);
+            var show_last = true;
+            //Show 10 pages around the current page
+            var current = gal.current - 1;
+            var start = current - 2; var end = current + 2;
+            //if the first or second page is selected, offset the show pages
+            if (start < 2) {
+                start += 2 - start;
+                end += 3;
+            }
+            if (end > num_pages - 1) {
+                start -= 3;
+                end = num_pages - 1;
+                show_last = false;
+            }
+            
+            for (var i = start;i <= end;i++) {
+                show_pages.push(i);
+            }
+
+            //Show the last two pages
+            if (show_last) show_pages.push(num_pages - 2, num_pages - 1);
+        } else {
+            for (var i = 0;i < num_pages;i++) {
+                show_pages.push(i);
+            }
+        }
+        last = 0;
+        show_pages.forEach(function(i) {
+            var elem = "";
+            if (last + 1 < i) {
+                elem += "<li><pre>..</pre></li>";
+            }
+            elem += "<li data-page='" + (i+1) + "'>";
             elem += "<a";
             
-            if (i == gal.current-1) elem += " class='current_page'"
+            if (i == current) elem += " class='current_page'";
             elem += ">" + (i+1) + "</a></li>";
 
             jQuery("ul.pagination-top").append(elem);
             jQuery("ul.pagination-bottom").append(elem);
+            last = i;
+        });
+        for (var i = 0;i < num_pages;i++) {
+
         }
 
     }
@@ -131,9 +173,11 @@ jQuery(document).ready(function() {
         kcw_gallery.list.current = data.page;
         kcw_gallery.list.pages[data.page-1] = data.items;
     }
-    function BuildListItem(name, guid) {
+    function BuildListItem(name, guid, numfiles) {
         var html = "<li data-id='" + guid + "'>" +
-                    "<a class='kcw-gallery-list-title'>" + name + "</a></li>";
+                    "<a class='kcw-gallery-list-title'>" + name + "</a> " +
+                    "<span><span>" + numfiles + "</span><span class='dashicons dashicons-images-alt2'></span></span>" +
+                    "</li>";
         return html;
     }
     function DisplayGalleryList(lpage) {
@@ -143,7 +187,7 @@ jQuery(document).ready(function() {
         jQuery("ul.kcw-gallery-list").empty();
         for (var i = 0;i < list.pages[lpage].length;i++) {
             var item = list.pages[lpage][i];
-            var elem = BuildListItem(item.friendly_name, item.uid);
+            var elem = BuildListItem(item.friendly_name, item.uid, item.files);
             jQuery("ul.kcw-gallery-list").append(elem);
         }
 

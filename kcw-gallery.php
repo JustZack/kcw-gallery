@@ -29,6 +29,7 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
 
     $html = "<li data-id='$uid'>
                 <a class='kcw-gallery-list-title'>$name</a>
+                <span><span>$files</span><span class='dashicons dashicons-images-alt2'></span></span>
             </li>\n";
     return $html;
 }

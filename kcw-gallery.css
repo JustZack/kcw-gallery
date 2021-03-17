@@ -17,8 +17,28 @@ ul.kcw-gallery-list {
 
 ul.kcw-gallery-list li {
     border-bottom: 1px solid #ccc;
+    padding: 2px 5px;
+    cursor: pointer;
 }
 
+ul.kcw-gallery-list li:hover {
+    background-color:rgba(229, 229, 229, .8);
+}
+
+ul.kcw-gallery-list li a {
+    font-size: 20px;
+    margin-left: 10px;
+}
+ul.kcw-gallery-list li > span {
+    font-size: 20px;
+    text-align: right;
+    float: right;
+    margin-right: 10px;
+}
+ul.kcw-gallery-list li > span span:nth-child(2) {
+    font-size: 25px;
+    margin-left: 10px;
+}
 ul.kcw-gallery-list li:last-child {
     border-bottom: none;
 }
@@ -92,12 +112,27 @@ img.kcw-gallery-loading {
         height: 150px;
         border-radius: 5px;
     }
+    ul.kcw-gallery-pagination li {
+        margin-left: 15px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 5px 12.5px;
+        font-size: 30px;
+    }
 }
 @media only screen and (max-aspect-ratio: 1/1) {
     ul.kcw-gallery-thumbs li img {
         width: 125px;
         height: 125px;
         border-radius: 5px;
+    }
+    
+    ul.kcw-gallery-pagination li {
+        margin-left: 10px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 3px 10px;
+        font-size: 20px;
     }
 }
 @media only screen and (max-aspect-ratio: 3/4) {
@@ -106,9 +141,28 @@ img.kcw-gallery-loading {
         height: 100px;
         border-radius: 5px;
     }
+    ul.kcw-gallery-pagination {
+        text-align: center;
+        padding: 0px;
+        margin: 0px;
+    }
+    ul.kcw-gallery-pagination li {
+        margin-left: 5px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 0px 5px;
+        font-size: 20px;
+    }
 }
 
 @media only screen and (max-width: 1300px) {
+    ul.kcw-gallery-pagination li {
+        margin-left: 10px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 0px 5px;
+        font-size: 30px;
+    }
 }
 
 @media only screen and (max-width: 900px) {
@@ -117,10 +171,29 @@ img.kcw-gallery-loading {
         height: 100px;
         border-radius: 5px;
     }
+    ul.kcw-gallery-pagination li {
+        margin-left: 10px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 0px 5px;
+        font-size: 25px;
+    }
 }
 
 /* For mobile */
 @media only screen and (max-width: 500px) {
-
+    ul.kcw-gallery-pagination li {
+        margin-left: 5px;
+    }
+    ul.kcw-gallery-pagination li a {
+        padding: 0px 5px;
+        font-size: 20px;
+    }
+    ul.kcw-gallery-list li > span {
+        font-size: 17.5px;
+    }
+    ul.kcw-gallery-list li a {
+        font-size: 17.5px;
+    }
 }
 

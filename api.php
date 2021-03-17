@@ -103,9 +103,8 @@ function kcw_gallery_api_GetGalleryPage($data) {
         //If the file exists,
         if (file_exists($thumbfile)) {
             $size = getimagesize($thumbfile);
-            if ($size != false && ($size[0] > $kcw_gallery_thumbnail_width 
-             || $size[1] > $kcw_gallery_thumbnail_height)) {
-                 $create_thumb = true;
+            if ($size != false && ($size[0] != $kcw_gallery_thumbnail_width && $size[1] != $kcw_gallery_thumbnail_height)) {
+                $create_thumb = true;
             }
         } else {
             $create_thumb = true;
@@ -131,17 +130,18 @@ function kcw_gallery_api_RegisterRestRoutes() {
         'callback' => 'kcw_gallery_api_GetGalleryListPage',
     ));
     //Route for /gallery-id
-    register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)', array(
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.\(\)]+)', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGallery',
     ));
     //Route for /gallery-id/meta
-    register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)/meta', array(
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.\(\)]+)/meta', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGalleryMeta',
     ));
     //Route for /gallery-id/page
-    register_rest_route("$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.]+)/(?P<gpage>\d+)', array(        'methods' => 'GET',
+    register_rest_route("$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.\(\)]+)/(?P<gpage>\d+)', array(
+        'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGalleryPage',
     ));
 }

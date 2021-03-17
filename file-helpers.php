@@ -53,7 +53,7 @@ function kcw_gallery_GetFolderData($folder, $show_files = false) {
     if ($show_files) $data["files"] = array();
     foreach ($files as $file) {
         if (is_dir($file)) $data[] = kcw_gallery_GetFolderData_recursive($file);
-        else if ($show_files) $data["files"][] = $file;
+        else if ($show_files && kcw_gallery_FileIsImage($file)) $data["files"][] = $file;
     }
     return $data;
 }
@@ -75,7 +75,7 @@ function kcw_gallery_GetFolderData_recursive($folder) {
         if (is_dir($file))
             $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file);
         //Otherwise append the full path of the file to the files array
-        else $data['files']++;
+        else if (kcw_gallery_FileIsImage($file)) $data['files']++;
     }
     return $data;
 }
