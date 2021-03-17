@@ -9,6 +9,8 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
         $tmpd = kcw_gallery_GetFoldersWithFiles($folderdata[$i]);
         if ($tmpd != NULL) {
             foreach ($tmpd as $d) {
+                $cat = $d["category"]; $name = $d["name"];
+                $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
                 $data[] = $d;
             }
         }
@@ -36,6 +38,12 @@ function kcw_gallery_GetOldGalleryData($files) {
 
     return $data;
 }
+//Filter a name so it reads well
+function kcw_gallery_FilterName($gallery_name) {
+    $name = str_replace("-", " ", $gallery_name);
+    $name = ucwords($name);
+    return $name;
+}
 //Return data for the given gallery folder
 function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     $relativepath = '/' . $gallery["category"] . '/' . $gallery["name"] . '/';
@@ -47,7 +55,7 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     //Not positive this is working
     //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
     $data["uid"] = $gallery["uid"];
-    $data["name"] = $gallery["category"] . ' / ' . $gallery["name"];
+    $data["name"] = kcw_gallery_FilterName($gallery["category"] . ' / ' . $gallery["name"]);
     $data["baseurl"] = $baseurl;
     $data["thumbsurl"] = $baseurl . 'thumbs/';
     $data["basedir"] = $folder;

@@ -6,6 +6,9 @@ include_once "img-helpers.php";
 $kcw_gallery_api_namespace = "kcwgallery";
 $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/');
 
+$kcw_gallery_thumbnail_width = 130;
+$kcw_gallery_thumbnail_height = 130;
+
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
     $data = array();
@@ -79,10 +82,12 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $guid = $data['guid'];
     $gpage = (int)$data['gpage'];
     $gallery = kcw_gallery_GetGalleryData($guid);
+    global $kcw_gallery_thumbnail_width;
+    global $kcw_gallery_thumbnail_height;
 
     if ($gallery == NULL) return kcw_gallery_api_Error("Unrecognized Gallery UID: " . $guid . ", with Page: " . $gpage);
     //Get the right page
-    $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 30, "images");
+    $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 32, "images");
     //Build the response
     $gallery_page["uid"] = $guid;
     $gallery_page["name"] = $gallery["name"];
@@ -94,9 +99,19 @@ function kcw_gallery_api_GetGalleryPage($data) {
         $imgfile = $gallery["basedir"] . $img["name"];
         $pinf = pathinfo($imgfile);
         $thumbfile = $gallery["thumbsdir"] . $pinf["filename"] . ".jpg";
-        if (!file_exists($thumbfile)) {
-            $folder = kcw_gallery_generate_thumb($imgfile, 200, 300);
+        $create_thumb = false;
+        //If the file exists,
+        if (file_exists($thumbfile)) {
+            $size = getimagesize($thumbfile);
+            if ($size != false && ($size[0] > $kcw_gallery_thumbnail_width 
+             || $size[1] > $kcw_gallery_thumbnail_height)) {
+                 $create_thumb = true;
+            }
+        } else {
+            $create_thumb = true;
         }
+
+        if ($create_thumb) $folder = kcw_gallery_generate_thumb($imgfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
     }
 
     return kcw_gallery_api_Success($gallery_page);

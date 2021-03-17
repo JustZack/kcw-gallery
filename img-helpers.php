@@ -13,7 +13,7 @@ function kcw_gallery_generate_thumb($path, $width, $height) {
     //var_dump(scaleImage($path, $tpath, $width));
     
     if (!scaleImage($path, $tpath, $width, $height)) {
-        die("Couldnt make thumbnail: " . $path . " " . file_exists(dirname($tpath)));
+        die("Couldnt make thumbnail: " . $path . " [" . file_exists(dirname($tpath)) . "]");
     }
     return $tpath;
 }
@@ -26,9 +26,9 @@ define('IMAGES_SCALE_AXIS_Y', 2);
 /** Use both X and Y axes to calc image scale. */
 define('IMAGES_SCALE_AXIS_BOTH', IMAGES_SCALE_AXIS_X ^ IMAGES_SCALE_AXIS_Y);
 /** Compression rate for JPEG image format. */
-define('JPEG_COMPRESSION_QUALITY', 20);
+define('JPEG_COMPRESSION_QUALITY', 75);
 /** Compression rate for PNG image format. */
-define('PNG_COMPRESSION_QUALITY', 2);
+define('PNG_COMPRESSION_QUALITY', 7);
 
 /**
  * Scales an image with save aspect ration for X, Y or both axes.
@@ -65,7 +65,7 @@ function scaleImage($sourceFile, $destinationFile, $toWidth = null, $toHeight = 
         } else if($mytype == 'image/gif') {
             $src_img = imagecreatefromgif($sourceFile);
         } else {
-            return $mime;
+            return false;
         }
 
         $original_width = imagesx($src_img);

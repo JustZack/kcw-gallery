@@ -72,11 +72,6 @@ jQuery(document).ready(function() {
         var gal =  kcw_gallery.gallery;
         var page = gal.pages[gpage];
 
-
-        jQuery("div.kcw-gallery-list-container").animate({opacity: 0}, function (){
-            jQuery("div.kcw-gallery-list-container").css({display: "none"});
-        });
-
         DisplayPagingLinks(gal);
 
         jQuery("div.kcw-gallery-title").text(gal.name);
@@ -90,7 +85,12 @@ jQuery(document).ready(function() {
 
         SetQueryParameters();
 
-        jQuery("div.kcw-gallery-display").animate({opacity: 1});
+        HideLoadingGif();
+
+        jQuery("div.kcw-gallery-list-container").css({display: "none"});
+        jQuery("div.kcw-gallery-list-container").animate({opacity: 0}, function (){
+            jQuery("div.kcw-gallery-display").animate({opacity: 1});
+        });
     }
 
     function ShowGalleryPage_callback(data) {
@@ -100,10 +100,12 @@ jQuery(document).ready(function() {
     }
 
     function ShowGalleryPage(guid, gpage) {
-        //If no gallery is cached,
-        //the requested gallery differs from the cache, or the current gallery page does not exist
+        jQuery("div.kcw-gallery-display").css({display: "block"});
+
+        //If no gallery is cached, the requested gallery differs from the cache, or the current gallery page does not exist
         if (kcw_gallery.gallery == undefined 
          || kcw_gallery.gallery.uid != guid || kcw_gallery.gallery.pages[gpage-1] == undefined) {
+            ShowLoadingGif("ul.kcw-gallery-thumbs");
             //Build / fetch the data
             ApiCall("", guid+"/"+gpage, ShowGalleryPage_callback);
         } else {
@@ -113,15 +115,7 @@ jQuery(document).ready(function() {
         }
     }
 
-    function ShowGalleryListPage(lpage) {
-        if (kcw_gallery.list == undefined
-         || kcw_gallery.list.pages[lpage-1] == undefined) {
-            ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
-         } else {
-            kcw_gallery.list.current = lpage;
-            DisplayGalleryList(lpage-1);
-         }
-    }
+
     /*
         Functions dealing with displaying the gallery list
     */
@@ -137,20 +131,11 @@ jQuery(document).ready(function() {
         kcw_gallery.list.current = data.page;
         kcw_gallery.list.pages[data.page-1] = data.items;
     }
-
-    function ShowGalleryListPage_callback(data) {
-        console.log("Updating list cache");
-        StoreListData(data);
-        DisplayGalleryList(kcw_gallery.list.current-1);
-
-    }
-
     function BuildListItem(name, guid) {
         var html = "<li data-id='" + guid + "'>" +
                     "<a class='kcw-gallery-list-title'>" + name + "</a></li>";
         return html;
     }
-
     function DisplayGalleryList(lpage) {
         var list = kcw_gallery.list;
 
@@ -158,18 +143,38 @@ jQuery(document).ready(function() {
         jQuery("ul.kcw-gallery-list").empty();
         for (var i = 0;i < list.pages[lpage].length;i++) {
             var item = list.pages[lpage][i];
-            var elem = BuildListItem(item.name, item.uid);
+            var elem = BuildListItem(item.friendly_name, item.uid);
             jQuery("ul.kcw-gallery-list").append(elem);
         }
 
-        jQuery("div.kcw-gallery-list-container").animate({opacity: 1}, function (){
-            jQuery("div.kcw-gallery-list-container").css({display: "block"});
-        });
-
         SetQueryParameters(true);
 
-        jQuery("div.kcw-gallery-display").animate({opacity: 0});
+        HideLoadingGif();
+
+        jQuery("div.kcw-gallery-display").css({display: "none"});
+        jQuery("div.kcw-gallery-display").animate({opacity: 0}, function() {
+            jQuery("div.kcw-gallery-list-container").animate({opacity: 1});
+        });
     }
+    function ShowGalleryListPage_callback(data) {
+        console.log("Updating list cache");
+        StoreListData(data);
+        DisplayGalleryList(kcw_gallery.list.current-1);
+
+    }
+    function ShowGalleryListPage(lpage) {
+        jQuery("div.kcw-gallery-list-container").css({display: "block"});
+
+        if (kcw_gallery.list == undefined
+         || kcw_gallery.list.pages[lpage-1] == undefined) {
+            ShowLoadingGif("ul.kcw-gallery-list");
+            ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
+         } else {
+            kcw_gallery.list.current = lpage;
+            DisplayGalleryList(lpage-1);
+         }
+    }
+    
 
     //Perform an API call to the gallery
     var api_url = kcw_gallery.api_url;
@@ -179,6 +184,22 @@ jQuery(document).ready(function() {
         jQuery.get(url, then).done(function() {
         }).fail(function() {
         }).always(function() {
+        });
+    }
+
+    //Display the loading gif on the given element
+    function ShowLoadingGif(elem) {
+        var pos = jQuery(elem).offset();
+        var ew = jQuery(elem).width();
+        var lw = jQuery("img.kcw-gallery-loading").width();
+        pos.left = pos.left + ((ew/2) - (lw/2));
+        jQuery("img.kcw-gallery-loading").css({top: pos.top, left: pos.left});
+        jQuery("img.kcw-gallery-loading").animate({opacity: 1});
+    }
+    //Hide the loading gif
+    function HideLoadingGif(){
+        jQuery("img.kcw-gallery-loading").animate({opacity: 0}, function() {
+            jQuery(this).css({top: "-999px", left: "-999px"});
         });
     }
 
