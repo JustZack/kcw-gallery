@@ -5,13 +5,41 @@ include_once "file-helpers.php";
 //Construct the gallery data list array given the folder data
 function kcw_gallery_GetOldGalleryListData($folderdata) {    
     $data = array();
+    //var_dump($folderdata);
     for($i = 0;$i < count($folderdata);$i++) {
-        $tmpd = kcw_gallery_GetFoldersWithFiles($folderdata[$i]);
-        if ($tmpd != NULL) {
-            foreach ($tmpd as $d) {
-                $cat = $d["category"]; $name = $d["name"];
-                $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
-                $data[] = $d;
+        $tmpd;
+        if ($folderdata[$i]["files"] > 0) {
+            $d = $folderdata[$i];
+        
+            $name = $d["name"];
+            $d["category"] = "top";
+            $d["friendly_name"] = kcw_gallery_FilterName($name); 
+        
+            $hpos = strpos($d["name"], "_h");
+            $hposatend = $hpos == strlen($d["name"]) - 2;
+            if ($hpos > -1 && $hposatend) $d["visibility"] = "hidden";
+            else $d["visibility"] = "visible";
+
+            $data[] = $d;
+        }
+        else {
+            $tmpd = kcw_gallery_GetFoldersWithFiles($folderdata[$i]);
+            //var_dump($tmpd);
+            if ($tmpd != NULL) {
+                foreach ($tmpd as $d) {
+                    if ($d != NULL) {
+                        //if (!isset($d["category"])) var_dump($d);
+                        $cat = $d["category"]; $name = $d["name"];
+                        $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
+                        
+                        $hpos = strpos($d["name"], "_h");
+                        $hposatend = $hpos == strlen($d["name"]) - 2;
+                        if ($hpos > -1 && $hposatend) $d["visibility"] = "hidden";
+                        else $d["visibility"] = "visible";
+                        
+                        $data[] = $d;
+                    }
+                }
             }
         }
     }
@@ -25,11 +53,14 @@ function kcw_gallery_BuildOldGalleryListData($root) {
 }
 
 //Construct the gallery data for the given gallery files
-function kcw_gallery_GetOldGalleryData($files) {
+function kcw_gallery_DetermineOldGalleryData($folderData) {
     $data = array();
     $data["images"] = array();
-    foreach ($files as $file) {
+
+    //For every file 
+    foreach ($folderData["files"] as $file) {
         $f = array();
+
         $f["name"] = kcw_gallery_GetFileName($file);
         $exif = kcw_gallery_GetExifData($file);
         $f["taken"] = $exif["taken"];
@@ -46,20 +77,27 @@ function kcw_gallery_FilterName($gallery_name) {
 }
 //Return data for the given gallery folder
 function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
-    $relativepath = '/' . $gallery["category"] . '/' . $gallery["name"] . '/';
+    $relativepath = "";
+    if ($gallery["category"] != "top") $relativepath = '/' . $gallery["category"];
+    $relativepath .= '/' . $gallery["name"] . '/';
+
     $baseurl .= $relativepath;
     $folder = $rootdir . $relativepath;
 
-    $files = kcw_gallery_GetFolderData($folder, true)["files"];
-    $data = kcw_gallery_GetOldGalleryData($files);
+    $folderData = kcw_gallery_GetFolderData($folder, true);
+    $data = kcw_gallery_DetermineOldGalleryData($folderData);
+
     //Not positive this is working
     //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
     $data["uid"] = $gallery["uid"];
-    $data["name"] = kcw_gallery_FilterName($gallery["category"] . ' / ' . $gallery["name"]);
+    $data["friendly_name"] = $gallery["friendly_name"];
+    $data["visibility"] = $gallery["visibility"];
+    $data["name"] = kcw_gallery_FilterName($gallery["name"]);
+    $data["category"] = kcw_gallery_FilterName($gallery["category"]);
     $data["baseurl"] = $baseurl;
     $data["thumbsurl"] = $baseurl . 'thumbs/';
     $data["basedir"] = $folder;
-    $data["thumbsdir"] = $folder . 'thumbs/';;
+    $data["thumbsdir"] = $folder . 'thumbs/';
     return $data;
 }
 

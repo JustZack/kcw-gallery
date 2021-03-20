@@ -5,52 +5,39 @@ jQuery(document).ready(function() {
     jQuery("ul.kcw-gallery-list").on('click', 'li', function() {
         var guid = jQuery(this).data('id');
         ShowGalleryPage(guid, 1)
-        //DoGalleryDisplay(guid, 1);
     });
     jQuery("a.kcw-gallery-list-home").on('click', function() {
-        ShowGalleryListPage(1)
+        var page = 1;
+        if (kcw_gallery.list != undefined) page = kcw_gallery.list.current;
+        
+        ShowGalleryListPage(page);
     });
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function() {
         var page = jQuery(this).data('page');
-        if (page != undefined) ShowGalleryPage(kcw_gallery.gallery.uid, page);
+        if (page != undefined) {
+            if (ListActive) ShowGalleryListPage(page);
+            else ShowGalleryPage(kcw_gallery.gallery.uid, page);
+        }
     });
 
     /*
-        Functions dealing with displaying a gallery
+    Functions dealing with displaying paging links
     */
-    function StoreGalleryData(data) {
-        //Generate the cache
-        if (kcw_gallery.gallery == undefined
-            || kcw_gallery.gallery.uid !== data.uid) { 
-               kcw_gallery.gallery = {};
-               kcw_gallery.gallery.total = data.total;
-               kcw_gallery.gallery.per_page = data.per_page;
-               kcw_gallery.gallery.uid = data.uid;
-               kcw_gallery.gallery.name = data.name;
-               kcw_gallery.gallery.baseurl = data.baseurl;
-               kcw_gallery.gallery.thumbsurl = data.thumbsurl;
-
-               kcw_gallery.gallery.pages = [];
-               console.log("init gallery cache for " + kcw_gallery.gallery.uid);
-        }
-        kcw_gallery.gallery.current = data.page;
-        kcw_gallery.gallery.pages[data.page-1] = data.images;
+    function BuildPagingLink(j, current, elippsis) {
+        var li_elem = "<li data-page='" + (j+1) + "'>";
+        li_elem += "<a";
+        if (current) li_elem += " class='current_page'";
+        li_elem += ">";
+        if (elippsis) li_elem += "...";
+        else li_elem += ""+(j+1);
+        li_elem += "</a></li>";
+        return li_elem;
     }
 
-    function BuildThumbnail(thumbsurl, imgurl, imgname) {
-        var img = imgurl + imgname;
-
-        var filename =  imgname.substring(0, imgname.lastIndexOf("."));
-        var thumb = thumbsurl + filename + ".jpg";
-        var html = "<li><a data-src='" + img + "'>" +
-                    "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
-                    "</a></li>";
-        return html;
-    }
-
-    function DisplayPagingLinks(gal) {
-        var num_pages = Math.floor(gal.total / gal.per_page) + 1;
-        //var num_pages = Math.floor(gal.total / 3);
+    var ListActive = true;
+    function DisplayPagingLinks(toPage) {
+        var num_pages = Math.floor(toPage.total / toPage.per_page) + 1;
+        var current = toPage.current - 1;
 
         jQuery("ul.pagination-top").empty();
         jQuery("ul.pagination-bottom").empty();
@@ -63,7 +50,6 @@ jQuery(document).ready(function() {
             show_pages.push(0, 1);
             var show_last = true;
             //Show 10 pages around the current page
-            var current = gal.current - 1;
             var start = current - 2; var end = current + 2;
             //if the first or second page is selected, offset the show pages
             if (start < 2) {
@@ -87,26 +73,23 @@ jQuery(document).ready(function() {
                 show_pages.push(i);
             }
         }
+
         last = 0;
         show_pages.forEach(function(i) {
-            function build_element(j, elippsis) {
-                var li_elem = "<li data-page='" + (j+1) + "'>";
-                li_elem += "<a";
-                if (j == current) li_elem += " class='current_page'";
-                li_elem += ">";
-                if (elippsis) li_elem += "...";
-                else li_elem += ""+(j+1);
-                li_elem += "</a></li>";
-                return li_elem;
-            }
-
             var elem = "";
+            var isCurrent = i == current;
+            var doEllipsis = false;
             if (last + 1 < i) {
                 var mid = last + Math.floor(.5 * (i - last));
-                if (mid + 1 == i) elem += build_element(mid, false);
-                else elem += build_element(mid, true);
+                
+                if (mid + 1 == i) doEllipsis = false;
+                else doEllipsis = true;
+
+                elem += BuildPagingLink(mid, isCurrent, doEllipsis);
             }
-            elem += build_element(i, false);
+
+            doEllipsis = false;
+            elem += BuildPagingLink(i, isCurrent, doEllipsis);
 
             jQuery("ul.pagination-top").append(elem);
             jQuery("ul.pagination-bottom").append(elem);
@@ -114,14 +97,49 @@ jQuery(document).ready(function() {
         });
     }
 
+    /*
+        Functions dealing with displaying a gallery
+    */
+    function StoreGalleryData(data) {
+        //Generate the cache
+        if (kcw_gallery.gallery == undefined
+            || kcw_gallery.gallery.uid !== data.uid) { 
+                kcw_gallery.gallery = {};
+                kcw_gallery.gallery.total = data.total;
+                kcw_gallery.gallery.per_page = data.per_page;
+                kcw_gallery.gallery.uid = data.uid;
+                kcw_gallery.gallery.name = data.name;
+                kcw_gallery.gallery.friendly_name = data.friendly_name;
+                kcw_gallery.gallery.baseurl = data.baseurl;
+                kcw_gallery.gallery.thumbsurl = data.thumbsurl;
+
+                kcw_gallery.gallery.pages = [];
+                console.log("init gallery cache for " + kcw_gallery.gallery.uid);
+        }
+        kcw_gallery.gallery.current = data.page;
+        kcw_gallery.gallery.pages[data.page-1] = data.images;
+    }
+
+    function BuildThumbnail(thumbsurl, imgurl, imgname) {
+        var img = imgurl + imgname;
+
+        var filename =  imgname.substring(0, imgname.lastIndexOf("."));
+        var thumb = thumbsurl + filename + ".jpg";
+        var html = "<li><a data-src='" + img + "'>" +
+                    "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
+                    "</a></li>";
+        return html;
+    }
+
     function DisplayGalleryData(gpage) {
         
         var gal =  kcw_gallery.gallery;
         var page = gal.pages[gpage];
 
+        ListActive = false;
         DisplayPagingLinks(gal);
 
-        jQuery("div.kcw-gallery-title").text(gal.name);
+        jQuery("div.kcw-gallery-title").text(gal.friendly_name);
 
         //Do the display stuff
         jQuery("ul.kcw-gallery-thumbs").empty();
@@ -168,7 +186,7 @@ jQuery(document).ready(function() {
     */
     function StoreListData(data) {
         //Generate the cache
-        if (kcw_gallery.list == undefined) {
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined) {
                kcw_gallery.list = {};
                kcw_gallery.list.total = data.total;
                kcw_gallery.list.per_page = data.per_page;
@@ -188,12 +206,17 @@ jQuery(document).ready(function() {
     function DisplayGalleryList(lpage) {
         var list = kcw_gallery.list;
 
+        ListActive = true;
+        DisplayPagingLinks(list);
+
         //Do the list display stuff
         jQuery("ul.kcw-gallery-list").empty();
         for (var i = 0;i < list.pages[lpage].length;i++) {
             var item = list.pages[lpage][i];
-            var elem = BuildListItem(item.friendly_name, item.uid, item.files);
-            jQuery("ul.kcw-gallery-list").append(elem);
+            if (item.visibility == "visible") {
+                var elem = BuildListItem(item.friendly_name, item.uid, item.files);
+                jQuery("ul.kcw-gallery-list").append(elem);
+            }
         }
 
         SetQueryParameters(true);
@@ -214,7 +237,7 @@ jQuery(document).ready(function() {
     function ShowGalleryListPage(lpage) {
         jQuery("div.kcw-gallery-list-container").css({display: "block"});
 
-        if (kcw_gallery.list == undefined
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
             ShowLoadingGif("ul.kcw-gallery-list");
             ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
@@ -265,10 +288,24 @@ jQuery(document).ready(function() {
         var gallery_guid = getQueryStringParam("guid");
         var gallery_page = getQueryStringParam("gpage");
         var search = getQueryStringParam("gsearch");
+        var list_page = getQueryStringParam("lpage");
         
+        //Set current gallery list page if needed
+        if (list_page != null) {
+            if (kcw_gallery.list == null) kcw_gallery.list = {};
+            kcw_gallery.list.current = parseInt(list_page);
+        }
+        //Display the correct paging links
+        if (gallery_guid != null) {
+            ListActive = false;
+            DisplayPagingLinks(kcw_gallery.gallery);
+        } else {
+            ListActive = true;
+            DisplayPagingLinks(kcw_gallery.list);
+        } 
+        //Set other vars
         if (gallery_page == null) gallery_page = 1;
         if (search == null) search = "";
-        if (gallery_guid != null) DisplayPagingLinks(kcw_gallery.gallery);
     }
     //Set variables into the query string
     function SetQueryParameters(exclude_gallery) {
@@ -282,7 +319,6 @@ jQuery(document).ready(function() {
             var gallery_page = kcw_gallery.gallery.current;
             updateQueryStringParam("guid", gallery_guid);
             updateQueryStringParam("gpage", gallery_page);
-            removeQueryStringParam("lpage");
         }
     }
     //Stolen from: https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript

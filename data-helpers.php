@@ -5,8 +5,8 @@ include_once "old-gallery-helpers.php";
 
 
 function kcw_gallery_RootGalleryName() {
-    //$galleryname = "KCW";
-    $galleryname = "Gallery";
+    $galleryname = "KCW";
+    //$galleryname = "Gallery";
     return $galleryname;
 }
 
@@ -29,7 +29,11 @@ function kcw_gallery_BuildFilesystemListData() {
     for ($i = 0;$i < count($oldgallery);$i++) {
         $category = $oldgallery[$i]["category"];
         $name = $oldgallery[$i]["name"];
-        $path = kcw_gallery_RootFolder() . '/' . $category . '/' . $name;
+
+        $path;
+        if ($category != 'top') $path = kcw_gallery_RootFolder() . '/' . $category . '/' . $name;
+        else $path = kcw_gallery_RootFolder() . '/' . $name;
+
         $dirtime = filectime($path);
         $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $dirtime);
     }
