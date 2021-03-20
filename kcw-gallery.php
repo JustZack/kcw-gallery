@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.0.9.6
+* Version:           1.0.9.7
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones

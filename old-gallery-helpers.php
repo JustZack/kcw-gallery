@@ -2,6 +2,20 @@
 
 include_once "file-helpers.php";
 
+function kcw_gallery_StringEndsWith_h($str) {
+    $hpos = strpos($str, "_h");
+    $hposatend = $hpos == strlen($str) - 2;
+    return ($hpos > -1 && $hposatend);
+}
+function kcw_gallery_GetGalleryVisibility($gal) {
+    if (kcw_gallery_StringEndsWith_h($gal['name'])
+     || kcw_gallery_StringEndsWith_h($gal['category'])) {
+         return "hidden";
+     } else {
+        return "visible";
+     }
+}
+
 //Construct the gallery data list array given the folder data
 function kcw_gallery_GetOldGalleryListData($folderdata) {    
     $data = array();
@@ -15,10 +29,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
             $d["category"] = "top";
             $d["friendly_name"] = kcw_gallery_FilterName($name); 
         
-            $hpos = strpos($d["name"], "_h");
-            $hposatend = $hpos == strlen($d["name"]) - 2;
-            if ($hpos > -1 && $hposatend) $d["visibility"] = "hidden";
-            else $d["visibility"] = "visible";
+            $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
 
             $data[] = $d;
         }
@@ -32,10 +43,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
                         $cat = $d["category"]; $name = $d["name"];
                         $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
                         
-                        $hpos = strpos($d["name"], "_h");
-                        $hposatend = $hpos == strlen($d["name"]) - 2;
-                        if ($hpos > -1 && $hposatend) $d["visibility"] = "hidden";
-                        else $d["visibility"] = "visible";
+                        $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
                         
                         $data[] = $d;
                     }
