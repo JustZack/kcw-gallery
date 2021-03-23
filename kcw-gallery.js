@@ -150,11 +150,11 @@ jQuery(document).ready(function() {
 
         SetQueryParameters();
 
-        HideLoadingGif();
+
 
         jQuery("div.kcw-gallery-list-container").css({display: "none"});
         jQuery("div.kcw-gallery-list-container").animate({opacity: 0}, function (){
-            jQuery("div.kcw-gallery-display").animate({opacity: 1});
+            FinishActionFor("div.kcw-gallery-display");
         });
     }
 
@@ -221,11 +221,9 @@ jQuery(document).ready(function() {
 
         SetQueryParameters(true);
 
-        HideLoadingGif();
-
         jQuery("div.kcw-gallery-display").css({display: "none"});
         jQuery("div.kcw-gallery-display").animate({opacity: 0}, function() {
-            jQuery("div.kcw-gallery-list-container").animate({opacity: 1});
+            FinishActionFor("div.kcw-gallery-list-container");
         });
     }
     function ShowGalleryListPage_callback(data) {
@@ -259,20 +257,42 @@ jQuery(document).ready(function() {
         });
     }
 
+    var isLoading = false;
     //Display the loading gif on the given element
     function ShowLoadingGif(elem) {
-        var pos = jQuery(elem).offset();
-        var ew = jQuery(elem).width();
+        isLoading = true;
+
+        var pos = {};
+        
         var lw = jQuery("img.kcw-gallery-loading").width();
-        pos.left = pos.left + ((ew/2) - (lw/2));
+        var lh = jQuery("img.kcw-gallery-loading").height();
+
+        pos.top = jQuery(window).height() / 2;
+        pos.top -= lw/2;
+
+        pos.left = jQuery(window).width() / 2;
+        pos.left -= lh/2;
+
+        console.log(pos);
+
         jQuery("img.kcw-gallery-loading").css({top: pos.top, left: pos.left});
         jQuery("img.kcw-gallery-loading").animate({opacity: 1});
     }
     //Hide the loading gif
     function HideLoadingGif(){
+        isLoading = false;
         jQuery("img.kcw-gallery-loading").animate({opacity: 0}, function() {
             jQuery(this).css({top: "-999px", left: "-999px"});
         });
+    }
+    //Finish an action by scrolling to the active element and hiding the loading gif
+    function FinishActionFor(elem) {
+        var offset = 0;
+        jQuery("html, body").animate({scrollTop: offset}, 400);
+
+        HideLoadingGif();
+
+        jQuery(elem).animate({opacity: 1});
     }
 
     KCWGalleryInit();

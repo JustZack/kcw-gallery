@@ -5,8 +5,8 @@ include_once "old-gallery-helpers.php";
 
 
 function kcw_gallery_RootGalleryName() {
-    $galleryname = "KCW";
-    //$galleryname = "Gallery";
+    //$galleryname = "KCW";
+    $galleryname = "Gallery";
     return $galleryname;
 }
 

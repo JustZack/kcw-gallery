@@ -11,7 +11,7 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.1.0");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.1.3");
     wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.1.0");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
@@ -22,14 +22,18 @@ function kcw_gallery_enqueue_dependencies() {
 }
 
 function kcw_gallery_BuildGalleryListItem($gallery) {
-    $name = $gallery["friendly_name"];
+    $name = $gallery["name"];
     $cat = $gallery["category"];
     $files = $gallery["files"];
     $uid = $gallery["uid"];
 
     $html = "<li data-id='$uid'>
-                <a class='kcw-gallery-list-title'>$name</a>
-                <span><span>$files</span><span class='dashicons dashicons-images-alt2'></span></span>
+                <div class='kcw-gallery-list-name-wrapper'>
+                    <a class='kcw-gallery-list-title'>$name</a>
+                    <a class='kcw-gallery-list-category'>$cat</a>
+                </div>
+                <span>$files</span>
+                <span class='dashicons dashicons-images-alt2'>
             </li>\n";
     return $html;
 }
@@ -162,6 +166,7 @@ function kcw_gallery_new_Init() {
 
     $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
     $html .= kcw_gallery_GetLoadingGif();
+
     $html .= kcw_gallery_EndBlock();
     echo $html;
 }

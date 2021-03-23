@@ -29,6 +29,15 @@ ul.kcw-gallery-list li a {
     font-size: 20px;
     margin-left: 10px;
 }
+a.kcw-gallery-list-category {
+    position: absolute;
+    right: 0;
+}
+div.kcw-gallery-list-name-wrapper {
+    display: inline-block;
+    position: relative;
+    width: 40%;
+}
 ul.kcw-gallery-list li > span {
     font-size: 20px;
     text-align: right;
@@ -103,7 +112,7 @@ img.kcw-gallery-loading {
     border: 1px solid #ccc;
     padding: 30px;
     border-radius: 25px;
-    position: absolute;
+    position: fixed;
 }
 
 @media only screen and (max-aspect-ratio: 4/3) {
