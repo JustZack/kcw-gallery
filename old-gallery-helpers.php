@@ -26,9 +26,10 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
             $d = $folderdata[$i];
         
             $name = $d["name"];
-            $d["category"] = "top";
             $d["friendly_name"] = kcw_gallery_FilterName($name); 
-        
+            $d["name"] = ($name);
+            $d["nice_name"] = kcw_gallery_FilterName($name);
+            $d["category"] = NULL;
             $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
 
             $data[] = $d;
@@ -42,7 +43,10 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
                         //if (!isset($d["category"])) var_dump($d);
                         $cat = $d["category"]; $name = $d["name"];
                         $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
-                        
+                        $d["name"] = ($name);
+                        $d["nice_name"] = kcw_gallery_FilterName($name);
+                        $d["category"] = ($cat); 
+                        $d["nice_category"] = kcw_gallery_FilterName($cat); 
                         $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
                         
                         $data[] = $d;
@@ -79,9 +83,13 @@ function kcw_gallery_DetermineOldGalleryData($folderData) {
 }
 //Filter a name so it reads well
 function kcw_gallery_FilterName($gallery_name) {
-    $name = str_replace("-", " ", $gallery_name);
-    $name = ucwords($name);
-    return $name;
+    if ($gallery_name == NULL) 
+        return NULL;
+    else {
+        $name = str_replace("-", " ", $gallery_name);
+        $name = ucwords($name);
+        return $name;
+    }
 }
 //Return data for the given gallery folder
 function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
@@ -101,7 +109,9 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     $data["friendly_name"] = $gallery["friendly_name"];
     $data["visibility"] = $gallery["visibility"];
     $data["name"] = kcw_gallery_FilterName($gallery["name"]);
+    
     $data["category"] = kcw_gallery_FilterName($gallery["category"]);
+
     $data["baseurl"] = $baseurl;
     $data["thumbsurl"] = $baseurl . 'thumbs/';
     $data["basedir"] = $folder;

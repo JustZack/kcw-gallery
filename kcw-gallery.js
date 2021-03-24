@@ -3,8 +3,11 @@ jQuery(document).ready(function() {
         Event Handlers
     */
     jQuery("ul.kcw-gallery-list").on('click', 'li', function() {
-        var guid = jQuery(this).data('id');
-        ShowGalleryPage(guid, 1)
+        if (!isLoading) {
+            var guid = jQuery(this).data('id');
+
+            ShowGalleryPage(guid, 1)
+        }
     });
     jQuery("a.kcw-gallery-list-home").on('click', function() {
         var page = 1;
@@ -13,10 +16,12 @@ jQuery(document).ready(function() {
         ShowGalleryListPage(page);
     });
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function() {
-        var page = jQuery(this).data('page');
-        if (page != undefined) {
-            if (ListActive) ShowGalleryListPage(page);
-            else ShowGalleryPage(kcw_gallery.gallery.uid, page);
+        if (!isLoading) {
+            var page = jQuery(this).data('page');
+            if (page != undefined) {
+                if (ListActive) ShowGalleryListPage(page);
+                else ShowGalleryPage(kcw_gallery.gallery.uid, page);
+            }
         }
     });
 
@@ -42,7 +47,7 @@ jQuery(document).ready(function() {
         jQuery("ul.pagination-top").empty();
         jQuery("ul.pagination-bottom").empty();
 
-        var max_visible_pages = 8;
+        var max_visible_pages = 6;
         var show_pages = [];
         //If there are more pages in this gallery than should be shown
         if (num_pages > max_visible_pages) {
@@ -50,15 +55,15 @@ jQuery(document).ready(function() {
             show_pages.push(0, 1);
             var show_last = true;
             //Show 10 pages around the current page
-            var start = current - 2; var end = current + 2;
+            var start = current - 1; var end = current + 1;
             //if the first or second page is selected, offset the show pages
             if (start < 2) {
                 start += 2 - start;
-                end += 3;
+                end += 2 - start;;
             }
             if (end > num_pages - 1) {
-                start -= 3;
                 end = num_pages - 1;
+                start -= num_pages - 1;
                 show_last = false;
             }
             
@@ -139,6 +144,8 @@ jQuery(document).ready(function() {
         ListActive = false;
         DisplayPagingLinks(gal);
 
+        jQuery("a.kcw-gallery-list-home").text("List Page " + kcw_gallery.list.current);
+
         jQuery("div.kcw-gallery-title").text(gal.friendly_name);
 
         //Do the display stuff
@@ -166,11 +173,10 @@ jQuery(document).ready(function() {
 
     function ShowGalleryPage(guid, gpage) {
         jQuery("div.kcw-gallery-display").css({display: "block"});
-
+        ShowLoadingGif();
         //If no gallery is cached, the requested gallery differs from the cache, or the current gallery page does not exist
         if (kcw_gallery.gallery == undefined 
          || kcw_gallery.gallery.uid != guid || kcw_gallery.gallery.pages[gpage-1] == undefined) {
-            ShowLoadingGif("ul.kcw-gallery-thumbs");
             //Build / fetch the data
             ApiCall("", guid+"/"+gpage, ShowGalleryPage_callback);
         } else {
@@ -196,10 +202,13 @@ jQuery(document).ready(function() {
         kcw_gallery.list.current = data.page;
         kcw_gallery.list.pages[data.page-1] = data.items;
     }
-    function BuildListItem(name, guid, numfiles) {
+    function BuildListItem(name, cat, guid, numfiles) {
         var html = "<li data-id='" + guid + "'>" +
-                    "<a class='kcw-gallery-list-title'>" + name + "</a> " +
-                    "<span><span>" + numfiles + "</span><span class='dashicons dashicons-images-alt2'></span></span>" +
+                    "<div class='kcw-gallery-list-name-wrapper'>" +
+                    "<a class='kcw-gallery-list-title'>" + name + "</a> ";
+        if (cat != null) html += "<a class='kcw-gallery-list-category'>" + cat + "</a>";
+            html += "</div><span>" + numfiles + "</span>" +
+                    "<span class='dashicons dashicons-images-alt2'></span>" +
                     "</li>";
         return html;
     }
@@ -214,7 +223,9 @@ jQuery(document).ready(function() {
         for (var i = 0;i < list.pages[lpage].length;i++) {
             var item = list.pages[lpage][i];
             if (item.visibility == "visible") {
-                var elem = BuildListItem(item.friendly_name, item.uid, item.files);
+                var cat = null;
+                if (item.category != null) cat = item.nice_category;
+                var elem = BuildListItem(item.nice_name, cat, item.uid, item.files);
                 jQuery("ul.kcw-gallery-list").append(elem);
             }
         }
@@ -234,10 +245,10 @@ jQuery(document).ready(function() {
     }
     function ShowGalleryListPage(lpage) {
         jQuery("div.kcw-gallery-list-container").css({display: "block"});
+        ShowLoadingGif();
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
-            ShowLoadingGif("ul.kcw-gallery-list");
             ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
          } else {
             kcw_gallery.list.current = lpage;
@@ -258,14 +269,15 @@ jQuery(document).ready(function() {
     }
 
     var isLoading = false;
+    var loadingTimeout = null;
     //Display the loading gif on the given element
-    function ShowLoadingGif(elem) {
+    function ShowLoadingGif() {
         isLoading = true;
 
         var pos = {};
         
-        var lw = jQuery("img.kcw-gallery-loading").width();
-        var lh = jQuery("img.kcw-gallery-loading").height();
+        var lw = jQuery("div.kcw-gallery-loading-wrapper").outerWidth();
+        var lh = jQuery("div.kcw-gallery-loading-wrapper").outerHeight();
 
         pos.top = jQuery(window).height() / 2;
         pos.top -= lw/2;
@@ -275,14 +287,31 @@ jQuery(document).ready(function() {
 
         console.log(pos);
 
-        jQuery("img.kcw-gallery-loading").css({top: pos.top, left: pos.left});
-        jQuery("img.kcw-gallery-loading").animate({opacity: 1});
+        jQuery("div.kcw-gallery-loading-wrapper").css({top: pos.top, left: pos.left});
+        jQuery("div.kcw-gallery-loading-wrapper").animate({opacity: 1});
+
+        loadingTimeout = setTimeout(function(){opacity: 0;
+            jQuery("p.kcw-gallery-loading-status").text("Please Wait...");
+            jQuery("p.kcw-gallery-loading-status").css({display: "block"});
+            jQuery("p.kcw-gallery-loading-status").animate({opacity: 1}, 600);
+            loadingTimeout = setTimeout(function(){
+                jQuery("p.kcw-gallery-loading-status").animate({opacity: 0}, function() {
+                    jQuery(this).text("Generating Thumbnails...");
+                    jQuery(this).animate({opacity: 1});
+                });
+            }, 5000);
+        }, 3000);
     }
     //Hide the loading gif
     function HideLoadingGif(){
+        //Stop any loading timeouts from firing
+        clearTimeout(loadingTimeout);
+
         isLoading = false;
-        jQuery("img.kcw-gallery-loading").animate({opacity: 0}, function() {
+        jQuery("div.kcw-gallery-loading-wrapper").animate({opacity: 0}, function() {
             jQuery(this).css({top: "-999px", left: "-999px"});
+            jQuery("p.kcw-gallery-loading-status").text("");
+            jQuery("p.kcw-gallery-loading-status").css({display: "none", opacity: 0});
         });
     }
     //Finish an action by scrolling to the active element and hiding the loading gif
@@ -292,12 +321,14 @@ jQuery(document).ready(function() {
 
         HideLoadingGif();
 
-        jQuery(elem).animate({opacity: 1});
+        jQuery(elem).animate({opacity: 1}, 100);
     }
 
     KCWGalleryInit();
     function KCWGalleryInit(){
         GetQueryStringParameters();
+
+
     }
 
     /*
@@ -309,20 +340,28 @@ jQuery(document).ready(function() {
         var gallery_page = getQueryStringParam("gpage");
         var search = getQueryStringParam("gsearch");
         var list_page = getQueryStringParam("lpage");
-        
+
         //Set current gallery list page if needed
+        if (kcw_gallery.list == null) kcw_gallery.list = {};
         if (list_page != null) {
-            if (kcw_gallery.list == null) kcw_gallery.list = {};
             kcw_gallery.list.current = parseInt(list_page);
+        } else {
+            kcw_gallery.list.current = 1;
         }
+
         //Display the correct paging links
         if (gallery_guid != null) {
             ListActive = false;
             DisplayPagingLinks(kcw_gallery.gallery);
+            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("Gallery List Page " + kcw_gallery.list.current);
+            jQuery("div.kcw-gallery-display").animate({opacity: 1});
         } else {
             ListActive = true;
             DisplayPagingLinks(kcw_gallery.list);
+            jQuery("div.kcw-gallery-list-container").animate({opacity: 1});
+
         } 
+
         //Set other vars
         if (gallery_page == null) gallery_page = 1;
         if (search == null) search = "";
