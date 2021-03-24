@@ -51,9 +51,13 @@ function kcw_gallery_GetFolderData($folder, $show_files = false) {
     $files = kcw_gallery_GetFiles($folder);
     $data = array();
     if ($show_files) $data["files"] = array();
+
     foreach ($files as $file) {
+/*        $name = kcw_gallery_GetFolderName($file);
+        if ($name == '.' || $name == '..' || $name == 'thumbs') continue;
+*/
         if (is_dir($file)) $data[] = kcw_gallery_GetFolderData_recursive($file);
-        else if ($show_files) $data["files"][] = $file;
+        else if ($show_files && kcw_gallery_FileIsImage($file)) $data["files"][] = $file;
     }
     return $data;
 }
@@ -72,10 +76,9 @@ function kcw_gallery_GetFolderData_recursive($folder) {
         //Skip current, parent, and thumbnails dir 
         if ($name == '.' || $name == '..' || $name == 'thumbs') continue;
         //If its a dir, get that folders information
-        if (is_dir($file))
-            $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file);
+        if (is_dir($file)) $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file);
         //Otherwise append the full path of the file to the files array
-        else $data['files']++;
+        else if (kcw_gallery_FileIsImage($file)) $data['files']++;
     }
     return $data;
 }
@@ -85,12 +88,14 @@ function kcw_gallery_GetFoldersWithFiles($folderdata, $parent = NULL) {
     $n_dirs = count($folderdata["dirs"]);
     $n_files = $folderdata["files"];
     $data = NULL;
+
     //More than one directory => projects in this category
     if ($n_dirs > 0) {
         if ($parent == NULL) $parent = $folderdata["name"];
         else                 $parent .= '/' . $folderdata["name"];
 
         foreach ($folderdata["dirs"] as $dir) {
+            //var_dump($dir);
             $tmpd = kcw_gallery_GetFoldersWithFiles($dir, $parent);
             if ($tmpd != NULL) {
                 if ($data == NULL) $data = array();
@@ -99,13 +104,14 @@ function kcw_gallery_GetFoldersWithFiles($folderdata, $parent = NULL) {
         }
     } 
     //More than one file => project directory
-    else if ($n_files > 0) {
+    if ($n_files > 0) {
         $data = array();
         $data["name"] = $folderdata["name"];
-        $data["category"] = $parent;
+        $data["category"] = $parent == NULL ? $data["name"] : $parent;
         $data["files"] = $folderdata["files"];
     } 
     //No directories or files => skip
+    //if (($n_files == 0 || $n_dirs == 0)) { echo 'a'; var_dump($data); echo 'b';}
     return $data;
 }
 

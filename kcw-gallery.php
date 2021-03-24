@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.0.0
+* Version:           1.1.1
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.0.0");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.0.0");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.2.6");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.2.4");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -22,42 +22,77 @@ function kcw_gallery_enqueue_dependencies() {
 }
 
 function kcw_gallery_BuildGalleryListItem($gallery) {
-    $name = $gallery["name"];
+    $name = $gallery["nice_name"];
+    
     $cat = $gallery["category"];
     $files = $gallery["files"];
     $uid = $gallery["uid"];
 
     $html = "<li data-id='$uid'>
-                <a class='kcw-gallery-list-title'>$name</a>
+                <div class='kcw-gallery-list-name-wrapper'>
+                    <a class='kcw-gallery-list-title'>$name</a>
+                    %s
+                </div>
+                <span class='dashicons dashicons-images-alt2'></span>
+                <span>$files</span>
             </li>\n";
+    if ($cat != NULL) $html = sprintf($html, "<a class='kcw-gallery-list-category'>".$gallery["nice_category"]."</a>");
+    else $html = sprintf($html, "");
     return $html;
 }
-function kcw_gallery_BuildGalleryListDisplay() {
-    $html = "<ul class='kcw-gallery-list'>";
-    $list = kcw_gallery_api_GetGalleryList();
+function kcw_gallery_BuildGalleryListDisplay($lpage) {
+    $data = array(); $data["lpage"] = $lpage;
+    $list = kcw_gallery_api_GetGalleryListPage($data);
     for ($i = 0;$i < count($list["items"]);$i++) {
-        $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
+        if ($list["items"][$i]["visibility"] == "visible")
+            $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
+        else
+            continue;
     }
-    $html .= "</ul>";
-    $html .= kcw_gallery_PutJSData(json_encode($list, true), "list");
-    return $html;
+
+    $list["pages"] = array();
+    $list["pages"][$list["page"]-1] = $list["items"];
+    $list["current"] = $list["page"];
+    unset($list["items"]);
+    unset($list["start"]);
+    unset($list["end"]);
+    unset($list["page"]);
+    $after = kcw_gallery_PutJSData(json_encode($list), "list");
+    return kcw_gallery_GetListHTML($html, $after);
 }
 
-function kcw_gallery_BuildGalleryThumbnail($image, $baseurl) {
-    $html = "";
+function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl) {
     $url = $baseurl . $image["name"];
-    $html .= "<img src='$url'>";
-    $html .= $image["taken"];
+    $fname = pathinfo($image["name"])["filename"];
+    $turl = $thumburl . $fname . ".jpg";
+    
+    $html = "<li><a data-src='$url'>";
+    $html .= "<img src='$turl'>";
+    $html .= "</a></li>";
+
     return $html;
 }
 function kcw_gallery_BuildGalleryDisplay($guid, $gpage) {
     $html = "";
+
     $data["guid"] = $guid; $data["gpage"] = $gpage;
     $gallery = kcw_gallery_api_GetGalleryPage($data);
-    foreach ($gallery["images"] as $image) {
-        $html .= kcw_gallery_BuildGalleryThumbnail($image, $gallery["baserurl"]);
-    }
-    return $html;
+    $base = $gallery["baseurl"]; $thumbs = $gallery["thumbsurl"];
+    foreach ($gallery["images"] as $image)
+        $html .= kcw_gallery_BuildGalleryThumbnail($image, $base, $thumbs);
+
+    $gallery["pages"] = array();
+    $gallery["pages"][$gallery["page"] - 1] = $gallery["images"];
+    $gallery["current"] = $gallery["page"];
+    unset($gallery["images"]);
+    unset($gallery["start"]);
+    unset($gallery["end"]);
+    unset($gallery["page"]);
+    $after = kcw_gallery_PutJSData(json_encode($gallery), "gallery");
+
+    $title = $gallery["friendly_name"];
+
+    return kcw_gallery_GetGalleryHTML($title, $html, $after);
 }
 
 function kcw_gallery_PutJSData($data, $key) {
@@ -74,37 +109,55 @@ function kcw_gallery_SetJSData() {
     return $html;
 }
 
-function kcw_gallery_GetListHTML() {
-    $html = "<div class='kcw-gallery-list-container'>";
-    $html .= "<ul class='kcw-gallery-list'></ul>";
+function kcw_gallery_GetListHTML($list_html = null, $after = null) {
+    $html = "<div class='kcw-gallery-list-container' style='%s'>";
+    $html .= "<ul class='kcw-gallery-list'>%s</ul>";
     $html .= "</div>";
-    return $html;
+    $html .= "%s";
+
+    if ($list_html != null && $after != null) return sprintf($html, "opacity: 0;", $list_html, $after);
+    else                                    return sprintf($html, "opacity: 0;", "", "");
 }
-function kcw_gallery_GetGalleryHTML() {
-    $html = "<div class='kcw-gallery-display'>";
-    $html .= "<div class='kcw-gallery-title'></div>";
-    $html .= "<ul class='kcw-gallery-thumbs'></ul>";
-    $html .= "</div>";
-    return $html;
+function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $after = null) {
+    $html = "<div class='kcw-gallery-display' style='%s'>";
+    $html .= "<a class='kcw-gallery-list-home'>";
+    $html .= "<span class='dashicons dashicons-controls-back'></span>";
+    $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
+    $html .= "</a>";
+    $html .= "<div class='kcw-gallery-title'>%s</div>";
+    $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
+    $html .= "</div>%s";
+    if ($title != null && $gallery_list_html != null && $after != null)
+        return sprintf($html, "opacity: 0;", $title, $gallery_list_html, $after);
+    else
+        return sprintf($html, "opacity: 0;", "", "", "");
 }
 
 function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
     $html = "";
-
     $html .= kcw_gallery_SetJSData();
-
-    //$html .= kcw_gallery_BuildGalleryListHome();
-
+    $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-top'></ul></div>";
     if (isset($guid)) {
-        $html .= kcw_gallery_GetListHTML();
         if (!isset($gpage)) $gpage = 1;
+        $html .= kcw_gallery_GetListHTML();
         $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
     } else {
-        $html .= kcw_gallery_BuildGalleryListDisplay();
+        if (!isset($lpage)) $lpage = 1;
+        $html .= kcw_gallery_BuildGalleryListDisplay($lpage);
         $html .= kcw_gallery_GetGalleryHTML();
     }
-
+    $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-bottom'></ul></div>";
     return $html;
+}
+
+function kcw_gallery_GetLoadingGif() {
+    $url = plugins_url("loading.gif", __FILE__);
+    $html = "<div class='kcw-gallery-loading-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
+    $html .= "<img src='%s' class='kcw-gallery-loading'>";
+    $html .= "<center><p class='kcw-gallery-loading-status'></p></center>";
+    $html .= "</div>";
+
+    return sprintf($html, $url);
 }
 
 function kcw_gallery_StartBlock() {
@@ -113,7 +166,7 @@ function kcw_gallery_StartBlock() {
 function kcw_gallery_EndBlock() {
     return "</div>";
 }
-function kcw_gallery_Init() {
+function kcw_gallery_new_Init() {
     kcw_gallery_enqueue_dependencies();
 
     $guid = $_GET["guid"];
@@ -123,9 +176,10 @@ function kcw_gallery_Init() {
     $html = kcw_gallery_StartBlock();
 
     $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
+    $html .= kcw_gallery_GetLoadingGif();
 
     $html .= kcw_gallery_EndBlock();
     echo $html;
 }
-add_shortcode("kcw-gallery", 'kcw_gallery_Init');
+add_shortcode("kcw-gallery", 'kcw_gallery_new_Init');
 ?>
