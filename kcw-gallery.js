@@ -147,7 +147,8 @@ jQuery(document).ready(function() {
         ListActive = false;
         DisplayPagingLinks(gal);
 
-        jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
+        //jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
+        jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List");
 
         jQuery("div.kcw-gallery-title").text(gal.friendly_name);
 
@@ -210,9 +211,8 @@ jQuery(document).ready(function() {
                     "<div class='kcw-gallery-list-name-wrapper'>" +
                     "<a class='kcw-gallery-list-title'>" + name + "</a> ";
         if (cat != null) html += "<a class='kcw-gallery-list-category'>" + cat + "</a>";
-            html += "</div><span>" + numfiles + "</span>" +
-                    "<span class='dashicons dashicons-images-alt2'></span>" +
-                    "</li>";
+            html += "</div><span class='dashicons dashicons-images-alt2'></span>"
+                    + "<span>" + numfiles + "</span></li>";
         return html;
     }
     function DisplayGalleryList(lpage) {
@@ -356,7 +356,8 @@ jQuery(document).ready(function() {
         if (gallery_guid != null) {
             ListActive = false;
             DisplayPagingLinks(kcw_gallery.gallery);
-            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
+            //jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
+            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List");
             jQuery("div.kcw-gallery-display").animate({opacity: 1});
         } else {
             ListActive = true;

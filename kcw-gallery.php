@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.2.4");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.2.3");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.2.6");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.2.4");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -33,8 +33,8 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
                     <a class='kcw-gallery-list-title'>$name</a>
                     %s
                 </div>
+                <span class='dashicons dashicons-images-alt2'></span>
                 <span>$files</span>
-                <span class='dashicons dashicons-images-alt2'>
             </li>\n";
     if ($cat != NULL) $html = sprintf($html, "<a class='kcw-gallery-list-category'>".$gallery["nice_category"]."</a>");
     else $html = sprintf($html, "");
@@ -122,7 +122,7 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
     $html = "<div class='kcw-gallery-display' style='%s'>";
     $html .= "<a class='kcw-gallery-list-home'>";
     $html .= "<span class='dashicons dashicons-controls-back'></span>";
-    $html .= "<span class='kcw-gallery-list-home-name'>Gallery List</span>";
+    $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
     $html .= "<div class='kcw-gallery-title'>%s</div>";
     $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
