@@ -2,6 +2,10 @@ jQuery(document).ready(function() {
     /*
         Event Handlers
     */
+    jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function() {
+        var url = jQuery(this).data('src');
+        window.open(url, "_blank")
+    });
     jQuery("ul.kcw-gallery-list").on('click', 'li', function() {
         if (!isLoading) {
             var guid = jQuery(this).data('id');
@@ -18,8 +22,10 @@ jQuery(document).ready(function() {
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function() {
         if (!isLoading) {
             var page = jQuery(this).data('page');
+            var current_page = jQuery("ul.kcw-gallery-pagination a.current_page").parent().data('page');
             if (page != undefined) {
-                if (ListActive) ShowGalleryListPage(page);
+                if (page == current_page) return;
+                else if (ListActive) ShowGalleryListPage(page);
                 else ShowGalleryPage(kcw_gallery.gallery.uid, page);
             }
         }
@@ -53,26 +59,26 @@ jQuery(document).ready(function() {
         if (num_pages > max_visible_pages) {
             //Show the first 2 pages
             show_pages.push(0, 1);
-            var show_last = true;
-            //Show 10 pages around the current page
-            var start = current - 1; var end = current + 1;
-            //if the first or second page is selected, offset the show pages
-            if (start < 2) {
-                start += 2 - start;
-                end += 2 - start;;
-            }
-            if (end > num_pages - 1) {
-                end = num_pages - 1;
-                start -= num_pages - 1;
-                show_last = false;
-            }
-            
-            for (var i = start;i <= end;i++) {
-                show_pages.push(i);
+
+            var page_padding = 1;
+
+            var start = current - page_padding;
+            var end = current + page_padding;
+            var last = num_pages - 1;
+
+            if (start <= 1) {
+                start = 2;
             }
 
+            if (end >= last - 1) {
+                end = last - 2;
+            }
+
+            for (var i = start;i <= end;i++) show_pages.push(i);
+
             //Show the last two pages
-            if (show_last) show_pages.push(num_pages - 2, num_pages - 1);
+            show_pages.push(num_pages - 2, num_pages - 1);
+
         } else {
             for (var i = 0;i < num_pages;i++) {
                 show_pages.push(i);
@@ -85,11 +91,8 @@ jQuery(document).ready(function() {
             var isCurrent = i == current;
             var doEllipsis = false;
             if (last + 1 < i) {
+                doEllipsis = true;
                 var mid = last + Math.floor(.5 * (i - last));
-                
-                if (mid + 1 == i) doEllipsis = false;
-                else doEllipsis = true;
-
                 elem += BuildPagingLink(mid, isCurrent, doEllipsis);
             }
 
@@ -144,7 +147,7 @@ jQuery(document).ready(function() {
         ListActive = false;
         DisplayPagingLinks(gal);
 
-        jQuery("a.kcw-gallery-list-home").text("List Page " + kcw_gallery.list.current);
+        jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
 
         jQuery("div.kcw-gallery-title").text(gal.friendly_name);
 
@@ -353,7 +356,7 @@ jQuery(document).ready(function() {
         if (gallery_guid != null) {
             ListActive = false;
             DisplayPagingLinks(kcw_gallery.gallery);
-            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("Gallery List Page " + kcw_gallery.list.current);
+            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
             jQuery("div.kcw-gallery-display").animate({opacity: 1});
         } else {
             ListActive = true;

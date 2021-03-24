@@ -9,18 +9,17 @@ div.kcw-gallery-list-container {
 }
 
 a.kcw-gallery-list-home {
+    display: inline-block;
     border: 1px solid #ccc;
-    width: 50px;
-    padding: 0px 5px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-a.kcw-gallery-list-home span {
-    font-size: 20px;
+a.kcw-gallery-list-home span.dashicons {
     text-align: right;
-    margin-right: 10px;
-
     font-size: 25px;
-    margin-left: 10px;
+    margin-top: 10px;
 }
 
 a.kcw-gallery-list-home span.kcw-gallery-list-home-name {
@@ -82,7 +81,7 @@ div.kcw-gallery-display {
 
 div.kcw-gallery-pagination-wrapper {
     width: 100%;
-    margin: 5px 0px;
+    margin: 10px 0px;
 }
 
 ul.kcw-gallery-pagination {
@@ -105,10 +104,17 @@ ul.kcw-gallery-pagination li a {
     line-height: 24px;
 }
 
-ul.kcw-gallery-pagination li a.current_page, ul.kcw-gallery-pagination li a.current_page:hover {
+ul.kcw-gallery-pagination li a.current_page,
+ul.kcw-gallery-pagination li a:hover,
+a.kcw-gallery-list-home:hover {
     background-color: rgba(229, 229, 229, .8);
     border-color: #ccc;
     color: #030303;
+}
+
+div.kcw-gallery-title {
+    font-size: 25px;
+    margin-top: 10px;
 }
 
 ul.kcw-gallery-thumbs {
@@ -129,6 +135,7 @@ ul.kcw-gallery-thumbs li img {
     object-fit: cover;
     overflow: hidden;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 div.kcw-gallery-loading-wrapper {
@@ -213,16 +220,16 @@ p.kcw-gallery-loading-status {
 
 @media only screen and (max-width: 900px) {
     ul.kcw-gallery-thumbs li img {
-        width: 100px;
-        height: 100px;
+        width: 90px;
+        height: 90px;
         border-radius: 5px;
     }
     ul.kcw-gallery-pagination li {
         margin-left: 10px;
     }
     ul.kcw-gallery-pagination li a {
-        padding: 0px 5px;
-        font-size: 20px;
+        padding: 2px 5px;
+        font-size: 25px;
     }
 }
 
@@ -236,10 +243,6 @@ p.kcw-gallery-loading-status {
 @media only screen and (max-width: 500px) {
     ul.kcw-gallery-pagination li {
         margin-left: 5px;
-    }
-    ul.kcw-gallery-pagination li a {
-        padding: 0px 5px;
-        font-size: 20px;
     }
     ul.kcw-gallery-list li > span {
         font-size: 17.5px;
