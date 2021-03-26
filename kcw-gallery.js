@@ -3,7 +3,7 @@ jQuery(document).ready(function() {
         Event Handlers
     */
     jQuery("html, body").click(function(e){
-        if (LightboxActive) HideLightbox(false);
+        if (LightboxActive) HideLightbox();
     });
     jQuery("div.kcw-gallery-lightbox-wrapper").click(function(e){
         e.stopPropagation();
@@ -13,7 +13,7 @@ jQuery(document).ready(function() {
         prompt("Copy this code to embed the image.", embed);
     });
     jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function(e) {
-        if (LightboxActive) HideLightbox(true);
+        if (LightboxActive) HideLightbox();
         var url = jQuery(this).data('src');
         ShowLightbox(url);
         e.stopPropagation();
@@ -21,7 +21,7 @@ jQuery(document).ready(function() {
     jQuery("ul.kcw-gallery-list").on('click', 'li', function(e) {
         if (!isLoading) {
             var guid = jQuery(this).data('id');
-            if (LightboxActive) HideLightbox(false);
+            if (LightboxActive) HideLightbox();
             ShowGalleryPage(guid, 1)
         }
 
@@ -30,13 +30,13 @@ jQuery(document).ready(function() {
     jQuery("a.kcw-gallery-list-home").on('click', function(e) {
         var page = 1;
         if (kcw_gallery.list != undefined) page = kcw_gallery.list.current;
-        if (LightboxActive) HideLightbox(true);
+        if (LightboxActive) HideLightbox();
         ShowGalleryListPage(page);
 
         e.stopPropagation();
     });
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function(e) {
-        if (LightboxActive) HideLightbox(false);
+        if (LightboxActive) HideLightbox();
         
         if (!isLoading) {
             var page = jQuery(this).data('page');
@@ -292,6 +292,7 @@ jQuery(document).ready(function() {
 
     function LightboxLoad_callback(full_img_url) {
         jQuery("div.kcw-gallery-lightbox-background").css({display: "block"});
+        jQuery("div.kcw-gallery-lightbox-background").animate({opacity: "85%"});
 
         var iw = jQuery("img.kcw-gallery-lightbox-img").width();
         var ih = jQuery("img.kcw-gallery-lightbox-img").height();
@@ -363,20 +364,23 @@ jQuery(document).ready(function() {
         });
     }
 
-    function HideLightbox(now) {
+    function HideLightbox() {
         LightboxActive = false;
         jQuery("a.kcw-gallery-lightbox-full-res").attr('href', '');
         jQuery("a.kcw-gallery-lightbox-embed").data('embed', '');
-        if (now) {
+        if (false) {
             jQuery("div.kcw-gallery-lightbox-wrapper").css({opacity: 0, top: -999, left: -999});
             jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
             jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
+            jQuery("div.kcw-gallery-lightbox-background").css({opacity: 0});
             jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
         } else {
             jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
                 jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
                 jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
                 jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
+            });
+            jQuery("div.kcw-gallery-lightbox-background").animate({opacity: 0}, function(){
                 jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
             });
         }

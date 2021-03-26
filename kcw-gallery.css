@@ -161,8 +161,8 @@ div.kcw-gallery-lightbox-background {
     height: 100vh;
     top: 0px;
     left: 0px;
-    background-color: #ccc;
-    opacity: 85%;
+    background-color: #030303;
+    opacity: 0%;
     z-index: 1;
     display: none;
 }
