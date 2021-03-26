@@ -158,7 +158,7 @@ div.kcw-gallery-lightbox-wrapper img {
 div.kcw-gallery-lightbox-background {
     position: fixed;
     width: 100vw;
-    height: 100vw;
+    height: 100vh;
     top: 0px;
     left: 0px;
     background-color: #ccc;
