@@ -161,7 +161,8 @@ function kcw_gallery_GetLoadingBox() {
 }
 
 function kcw_gallery_GetLightbox() {
-    $html = "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
+    $html = "<div class='kcw-gallery-lightbox-background'></div>";
+    $html .= "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
     $html .= "<img src='' class='kcw-gallery-lightbox-img'>";
     $html .= "<div class='kcw-gallery-lightbox-buttons'>";
     $html .= "<span><a class='kcw-gallery-lightbox-full-res' href='' target='_blank'>Full Size<span class='dashicons dashicons-external'></span></a></span>";

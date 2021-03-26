@@ -148,9 +148,23 @@ div.kcw-gallery-lightbox-wrapper {
     padding: 0px;
     border-radius: 5px;
     position: fixed;
+    z-index: 2;
 }
+
 div.kcw-gallery-lightbox-wrapper img {
     padding: 5px;
+}
+
+div.kcw-gallery-lightbox-background {
+    position: fixed;
+    width: 100vw;
+    height: 100vw;
+    top: 0px;
+    left: 0px;
+    background-color: #ccc;
+    opacity: 85%;
+    z-index: 1;
+    display: none;
 }
 
 div.kcw-gallery-lightbox-buttons {

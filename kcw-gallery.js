@@ -291,6 +291,8 @@ jQuery(document).ready(function() {
     }
 
     function LightboxLoad_callback(full_img_url) {
+        jQuery("div.kcw-gallery-lightbox-background").css({display: "block"});
+
         var iw = jQuery("img.kcw-gallery-lightbox-img").width();
         var ih = jQuery("img.kcw-gallery-lightbox-img").height();
 
@@ -345,8 +347,8 @@ jQuery(document).ready(function() {
         
         LightboxActive = true;
         var resized_img_url = full_img_url;
-        if (full_img_url.indexOf("://localhost") == -1) {
-            resized_img_url =  full_img_url.replace("http://", "https://i2.wp.com/");
+        if (full_img_url.indexOf("://localhost/") == -1) {
+            resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
             resized_img_url += "?w=1100&ssl=1";
             console.log(resized_img_url);
         }
@@ -369,11 +371,13 @@ jQuery(document).ready(function() {
             jQuery("div.kcw-gallery-lightbox-wrapper").css({opacity: 0, top: -999, left: -999});
             jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
             jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
+            jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
         } else {
             jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
                 jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
                 jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
                 jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
+                jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
             });
         }
     }
