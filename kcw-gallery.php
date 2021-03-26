@@ -121,7 +121,7 @@ function kcw_gallery_GetListHTML($list_html = null, $after = null) {
 function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $after = null) {
     $html = "<div class='kcw-gallery-display' style='%s'>";
     $html .= "<a class='kcw-gallery-list-home'>";
-    $html .= "<span class='dashicons dashicons-controls-back'></span>";
+    $html .= "<span class='dashicons dashicons-undo'></span>";
     $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
     $html .= "<div class='kcw-gallery-title'>%s</div>";
@@ -150,7 +150,7 @@ function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
     return $html;
 }
 
-function kcw_gallery_GetLoadingGif() {
+function kcw_gallery_GetLoadingBox() {
     $url = plugins_url("loading.gif", __FILE__);
     $html = "<div class='kcw-gallery-loading-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
     $html .= "<img src='%s' class='kcw-gallery-loading'>";
@@ -158,6 +158,16 @@ function kcw_gallery_GetLoadingGif() {
     $html .= "</div>";
 
     return sprintf($html, $url);
+}
+
+function kcw_gallery_GetLightbox() {
+    $html = "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
+    $html .= "<img src='' class='kcw-gallery-lightbox-img'>";
+    $html .= "<div class='kcw-gallery-lightbox-buttons'>";
+    $html .= "<span><a class='kcw-gallery-lightbox-full-res' href='' target='_blank'>Full Size<span class='dashicons dashicons-external'></span></a></span>";
+    $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span></div>";
+    $html .= "</div>";
+    return $html;
 }
 
 function kcw_gallery_StartBlock() {
@@ -176,7 +186,8 @@ function kcw_gallery_new_Init() {
     $html = kcw_gallery_StartBlock();
 
     $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
-    $html .= kcw_gallery_GetLoadingGif();
+    $html .= kcw_gallery_GetLoadingBox();
+    $html .= kcw_gallery_GetLightbox();
 
     $html .= kcw_gallery_EndBlock();
     echo $html;

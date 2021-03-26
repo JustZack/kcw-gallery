@@ -26,9 +26,9 @@ define('IMAGES_SCALE_AXIS_Y', 2);
 /** Use both X and Y axes to calc image scale. */
 define('IMAGES_SCALE_AXIS_BOTH', IMAGES_SCALE_AXIS_X ^ IMAGES_SCALE_AXIS_Y);
 /** Compression rate for JPEG image format. */
-define('JPEG_COMPRESSION_QUALITY', 75);
+define('JPEG_COMPRESSION_QUALITY', 65);
 /** Compression rate for PNG image format. */
-define('PNG_COMPRESSION_QUALITY', 7);
+define('PNG_COMPRESSION_QUALITY', 6);
 
 /**
  * Scales an image with save aspect ration for X, Y or both axes.

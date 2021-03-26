@@ -11,7 +11,7 @@ div.kcw-gallery-list-container {
 a.kcw-gallery-list-home {
     display: inline-block;
     border: 1px solid #ccc;
-    padding: 2px 8px;
+    padding: 0px 8px;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -142,8 +142,52 @@ ul.kcw-gallery-thumbs li img {
     cursor: pointer;
 }
 
+div.kcw-gallery-lightbox-wrapper {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 0px;
+    border-radius: 5px;
+    position: fixed;
+}
+div.kcw-gallery-lightbox-wrapper img {
+    padding: 5px;
+}
+
+div.kcw-gallery-lightbox-buttons {
+    border-top: 1px solid #ccc;
+    height: 45px;
+    padding-top: 5px;
+    background-color: #ccc;
+}
+div.kcw-gallery-lightbox-buttons > span{
+    display: inline-block;
+}
+div.kcw-gallery-lightbox-buttons > span a{
+    text-decoration: none;
+    margin: 5px 15px 5px 10px;
+    border: 1px solid #ccc;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background-color: white;
+}
+div.kcw-gallery-lightbox-buttons > span a:hover {
+    background-color: rgba(229, 229, 229, .8);
+}
+
+div.kcw-gallery-lightbox-buttons > span:first-child{
+    width: 50%;
+}
+div.kcw-gallery-lightbox-buttons > span:last-child{
+    float:right;
+}
+div.kcw-gallery-lightbox-buttons .dashicons {
+    margin-top: 5px;
+    font-size: 25px;
+}
+
+
 div.kcw-gallery-loading-wrapper {
-    background-color: rgba(255, 255, 255, .85);
+    background-color: white;
     border: 1px solid #ccc;
     padding: 15px;
     border-radius: 25px;
