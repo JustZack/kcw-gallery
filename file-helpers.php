@@ -67,7 +67,7 @@ function kcw_gallery_GetFolderData_recursive($folder) {
     $data = array();
     $data["name"] = kcw_gallery_GetFolderName($folder);
     //$data["path"] = $folder . '/';
-    $data["dirs"] = array();
+    
     $data["files"] = 0;
     //Get all files in the directory
     $files = kcw_gallery_GetFiles($folder);
@@ -76,7 +76,10 @@ function kcw_gallery_GetFolderData_recursive($folder) {
         //Skip current, parent, and thumbnails dir 
         if ($name == '.' || $name == '..' || $name == 'thumbs') continue;
         //If its a dir, get that folders information
-        if (is_dir($file)) $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file);
+        if (is_dir($file)) { 
+            if (!isset($data["dirs"])) $data["dirs"] = array();
+            $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file); 
+        }
         //Otherwise append the full path of the file to the files array
         else if (kcw_gallery_FileIsImage($file)) $data['files']++;
     }
