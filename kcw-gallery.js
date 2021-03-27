@@ -289,55 +289,50 @@ jQuery(document).ready(function() {
         });
     }
 
+    function LightboxFitToScreen(viewport_size, image_size) {
+        viewport_size.width *= .8;
+        viewport_size.height *= .75;
+
+        var w_ratio = viewport_size.width / image_size.width;
+        var h_ratio = viewport_size.height / image_size.height;
+        var smallest = Math.min(w_ratio, h_ratio);
+
+        var fit_width = image_size.width * smallest;
+        var fit_height = image_size.height * smallest;
+
+        var fit = {width: fit_width, height: fit_height};
+
+        return fit;
+    }
+
     function LightboxLoad_callback(full_img_url) {
+        //Show the background first
         jQuery("div.kcw-gallery-lightbox-background").css({display: "block"});
         jQuery("div.kcw-gallery-lightbox-background").animate({opacity: "85%"});
 
+        //Get image size
         var iw = jQuery("img.kcw-gallery-lightbox-img").width();
         var ih = jQuery("img.kcw-gallery-lightbox-img").height();
-
+        var image_size = {width: iw, height: ih};
+        //Get window size
         var ww = jQuery(window).outerWidth();
         var wh = jQuery(window).outerHeight();
-
-        var size = {};
-
-        size.width = "auto";
-        size.height = wh * .8;
-
-        //Landscape mode
-        if (ww > wh) {
-            size.width = "auto";
-            size.height = wh * .8;
-            //Landscape image
-            if (iw > ih) { }
-            //Portrait / Square image
-            else { }
-        } 
-        //Portrait / Square screen
-        else {
-            size.width = wh * .8;
-            size.height = "auto";
-            //Landscape image
-            if (iw > ih) { } 
-            //Portrait / Square image
-            else { }
-        }
-
+        var viewport_size = {width: ww, height: wh};
+        //Compute optimal size of image
+        var size = LightboxFitToScreen(viewport_size, image_size);
+        //Set image size
         jQuery("img.kcw-gallery-lightbox-img").css({width: size.width, height: size.height});
 
-        var pos = {};
-    
+        //Get wrapper size
         var lw = jQuery("div.kcw-gallery-lightbox-wrapper").outerWidth();
         var lh = jQuery("div.kcw-gallery-lightbox-wrapper").outerHeight();
-
-        pos.top =  wh/2;
+        //Compute coordinates for centering lightbox
+        var pos = {top: wh/2, left: ww/2};
         pos.top -= lh/2;
-
-        pos.left =  ww/2;
         pos.left -= lw/2;
-
+        //Done loading, hide gif
         HideLoadingGif();
-
+        //Show the lightbox
         jQuery("div.kcw-gallery-lightbox-wrapper").css({top: pos.top, left: pos.left});
         jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 1});
     }
@@ -351,6 +346,7 @@ jQuery(document).ready(function() {
         ShowLoadingGif(null);
         
         LightboxActive = true;
+        //Use a specifically sized version of the chosen image (if not localhost/dev)
         var resized_img_url = full_img_url;
         if (full_img_url.indexOf("://localhost/") == -1) {
             resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
