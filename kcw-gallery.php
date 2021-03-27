@@ -125,7 +125,7 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
     $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
     $html .= "<div class='kcw-gallery-title'>%s</div>";
-    $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
+    $html .= "<center><ul class='kcw-gallery-thumbs'>-%s</ul></center>";
     $html .= "</div>%s";
     if ($title != null && $gallery_list_html != null && $after != null)
         return sprintf($html, "opacity: 0;", $title, $gallery_list_html, $after);

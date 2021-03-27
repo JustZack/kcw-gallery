@@ -4,9 +4,9 @@ div.kcw-gallery-wrapper {
     margin-right: auto;
 }
 
-div.kcw-gallery-list-container {
+/*div.kcw-gallery-list-container {
 
-}
+}*/
 
 a.kcw-gallery-list-home {
     display: inline-block;
@@ -14,6 +14,7 @@ a.kcw-gallery-list-home {
     padding: 0px 8px;
     border-radius: 5px;
     cursor: pointer;
+    color: #030303;
 }
 
 a.kcw-gallery-list-home span.dashicons {
@@ -131,7 +132,7 @@ ul.kcw-gallery-thumbs {
 
 ul.kcw-gallery-thumbs li {
     display: inline-block;
-    margin: 1px 2px;
+    margin: -2px 2px;
 }
 ul.kcw-gallery-thumbs li img {
     width: 150px;
@@ -180,12 +181,14 @@ div.kcw-gallery-lightbox-buttons > span a{
     text-decoration: none;
     margin: 5px 15px 5px 10px;
     border: 1px solid #ccc;
-    padding: 3px 8px;
+    padding: 3px 10px 3px 8px;
     border-radius: 5px;
     background-color: white;
+    color: #030303;
 }
 div.kcw-gallery-lightbox-buttons > span a:hover {
-    background-color: rgba(229, 229, 229, .8);
+    background-color: #030303;
+    color: white;
 }
 
 div.kcw-gallery-lightbox-buttons > span:first-child{
@@ -213,7 +216,7 @@ div.kcw-gallery-loading-wrapper img {
 }
 
 p.kcw-gallery-loading-status {
-    font-size: 18px;
+    font-size: 17px;
     font-style: italic;
     letter-spacing: -1px;
     opacity: 0;

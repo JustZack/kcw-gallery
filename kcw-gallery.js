@@ -13,18 +13,17 @@ jQuery(document).ready(function() {
         prompt("Copy this code to embed the image.", embed);
     });
     jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function(e) {
-        if (LightboxActive) HideLightbox();
-        var url = jQuery(this).data('src');
-        ShowLightbox(url);
+        if (!isLoading) {
+            if (LightboxActive) HideLightbox();
+            var url = jQuery(this).data('src');
+            ShowLightbox(url);
+        }
         e.stopPropagation();
     });
     jQuery("ul.kcw-gallery-list").on('click', 'li', function(e) {
-        if (!isLoading) {
-            var guid = jQuery(this).data('id');
-            if (LightboxActive) HideLightbox();
-            ShowGalleryPage(guid, 1)
-        }
-
+        var guid = jQuery(this).data('id');
+        if (LightboxActive) HideLightbox();
+        ShowGalleryPage(guid, 1);
         e.stopPropagation();
     });
     jQuery("a.kcw-gallery-list-home").on('click', function(e) {
@@ -38,14 +37,12 @@ jQuery(document).ready(function() {
     jQuery("ul.kcw-gallery-pagination").on('click', 'li', function(e) {
         if (LightboxActive) HideLightbox();
         
-        if (!isLoading) {
-            var page = jQuery(this).data('page');
-            var current_page = jQuery("ul.kcw-gallery-pagination a.current_page").parent().data('page');
-            if (page != undefined) {
-                if (page == current_page) return;
-                else if (ListActive) ShowGalleryListPage(page);
-                else ShowGalleryPage(kcw_gallery.gallery.uid, page);
-            }
+        var page = jQuery(this).data('page');
+        var current_page = jQuery("ul.kcw-gallery-pagination a.current_page").parent().data('page');
+        if (page != undefined) {
+            if (page == current_page) return;
+            else if (ListActive) ShowGalleryListPage(page);
+            else ShowGalleryPage(kcw_gallery.gallery.uid, page);
         }
 
         e.stopPropagation();
@@ -281,10 +278,12 @@ jQuery(document).ready(function() {
 
     //Perform an API call to the gallery
     var api_url = kcw_gallery.api_url;
+    var current_request = null;
     function ApiCall(endpoint, paremeter_string, then) {
         var url = api_url + endpoint + paremeter_string;
         console.log("REQUEST: " + url);
-        jQuery.get(url, then).done(function() {
+        if (current_request != null) current_request.abort();
+        current_request = jQuery.get(url, then).done(function() {
         }).fail(function() {
         }).always(function() {
         });
@@ -302,22 +301,27 @@ jQuery(document).ready(function() {
 
         var size = {};
 
-        //Portrait image
-        if (iw < ih) {
-            size.width = "auto";
-            size.height = wh * .8;
-        } 
-        //Landscape image
-        else if (iw > ih) {
-            size.width = ww * .6;
-            size.height = "auto";
-        } 
-        //Square image
-        else {
-            size.width = "auto";
-            size.height = wh * .8;
-        }
+        size.width = "auto";
+        size.height = wh * .8;
 
+        //Landscape mode
+        if (ww > wh) {
+            size.width = "auto";
+            size.height = wh * .8;
+            //Landscape image
+            if (iw > ih) { }
+            //Portrait / Square image
+            else { }
+        } 
+        //Portrait / Square screen
+        else {
+            size.width = wh * .8;
+            size.height = "auto";
+            //Landscape image
+            if (iw > ih) { } 
+            //Portrait / Square image
+            else { }
+        }
 
         jQuery("img.kcw-gallery-lightbox-img").css({width: size.width, height: size.height});
 
@@ -358,8 +362,10 @@ jQuery(document).ready(function() {
 
         jQuery("div a.kcw-gallery-lightbox-embed").data('embed', BuildEmbedCode(resized_img_url));
 
-        jQuery("img.kcw-gallery-lightbox-img").attr('src', resized_img_url);
-        jQuery("img.kcw-gallery-lightbox-img").on('load', function(){ 
+        var img = new Image();
+        img.src = resized_img_url;
+        img.onload = (function(){
+            jQuery("img.kcw-gallery-lightbox-img").attr('src', resized_img_url);
             LightboxLoad_callback(full_img_url); 
         });
     }
@@ -368,22 +374,16 @@ jQuery(document).ready(function() {
         LightboxActive = false;
         jQuery("a.kcw-gallery-lightbox-full-res").attr('href', '');
         jQuery("a.kcw-gallery-lightbox-embed").data('embed', '');
-        if (false) {
-            jQuery("div.kcw-gallery-lightbox-wrapper").css({opacity: 0, top: -999, left: -999});
+
+        jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
             jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
+            jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
             jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
-            jQuery("div.kcw-gallery-lightbox-background").css({opacity: 0});
+        });
+
+        jQuery("div.kcw-gallery-lightbox-background").animate({opacity: 0}, function(){
             jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
-        } else {
-            jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
-                jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
-                jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
-                jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
-            });
-            jQuery("div.kcw-gallery-lightbox-background").animate({opacity: 0}, function(){
-                jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
-            });
-        }
+        });
     }
 
     function LoadingThumbnails_callback() {
