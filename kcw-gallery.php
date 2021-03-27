@@ -109,6 +109,12 @@ function kcw_gallery_SetJSData() {
     return $html;
 }
 
+function kcw_gallery_GetSearchHTML() {
+    $html = "<div class='kcw-gallery-search'>";
+    $html .= "<input type='text' aria-label='search' name='kcw-gallery-search' placeholder='Search'>";
+    $html .= "<span class='dashicons dashicons-search'></span></div>";
+    return $html;
+}
 function kcw_gallery_GetListHTML($list_html = null, $after = null) {
     $html = "<div class='kcw-gallery-list-container' style='%s'>";
     $html .= "<ul class='kcw-gallery-list'>%s</ul>";
@@ -136,6 +142,7 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
 function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
     $html = "";
     $html .= kcw_gallery_SetJSData();
+    $html .= kcw_gallery_GetSearchHTML();
     $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-top'></ul></div>";
     if (isset($guid)) {
         if (!isset($gpage)) $gpage = 1;

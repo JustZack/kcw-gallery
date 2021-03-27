@@ -47,6 +47,53 @@ jQuery(document).ready(function() {
 
         e.stopPropagation();
     });
+    jQuery("div.kcw-gallery-search input").on("keydown", function (e, key){
+        if (e.which == 13) DoImmediateSearch();
+    });
+    jQuery("div.kcw-gallery-search input").on("input", function (){
+        DoDelayedSearch();
+    });
+
+    var searchTimeout = null;
+    var ms_between_keypress = 550;
+    var ms_keypress_wait = 650;
+    var ms_short_wait = 300;
+    var lastSearch = 0;
+
+     //Handle performing and immediate search
+    function DoImmediateSearch() {
+         //Clear the delayed search
+         clearTimeout(searchTimeout);
+         //Perform the search immediately
+         var search = jQuery("div.kcw-gallery-search input").val();
+         DoSearch(search);
+         jQuery("div.kcw-gallery-search input").blur();
+     }
+ 
+     //Handle delaying & performing search until user is 'done' typing
+    function DoDelayedSearch() {
+         var search = jQuery("div.kcw-gallery-search input").val();
+         var timeDiff = Date.now() - lastSearch;
+         lastSearch = Date.now();
+         var wait = 0;
+ 
+         clearTimeout(searchTimeout);
+         if (timeDiff <= ms_between_keypress) wait = ms_keypress_wait;
+         else                                 wait = ms_short_wait;
+         searchTimeout = setTimeout(DoSearch, wait, search); 
+    }
+    function DoSearch_callback(data) {
+        kcw_gallery.list = undefined;
+        StoreListData(data);
+        HideLoadingGif();
+        DisplayGalleryList(kcw_gallery.list.current-1);
+    }
+     //Perform the search. Alias for updateResults
+    function DoSearch(search) {
+        ShowLoadingGif();
+        ApiCall('list/', search, DoSearch_callback)
+    }
+
 
     /*
     Functions dealing with displaying paging links
@@ -217,6 +264,7 @@ jQuery(document).ready(function() {
                kcw_gallery.list.total = data.total;
                kcw_gallery.list.per_page = data.per_page;
                kcw_gallery.list.pages = [];
+               kcw_gallery.list.search = data.search;
                console.log("init list cache");
         }
         kcw_gallery.list.current = data.page;
