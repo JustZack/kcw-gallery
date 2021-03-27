@@ -15,6 +15,7 @@ function kcw_gallery_api_FilterString($search) {
     $search = strtolower($search);
     return $search;
 }
+
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
     $data = array();
@@ -28,6 +29,7 @@ function kcw_gallery_api_Success($data) {
     $data["time"] = time();
     return $data;
 }
+
 //Return a page of the given data
 function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
     $data = array();
@@ -61,6 +63,7 @@ function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
 
     return $data;
 }
+
 //Return the gallery list with an assumed first page
 function kcw_gallery_api_GetGalleryList() {
     $data = array();
@@ -74,6 +77,7 @@ function kcw_gallery_api_GetGalleryListPage($data) {
     $list_page = kcw_gallery_api_Page($list, $lpage, 40, "items");
     return kcw_gallery_api_Success($list_page);
 }
+
 //Return meta data about a given gallery
 function kcw_gallery_api_GetGalleryMeta($data) {
     $meta = kcw_gallery_GetGalleryData($data["guid"]);
@@ -83,6 +87,7 @@ function kcw_gallery_api_GetGalleryMeta($data) {
     unset($meta["basedir"]); unset($meta["thumbsdir"]);
     return kcw_gallery_api_Success($meta);
 }
+
 //Return the given gallery, with an assumed first page
 function kcw_gallery_api_GetGallery($data) {
     $data['gpage'] = 1;
@@ -130,6 +135,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
 
     return kcw_gallery_api_Success($gallery_page);
 }
+
 //Return any galleries matching the given search string
 function kcw_gallery_Search($string) {
     $list = kcw_gallery_GetListData();
