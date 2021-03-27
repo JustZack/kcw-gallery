@@ -2,33 +2,50 @@ jQuery(document).ready(function() {
     /*
         Event Handlers
     */
-    jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function() {
-        var url = jQuery(this).data('src');
-        window.open(url, "_blank")
+    jQuery("html, body").click(function(e){
+        if (LightboxActive) HideLightbox();
     });
-    jQuery("ul.kcw-gallery-list").on('click', 'li', function() {
+    jQuery("div.kcw-gallery-lightbox-wrapper").click(function(e){
+        e.stopPropagation();
+    });
+    jQuery("a.kcw-gallery-lightbox-embed").click(function() {
+        var embed = jQuery(this).data("embed");
+        prompt("Copy this code to embed the image.", embed);
+    });
+    jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function(e) {
         if (!isLoading) {
-            var guid = jQuery(this).data('id');
-
-            ShowGalleryPage(guid, 1)
+            if (LightboxActive) HideLightbox();
+            var url = jQuery(this).data('src');
+            ShowLightbox(url);
         }
+        e.stopPropagation();
     });
-    jQuery("a.kcw-gallery-list-home").on('click', function() {
+    jQuery("ul.kcw-gallery-list").on('click', 'li', function(e) {
+        var guid = jQuery(this).data('id');
+        if (LightboxActive) HideLightbox();
+        ShowGalleryPage(guid, 1);
+        e.stopPropagation();
+    });
+    jQuery("a.kcw-gallery-list-home").on('click', function(e) {
         var page = 1;
         if (kcw_gallery.list != undefined) page = kcw_gallery.list.current;
-        
+        if (LightboxActive) HideLightbox();
         ShowGalleryListPage(page);
+
+        e.stopPropagation();
     });
-    jQuery("ul.kcw-gallery-pagination").on('click', 'li', function() {
-        if (!isLoading) {
-            var page = jQuery(this).data('page');
-            var current_page = jQuery("ul.kcw-gallery-pagination a.current_page").parent().data('page');
-            if (page != undefined) {
-                if (page == current_page) return;
-                else if (ListActive) ShowGalleryListPage(page);
-                else ShowGalleryPage(kcw_gallery.gallery.uid, page);
-            }
+    jQuery("ul.kcw-gallery-pagination").on('click', 'li', function(e) {
+        if (LightboxActive) HideLightbox();
+        
+        var page = jQuery(this).data('page');
+        var current_page = jQuery("ul.kcw-gallery-pagination a.current_page").parent().data('page');
+        if (page != undefined) {
+            if (page == current_page) return;
+            else if (ListActive) ShowGalleryListPage(page);
+            else ShowGalleryPage(kcw_gallery.gallery.uid, page);
         }
+
+        e.stopPropagation();
     });
 
     /*
@@ -177,7 +194,7 @@ jQuery(document).ready(function() {
 
     function ShowGalleryPage(guid, gpage) {
         jQuery("div.kcw-gallery-display").css({display: "block"});
-        ShowLoadingGif();
+        ShowLoadingGif(LoadingThumbnails_callback);
         //If no gallery is cached, the requested gallery differs from the cache, or the current gallery page does not exist
         if (kcw_gallery.gallery == undefined 
          || kcw_gallery.gallery.uid != guid || kcw_gallery.gallery.pages[gpage-1] == undefined) {
@@ -189,7 +206,6 @@ jQuery(document).ready(function() {
             DisplayGalleryData(gpage-1);
         }
     }
-
 
     /*
         Functions dealing with displaying the gallery list
@@ -248,7 +264,7 @@ jQuery(document).ready(function() {
     }
     function ShowGalleryListPage(lpage) {
         jQuery("div.kcw-gallery-list-container").css({display: "block"});
-        ShowLoadingGif();
+        ShowLoadingGif(null);
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
@@ -262,19 +278,126 @@ jQuery(document).ready(function() {
 
     //Perform an API call to the gallery
     var api_url = kcw_gallery.api_url;
+    var current_request = null;
     function ApiCall(endpoint, paremeter_string, then) {
         var url = api_url + endpoint + paremeter_string;
         console.log("REQUEST: " + url);
-        jQuery.get(url, then).done(function() {
+        if (current_request != null) current_request.abort();
+        current_request = jQuery.get(url, then).done(function() {
         }).fail(function() {
         }).always(function() {
         });
     }
 
+    function LightboxFitToScreen(viewport_size, image_size) {
+        viewport_size.width *= .8;
+        viewport_size.height *= .75;
+
+        var w_ratio = viewport_size.width / image_size.width;
+        var h_ratio = viewport_size.height / image_size.height;
+        var smallest = Math.min(w_ratio, h_ratio);
+
+        var fit_width = image_size.width * smallest;
+        var fit_height = image_size.height * smallest;
+
+        var fit = {width: fit_width, height: fit_height};
+
+        return fit;
+    }
+
+    function LightboxLoad_callback(full_img_url) {
+        //Show the background first
+        jQuery("div.kcw-gallery-lightbox-background").css({display: "block"});
+        jQuery("div.kcw-gallery-lightbox-background").animate({opacity: "85%"});
+
+        //Get image size
+        var iw = jQuery("img.kcw-gallery-lightbox-img").width();
+        var ih = jQuery("img.kcw-gallery-lightbox-img").height();
+        var image_size = {width: iw, height: ih};
+        //Get window size
+        var ww = jQuery(window).outerWidth();
+        var wh = jQuery(window).outerHeight();
+        var viewport_size = {width: ww, height: wh};
+        //Compute optimal size of image
+        var size = LightboxFitToScreen(viewport_size, image_size);
+        //Set image size
+        jQuery("img.kcw-gallery-lightbox-img").css({width: size.width, height: size.height});
+
+        //Get wrapper size
+        var lw = jQuery("div.kcw-gallery-lightbox-wrapper").outerWidth();
+        var lh = jQuery("div.kcw-gallery-lightbox-wrapper").outerHeight();
+        //Compute coordinates for centering lightbox
+        var pos = {top: wh/2, left: ww/2};
+        pos.top -= lh/2;
+        pos.left -= lw/2;
+        //Done loading, hide gif
+        HideLoadingGif();
+        //Show the lightbox
+        jQuery("div.kcw-gallery-lightbox-wrapper").css({top: pos.top, left: pos.left});
+        jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 1});
+    }
+
+    var LightboxActive = false;
+    function BuildEmbedCode(resized_img_url) {
+        var code = "<img src='" + resized_img_url + " width='800' height='600'>";
+        return code;
+    }
+    function ShowLightbox(full_img_url) {
+        ShowLoadingGif(null);
+        
+        LightboxActive = true;
+        //Use a specifically sized version of the chosen image (if not localhost/dev)
+        var resized_img_url = full_img_url;
+        if (full_img_url.indexOf("://localhost/") == -1) {
+            resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
+            resized_img_url += "?w=1100&ssl=1";
+            console.log(resized_img_url);
+        }
+
+        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', full_img_url);
+
+        jQuery("div a.kcw-gallery-lightbox-embed").data('embed', BuildEmbedCode(resized_img_url));
+
+        var img = new Image();
+        img.src = resized_img_url;
+        img.onload = (function(){
+            jQuery("img.kcw-gallery-lightbox-img").attr('src', resized_img_url);
+            LightboxLoad_callback(full_img_url); 
+        });
+    }
+
+    function HideLightbox() {
+        LightboxActive = false;
+        jQuery("a.kcw-gallery-lightbox-full-res").attr('href', '');
+        jQuery("a.kcw-gallery-lightbox-embed").data('embed', '');
+
+        jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
+            jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
+            jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
+            jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
+        });
+
+        jQuery("div.kcw-gallery-lightbox-background").animate({opacity: 0}, function(){
+            jQuery("div.kcw-gallery-lightbox-background").css({display: "none"});
+        });
+    }
+
+    function LoadingThumbnails_callback() {
+        jQuery("p.kcw-gallery-loading-status").text("Please Wait...");
+        jQuery("p.kcw-gallery-loading-status").css({display: "block"});
+        jQuery("p.kcw-gallery-loading-status").animate({opacity: 1}, 600);
+        loadingTimeout = setTimeout(function(){
+            jQuery("p.kcw-gallery-loading-status").animate({opacity: 0}, function() {
+                jQuery(this).text("Generating Thumbnails...");
+                jQuery(this).animate({opacity: 1});
+            });
+        }, 5000);
+    }
+
     var isLoading = false;
     var loadingTimeout = null;
     //Display the loading gif on the given element
-    function ShowLoadingGif() {
+    function ShowLoadingGif(callback) {
         isLoading = true;
 
         var pos = {};
@@ -283,27 +406,19 @@ jQuery(document).ready(function() {
         var lh = jQuery("div.kcw-gallery-loading-wrapper").outerHeight();
 
         pos.top = jQuery(window).height() / 2;
-        pos.top -= lw/2;
+        pos.top -= lh/2;
 
         pos.left = jQuery(window).width() / 2;
-        pos.left -= lh/2;
-
-        console.log(pos);
+        pos.left -= lw/2;
 
         jQuery("div.kcw-gallery-loading-wrapper").css({top: pos.top, left: pos.left});
         jQuery("div.kcw-gallery-loading-wrapper").animate({opacity: 1});
 
-        loadingTimeout = setTimeout(function(){opacity: 0;
-            jQuery("p.kcw-gallery-loading-status").text("Please Wait...");
-            jQuery("p.kcw-gallery-loading-status").css({display: "block"});
-            jQuery("p.kcw-gallery-loading-status").animate({opacity: 1}, 600);
+        if (callback != null) {
             loadingTimeout = setTimeout(function(){
-                jQuery("p.kcw-gallery-loading-status").animate({opacity: 0}, function() {
-                    jQuery(this).text("Generating Thumbnails...");
-                    jQuery(this).animate({opacity: 1});
-                });
-            }, 5000);
-        }, 3000);
+                callback();
+            }, 3000);
+        }
     }
     //Hide the loading gif
     function HideLoadingGif(){

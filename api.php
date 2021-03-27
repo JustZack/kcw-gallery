@@ -6,8 +6,8 @@ include_once "img-helpers.php";
 $kcw_gallery_api_namespace = "kcwgallery";
 $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/');
 
-$kcw_gallery_thumbnail_width = 130;
-$kcw_gallery_thumbnail_height = 130;
+$kcw_gallery_thumbnail_width = 160;
+$kcw_gallery_thumbnail_height = 160;
 
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
@@ -107,6 +107,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
         if (file_exists($thumbfile)) {
             $size = getimagesize($thumbfile);
             if ($size != false && ($size[0] != $kcw_gallery_thumbnail_width && $size[1] != $kcw_gallery_thumbnail_height)) {
+                unlink($thumbfile);
                 $create_thumb = true;
             }
         } else {

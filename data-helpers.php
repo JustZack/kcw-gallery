@@ -19,7 +19,7 @@ function kcw_gallery_RootUrl() {
 }
 
 function kcw_gallery_BuildUid($cat, $name, $dirtime) {
-    $uid = $cat . '.' . $name . '.' . dechex($dirtime);
+    $uid = $cat . '.' . $name . '.' . dechex($dirtime); 
     $uid = str_replace(' ', '-', $uid);
     return $uid;
 }
