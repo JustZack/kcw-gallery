@@ -9,13 +9,6 @@ $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/'
 $kcw_gallery_thumbnail_width = 160;
 $kcw_gallery_thumbnail_height = 160;
 
-//Filter bad meaningless characters out of a search string
-function kcw_gallery_api_FilterString($search) {
-    $search = preg_replace("/[^A-Za-z0-9 ]/", '', $search);
-    $search = strtolower($search);
-    return $search;
-}
-
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
     $data = array();
@@ -136,6 +129,16 @@ function kcw_gallery_api_GetGalleryPage($data) {
     return kcw_gallery_api_Success($gallery_page);
 }
 
+//Filter bad meaningless characters out of a search string
+function kcw_gallery_api_FilterString($search) {
+    $search = preg_replace("/[^A-Za-z0-9]+/", ' ', $search);
+    $search = strtolower($search);
+    return $search;
+}
+//Check if two strings contain eachother
+function kcw_gallery_api_SearchMatches($search, $possible_match) {
+    return strpos($search, $possible_match) > -1 || strpos($possible_match, $search) > -1;
+}
 //Return any galleries matching the given search string
 function kcw_gallery_Search($string) {
     $list = kcw_gallery_GetListData();
@@ -143,15 +146,21 @@ function kcw_gallery_Search($string) {
     $search_list = array();
     foreach ($list as $item) {
         $name = kcw_gallery_api_FilterString($item["friendly_name"]);
-        if (strpos($name, $string) || strpos($string, $name)) {
+        if (kcw_gallery_api_SearchMatches($string, $name)) {
             $search_list[] = $item;
             continue;
         }
+        //Break up the current gallery name based on its spaces
+        //And check if the search string matches any of those
         $name = explode(' ', $name);
-        foreach ($name as $part) {
-            if (strpos($part, $string) || strpos($string, $part)) {
-                $search_list[] = $item;
-                break;
+        $search_arr = explode(' ', $string);
+        foreach ($search_arr as $search_part) {
+            foreach ($name as $part) {
+                if (kcw_gallery_api_SearchMatches($search_part, $part)) {
+                    $search_list[] = $item;
+                    $fullbreak = true;
+                    break 2;
+                }
             }
         }
     }

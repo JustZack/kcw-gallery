@@ -40,9 +40,14 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
     else $html = sprintf($html, "");
     return $html;
 }
-function kcw_gallery_BuildGalleryListDisplay($lpage) {
-    $data = array(); $data["lpage"] = $lpage;
-    $list = kcw_gallery_api_GetGalleryListPage($data);
+function kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch) {
+    $data = array(); $data["lpage"] = $lpage; $list;
+    if (isset($lsearch)) {
+        $data["lsearch"] = $lsearch;
+        $list = kcw_gallery_api_GetSearchPage($data);
+    } else {
+        $list = kcw_gallery_api_GetGalleryListPage($data);
+    }
     for ($i = 0;$i < count($list["items"]);$i++) {
         if ($list["items"][$i]["visibility"] == "visible")
             $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
@@ -109,11 +114,11 @@ function kcw_gallery_SetJSData() {
     return $html;
 }
 
-function kcw_gallery_GetSearchHTML() {
+function kcw_gallery_GetSearchHTML($search) {
     $html = "<div class='kcw-gallery-search'>";
-    $html .= "<input type='text' aria-label='search' name='kcw-gallery-search' placeholder='Search'>";
+    $html .= "<input type='text' aria-label='search' name='kcw-gallery-search' value='%s' placeholder='Search'>";
     $html .= "<span class='dashicons dashicons-search'></span></div>";
-    return $html;
+    return sprintf($html, $search);
 }
 function kcw_gallery_GetListHTML($list_html = null, $after = null) {
     $html = "<div class='kcw-gallery-list-container' style='%s'>";
@@ -139,10 +144,10 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
         return sprintf($html, "opacity: 0;", "", "", "");
 }
 
-function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
+function kcw_gallery_DoDisplay($guid, $gpage, $lpage, $lsearch) {
     $html = "";
     $html .= kcw_gallery_SetJSData();
-    $html .= kcw_gallery_GetSearchHTML();
+    $html .= kcw_gallery_GetSearchHTML($lsearch);
     $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-top'></ul></div>";
     if (isset($guid)) {
         if (!isset($gpage)) $gpage = 1;
@@ -150,7 +155,7 @@ function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
         $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
     } else {
         if (!isset($lpage)) $lpage = 1;
-        $html .= kcw_gallery_BuildGalleryListDisplay($lpage);
+        $html .= kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch);
         $html .= kcw_gallery_GetGalleryHTML();
     }
     $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-bottom'></ul></div>";
@@ -190,10 +195,11 @@ function kcw_gallery_new_Init() {
     $guid = $_GET["guid"];
     $gpage = $_GET["gpage"];
     $lpage = $_GET["lpage"];
+    $lsearch = $_GET["lsearch"];
 
     $html = kcw_gallery_StartBlock();
 
-    $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
+    $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage, $lsearch);
     $html .= kcw_gallery_GetLoadingBox();
     $html .= kcw_gallery_GetLightbox();
 

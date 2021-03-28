@@ -51,7 +51,7 @@ jQuery(document).ready(function() {
         if (e.which == 13) DoImmediateSearch();
     });
     jQuery("div.kcw-gallery-search input").on("input", function (){
-        DoDelayedSearch();
+        if (!isLoading) DoDelayedSearch();
     });
 
     var searchTimeout = null;
@@ -66,7 +66,7 @@ jQuery(document).ready(function() {
          clearTimeout(searchTimeout);
          //Perform the search immediately
          var search = jQuery("div.kcw-gallery-search input").val();
-         DoSearch(search);
+         ShowListSearch(search);
          jQuery("div.kcw-gallery-search input").blur();
      }
  
@@ -80,18 +80,19 @@ jQuery(document).ready(function() {
          clearTimeout(searchTimeout);
          if (timeDiff <= ms_between_keypress) wait = ms_keypress_wait;
          else                                 wait = ms_short_wait;
-         searchTimeout = setTimeout(DoSearch, wait, search); 
-    }
-    function DoSearch_callback(data) {
-        kcw_gallery.list = undefined;
-        StoreListData(data);
-        HideLoadingGif();
-        DisplayGalleryList(kcw_gallery.list.current-1);
+         searchTimeout = setTimeout(ShowListSearch, wait, search); 
     }
      //Perform the search. Alias for updateResults
-    function DoSearch(search) {
-        ShowLoadingGif();
-        ApiCall('list/', search, DoSearch_callback)
+    function ShowListSearch(search) {
+        jQuery("div.kcw-gallery-list-container").css({display: "block"});
+        ShowLoadingGif(null);
+
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
+         || kcw_gallery.list.pages[0] == undefined || kcw_gallery.list.search != search) {
+            ApiCall("list/", search, ShowGalleryListPage_callback);
+         } else {
+            DisplayGalleryList(0);
+         }
     }
 
 
@@ -111,44 +112,48 @@ jQuery(document).ready(function() {
 
     var ListActive = true;
     function DisplayPagingLinks(toPage) {
-        var num_pages = Math.floor(toPage.total / toPage.per_page) + 1;
-        var current = toPage.current - 1;
-
-        jQuery("ul.pagination-top").empty();
-        jQuery("ul.pagination-bottom").empty();
-
-        var max_visible_pages = 6;
         var show_pages = [];
-        //If there are more pages in this gallery than should be shown
-        if (num_pages > max_visible_pages) {
-            //Show the first 2 pages
-            show_pages.push(0, 1);
-
-            var page_padding = 1;
-
-            var start = current - page_padding;
-            var end = current + page_padding;
-            var last = num_pages - 1;
-
-            if (start <= 1) {
-                start = 2;
-            }
-
-            if (end >= last - 1) {
-                end = last - 2;
-            }
-
-            for (var i = start;i <= end;i++) show_pages.push(i);
-
-            //Show the last two pages
-            show_pages.push(num_pages - 2, num_pages - 1);
-
+        //List is undefined, just add one dummy page
+        if (toPage.total == undefined || toPage.per_page == undefined) {
+            show_pages.push(0);
         } else {
-            for (var i = 0;i < num_pages;i++) {
-                show_pages.push(i);
+            var num_pages = Math.floor(toPage.total / toPage.per_page) + 1;
+            var current = toPage.current - 1;
+
+            jQuery("ul.pagination-top").empty();
+            jQuery("ul.pagination-bottom").empty();
+
+            var max_visible_pages = 6;
+            //If there are more pages in this gallery than should be shown
+            if (num_pages > max_visible_pages) {
+                //Show the first 2 pages
+                show_pages.push(0, 1);
+
+                var page_padding = 1;
+
+                var start = current - page_padding;
+                var end = current + page_padding;
+                var last = num_pages - 1;
+
+                if (start <= 1) {
+                    start = 2;
+                }
+
+                if (end >= last - 1) {
+                    end = last - 2;
+                }
+
+                for (var i = start;i <= end;i++) show_pages.push(i);
+
+                //Show the last two pages
+                show_pages.push(num_pages - 2, num_pages - 1);
+
+            } else {
+                for (var i = 0;i < num_pages;i++) {
+                    show_pages.push(i);
+                }
             }
         }
-
         last = 0;
         show_pages.forEach(function(i) {
             var elem = "";
@@ -259,7 +264,8 @@ jQuery(document).ready(function() {
     */
     function StoreListData(data) {
         //Generate the cache
-        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined) {
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
+            || kcw_gallery.list.search != data.search) {
                kcw_gallery.list = {};
                kcw_gallery.list.total = data.total;
                kcw_gallery.list.per_page = data.per_page;
@@ -316,7 +322,9 @@ jQuery(document).ready(function() {
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
-            ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
+             var params = "/"+lpage;
+             if (kcw_gallery.list.search != undefined) params = "/"+kcw_gallery.list.search+params;
+            ApiCall("list", params, ShowGalleryListPage_callback);
          } else {
             kcw_gallery.list.current = lpage;
             DisplayGalleryList(lpage-1);
@@ -493,8 +501,6 @@ jQuery(document).ready(function() {
     KCWGalleryInit();
     function KCWGalleryInit(){
         GetQueryStringParameters();
-
-
     }
 
     /*
@@ -504,23 +510,21 @@ jQuery(document).ready(function() {
     function GetQueryStringParameters() {
         var gallery_guid = getQueryStringParam("guid");
         var gallery_page = getQueryStringParam("gpage");
-        var search = getQueryStringParam("gsearch");
+        var search = getQueryStringParam("lsearch");
         var list_page = getQueryStringParam("lpage");
 
         //Set current gallery list page if needed
         if (kcw_gallery.list == null) kcw_gallery.list = {};
-        if (list_page != null) {
-            kcw_gallery.list.current = parseInt(list_page);
-        } else {
-            kcw_gallery.list.current = 1;
-        }
+        if (list_page != null) kcw_gallery.list.current = parseInt(list_page);
+        else                   kcw_gallery.list.current = 1;
+        
+        if (search != null) kcw_gallery.list.search = search;
+        else kcw_gallery.list.search = undefined;
 
         //Display the correct paging links
         if (gallery_guid != null) {
             ListActive = false;
             DisplayPagingLinks(kcw_gallery.gallery);
-            //jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
-            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List");
             jQuery("div.kcw-gallery-display").animate({opacity: 1});
         } else {
             ListActive = true;
@@ -535,6 +539,7 @@ jQuery(document).ready(function() {
     }
     //Set variables into the query string
     function SetQueryParameters(exclude_gallery) {
+        if (kcw_gallery.list.search != null) updateQueryStringParam("lsearch", kcw_gallery.list.search);
         if (kcw_gallery.gallery == undefined || exclude_gallery != undefined) {
             var list_page = kcw_gallery.list.current;
             updateQueryStringParam("lpage", list_page);

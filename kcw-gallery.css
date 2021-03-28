@@ -227,11 +227,11 @@ p.kcw-gallery-loading-status {
 
 div.kcw-gallery-search{
     width: 100%;
-    height: 30px;
+    height: 35px;
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #FFFFFF;
-    font-size: 16px;
+    font-size: 20px;
     padding: 0px;
 }
 div.kcw-gallery-search input {
@@ -256,7 +256,7 @@ div.kcw-gallery-search span {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
+    height: 35px;
     padding: 2px 0px 6px 0px;
 }
 div.kcw-gallery-search span:hover {
@@ -351,6 +351,10 @@ div.kcw-gallery-search:hover {
 @media only screen and (max-width: 700px) {
     a.kcw-gallery-list-category {
         opacity: 0;
+    }
+    div.kcw-gallery-search, div.kcw-gallery-search span {
+        font-size: 27px;
+        height: 40px;
     }
 }
 
