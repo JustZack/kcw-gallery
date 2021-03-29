@@ -293,18 +293,29 @@ jQuery(document).ready(function() {
 
         //Do the list display stuff
         jQuery("ul.kcw-gallery-list").empty();
-        for (var i = 0;i < list.pages[lpage].length;i++) {
-            var item = list.pages[lpage][i];
-            if (item.visibility == "visible") {
-                var cat = null;
-                if (item.category != null) cat = item.nice_category;
-                var elem = BuildListItem(item.nice_name, cat, item.uid, item.files);
-                jQuery("ul.kcw-gallery-list").append(elem);
-            }
-        }
-
         SetQueryParameters(true);
 
+        if (list.pages[lpage].length == 0) {
+            jQuery("h3.kcw-gallery-list-message").text("No results for " + jQuery("div.kcw-gallery-search input").val());
+            jQuery("h3.kcw-gallery-list-message").css({display: "block"});
+            jQuery("ul.kcw-gallery-pagination").css({display: "none"});
+            jQuery("ul.kcw-gallery-list").css({display: "none"});
+        } else {
+            jQuery("h3.kcw-gallery-list-message").text("");
+            jQuery("h3.kcw-gallery-list-message").css({display: "none"});
+            jQuery("ul.kcw-gallery-pagination").css({display: "block"});
+            jQuery("ul.kcw-gallery-list").css({display: "block"});
+            for (var i = 0;i < list.pages[lpage].length;i++) {
+                var item = list.pages[lpage][i];
+                if (item.visibility == "visible") {
+                    var cat = null;
+                    if (item.category != null) cat = item.nice_category;
+                    var elem = BuildListItem(item.nice_name, cat, item.uid, item.files);
+                    jQuery("ul.kcw-gallery-list").append(elem);
+                }
+            }
+
+        }
         jQuery("div.kcw-gallery-display").css({display: "none"});
         jQuery("div.kcw-gallery-display").animate({opacity: 0}, function() {
             FinishActionFor("div.kcw-gallery-list-container");
