@@ -395,7 +395,7 @@ jQuery(document).ready(function() {
 
     var LightboxActive = false;
     function BuildEmbedCode(resized_img_url) {
-        var code = "<img src='" + resized_img_url + " width='800' height='600'>";
+        var code = "<img src='" + resized_img_url + "' width='800' height='600'>";
         return code;
     }
     function ShowLightbox(full_img_url) {
@@ -410,7 +410,7 @@ jQuery(document).ready(function() {
             console.log(resized_img_url);
         }
 
-        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', full_img_url);
+        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', resized_img_url);
 
         jQuery("div a.kcw-gallery-lightbox-embed").data('embed', BuildEmbedCode(resized_img_url));
 
@@ -540,6 +540,8 @@ jQuery(document).ready(function() {
     //Set variables into the query string
     function SetQueryParameters(exclude_gallery) {
         if (kcw_gallery.list.search != null) updateQueryStringParam("lsearch", kcw_gallery.list.search);
+        else removeQueryStringParam("lsearch");
+
         if (kcw_gallery.gallery == undefined || exclude_gallery != undefined) {
             var list_page = kcw_gallery.list.current;
             updateQueryStringParam("lpage", list_page);

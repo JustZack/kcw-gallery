@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.1.1
+* Version:           1.1.5
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.2.6");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.2.4");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.3.3");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.3.2");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -136,7 +136,7 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
     $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
     $html .= "<div class='kcw-gallery-title'>%s</div>";
-    $html .= "<center><ul class='kcw-gallery-thumbs'>-%s</ul></center>";
+    $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
     $html .= "</div>%s";
     if ($title != null && $gallery_list_html != null && $after != null)
         return sprintf($html, "opacity: 0;", $title, $gallery_list_html, $after);
@@ -177,7 +177,7 @@ function kcw_gallery_GetLightbox() {
     $html .= "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
     $html .= "<img src='' class='kcw-gallery-lightbox-img'>";
     $html .= "<div class='kcw-gallery-lightbox-buttons'>";
-    $html .= "<span><a class='kcw-gallery-lightbox-full-res' href='' target='_blank'>Full Size<span class='dashicons dashicons-external'></span></a></span>";
+    $html .= "<span><a class='kcw-gallery-lightbox-full-res' href=''>Full Size<span class='dashicons dashicons-external'></span></a></span>";
     $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span></div>";
     $html .= "</div>";
     return $html;

@@ -20,7 +20,7 @@ a.kcw-gallery-list-home {
 a.kcw-gallery-list-home span.dashicons {
     text-align: right;
     font-size: 25px;
-    margin-top: 10px;
+    margin-top: 7px;
 }
 
 a.kcw-gallery-list-home span.kcw-gallery-list-home-name {
@@ -84,6 +84,10 @@ div.kcw-gallery-display {
     padding: 0px;
 }
 
+div.kcw-gallery-display center {
+    margin-top: 10px;
+}
+
 div.kcw-gallery-pagination-wrapper {
     width: 100%;
     margin: 10px 0px;
@@ -120,6 +124,8 @@ a.kcw-gallery-list-home:hover {
 div.kcw-gallery-title {
     font-size: 25px;
     margin-top: 10px;
+    float: right;
+    color: #030303;
 }
 
 ul.kcw-gallery-thumbs {
@@ -132,7 +138,7 @@ ul.kcw-gallery-thumbs {
 
 ul.kcw-gallery-thumbs li {
     display: inline-block;
-    margin: -2px 2px;
+    margin: 2px 2px;
 }
 ul.kcw-gallery-thumbs li img {
     width: 150px;
@@ -149,7 +155,7 @@ div.kcw-gallery-lightbox-wrapper {
     padding: 0px;
     border-radius: 5px;
     position: fixed;
-    z-index: 2;
+    z-index: 999999;
 }
 
 div.kcw-gallery-lightbox-wrapper img {
@@ -164,7 +170,7 @@ div.kcw-gallery-lightbox-background {
     left: 0px;
     background-color: #030303;
     opacity: 0%;
-    z-index: 1;
+    z-index: 999998;
     display: none;
 }
 
@@ -185,6 +191,8 @@ div.kcw-gallery-lightbox-buttons > span a{
     border-radius: 5px;
     background-color: white;
     color: #030303;
+    font-size: 20px;
+    cursor: pointer;
 }
 div.kcw-gallery-lightbox-buttons > span a:hover {
     background-color: #030303;
@@ -198,7 +206,7 @@ div.kcw-gallery-lightbox-buttons > span:last-child{
     float:right;
 }
 div.kcw-gallery-lightbox-buttons .dashicons {
-    margin-top: 5px;
+    margin-top: 2px;
     font-size: 25px;
 }
 
@@ -267,6 +275,10 @@ div.kcw-gallery-search:hover {
     background-color: #e5e5e5;
     border-color: #606060;
     cursor: text;
+}
+
+a.kcw-gallery-lightbox-embed {
+    display: none;
 }
 
 
@@ -353,8 +365,11 @@ div.kcw-gallery-search:hover {
         opacity: 0;
     }
     div.kcw-gallery-search, div.kcw-gallery-search span {
-        font-size: 27px;
-        height: 40px;
+        font-size: 22px;
+        height: 35px;
+    }
+    div.kcw-gallery-title {
+        float: none;
     }
 }
 

@@ -5,9 +5,10 @@ include_once "img-helpers.php";
 
 $kcw_gallery_api_namespace = "kcwgallery";
 $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/');
+//$kcw_gallery_api_url = "https://kustomcoachwerks.com/wp-json/kcwgallery/v1/";
 
-$kcw_gallery_thumbnail_width = 160;
-$kcw_gallery_thumbnail_height = 160;
+$kcw_gallery_thumbnail_width = 130;
+$kcw_gallery_thumbnail_height = 130;
 
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
@@ -131,6 +132,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
 
 //Filter bad meaningless characters out of a search string
 function kcw_gallery_api_FilterString($search) {
+    $search = preg_replace("/\%20/", ' ', $search);
     $search = preg_replace("/[^A-Za-z0-9]+/", ' ', $search);
     $search = strtolower($search);
     return $search;
@@ -152,17 +154,17 @@ function kcw_gallery_Search($string) {
         }
         //Break up the current gallery name based on its spaces
         //And check if the search string matches any of those
-        $name = explode(' ', $name);
+        /*$name = explode(' ', $name);
         $search_arr = explode(' ', $string);
-        foreach ($search_arr as $search_part) {
+        //foreach ($search_arr as $search_part) {
             foreach ($name as $part) {
-                if (kcw_gallery_api_SearchMatches($search_part, $part)) {
+                if (kcw_gallery_api_SearchMatches($string, $part)) {
                     $search_list[] = $item;
                     $fullbreak = true;
-                    break 2;
+                    break 1;
                 }
-            }
-        }
+            }*/
+        //}
     }
     return $search_list;
 }
@@ -176,7 +178,7 @@ function kcw_gallery_api_GetSearchPage($data) {
     $lpage = (int)$data["lpage"];
     $list = kcw_gallery_Search($data["lsearch"]);
     $list_page = kcw_gallery_api_Page($list, $lpage, 40, "items");
-    $list_page["search"] = $data["lsearch"];
+    $list_page["search"] = ($data["lsearch"]);
     return kcw_gallery_api_Success($list_page);
 }
 
