@@ -47,6 +47,54 @@ jQuery(document).ready(function() {
 
         e.stopPropagation();
     });
+    jQuery("div.kcw-gallery-search input").on("keydown", function (e, key){
+        if (e.which == 13) DoImmediateSearch();
+    });
+    jQuery("div.kcw-gallery-search input").on("input", function (){
+        if (!isLoading) DoDelayedSearch();
+    });
+
+    var searchTimeout = null;
+    var ms_between_keypress = 550;
+    var ms_keypress_wait = 650;
+    var ms_short_wait = 300;
+    var lastSearch = 0;
+
+     //Handle performing and immediate search
+    function DoImmediateSearch() {
+         //Clear the delayed search
+         clearTimeout(searchTimeout);
+         //Perform the search immediately
+         var search = jQuery("div.kcw-gallery-search input").val();
+         ShowListSearch(search);
+         jQuery("div.kcw-gallery-search input").blur();
+     }
+ 
+     //Handle delaying & performing search until user is 'done' typing
+    function DoDelayedSearch() {
+         var search = jQuery("div.kcw-gallery-search input").val();
+         var timeDiff = Date.now() - lastSearch;
+         lastSearch = Date.now();
+         var wait = 0;
+ 
+         clearTimeout(searchTimeout);
+         if (timeDiff <= ms_between_keypress) wait = ms_keypress_wait;
+         else                                 wait = ms_short_wait;
+         searchTimeout = setTimeout(ShowListSearch, wait, search); 
+    }
+     //Perform the search. Alias for updateResults
+    function ShowListSearch(search) {
+        jQuery("div.kcw-gallery-list-container").css({display: "block"});
+        ShowLoadingGif(null);
+
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
+         || kcw_gallery.list.pages[0] == undefined || kcw_gallery.list.search != search) {
+            ApiCall("list/", search, ShowGalleryListPage_callback);
+         } else {
+            DisplayGalleryList(0);
+         }
+    }
+
 
     /*
     Functions dealing with displaying paging links
@@ -64,44 +112,48 @@ jQuery(document).ready(function() {
 
     var ListActive = true;
     function DisplayPagingLinks(toPage) {
-        var num_pages = Math.floor(toPage.total / toPage.per_page) + 1;
-        var current = toPage.current - 1;
-
-        jQuery("ul.pagination-top").empty();
-        jQuery("ul.pagination-bottom").empty();
-
-        var max_visible_pages = 6;
         var show_pages = [];
-        //If there are more pages in this gallery than should be shown
-        if (num_pages > max_visible_pages) {
-            //Show the first 2 pages
-            show_pages.push(0, 1);
-
-            var page_padding = 1;
-
-            var start = current - page_padding;
-            var end = current + page_padding;
-            var last = num_pages - 1;
-
-            if (start <= 1) {
-                start = 2;
-            }
-
-            if (end >= last - 1) {
-                end = last - 2;
-            }
-
-            for (var i = start;i <= end;i++) show_pages.push(i);
-
-            //Show the last two pages
-            show_pages.push(num_pages - 2, num_pages - 1);
-
+        //List is undefined, just add one dummy page
+        if (toPage.total == undefined || toPage.per_page == undefined) {
+            show_pages.push(0);
         } else {
-            for (var i = 0;i < num_pages;i++) {
-                show_pages.push(i);
+            var num_pages = Math.floor(toPage.total / toPage.per_page) + 1;
+            var current = toPage.current - 1;
+
+            jQuery("ul.pagination-top").empty();
+            jQuery("ul.pagination-bottom").empty();
+
+            var max_visible_pages = 6;
+            //If there are more pages in this gallery than should be shown
+            if (num_pages > max_visible_pages) {
+                //Show the first 2 pages
+                show_pages.push(0, 1);
+
+                var page_padding = 1;
+
+                var start = current - page_padding;
+                var end = current + page_padding;
+                var last = num_pages - 1;
+
+                if (start <= 1) {
+                    start = 2;
+                }
+
+                if (end >= last - 1) {
+                    end = last - 2;
+                }
+
+                for (var i = start;i <= end;i++) show_pages.push(i);
+
+                //Show the last two pages
+                show_pages.push(num_pages - 2, num_pages - 1);
+
+            } else {
+                for (var i = 0;i < num_pages;i++) {
+                    show_pages.push(i);
+                }
             }
         }
-
         last = 0;
         show_pages.forEach(function(i) {
             var elem = "";
@@ -212,11 +264,13 @@ jQuery(document).ready(function() {
     */
     function StoreListData(data) {
         //Generate the cache
-        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined) {
+        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
+            || kcw_gallery.list.search != data.search) {
                kcw_gallery.list = {};
                kcw_gallery.list.total = data.total;
                kcw_gallery.list.per_page = data.per_page;
                kcw_gallery.list.pages = [];
+               kcw_gallery.list.search = data.search;
                console.log("init list cache");
         }
         kcw_gallery.list.current = data.page;
@@ -268,7 +322,9 @@ jQuery(document).ready(function() {
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
-            ApiCall("list", "/"+lpage, ShowGalleryListPage_callback);
+             var params = "/"+lpage;
+             if (kcw_gallery.list.search != undefined) params = "/"+kcw_gallery.list.search+params;
+            ApiCall("list", params, ShowGalleryListPage_callback);
          } else {
             kcw_gallery.list.current = lpage;
             DisplayGalleryList(lpage-1);
@@ -339,7 +395,7 @@ jQuery(document).ready(function() {
 
     var LightboxActive = false;
     function BuildEmbedCode(resized_img_url) {
-        var code = "<img src='" + resized_img_url + " width='800' height='600'>";
+        var code = "<img src='" + resized_img_url + "' width='800' height='600'>";
         return code;
     }
     function ShowLightbox(full_img_url) {
@@ -354,7 +410,7 @@ jQuery(document).ready(function() {
             console.log(resized_img_url);
         }
 
-        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', full_img_url);
+        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', resized_img_url);
 
         jQuery("div a.kcw-gallery-lightbox-embed").data('embed', BuildEmbedCode(resized_img_url));
 
@@ -445,8 +501,6 @@ jQuery(document).ready(function() {
     KCWGalleryInit();
     function KCWGalleryInit(){
         GetQueryStringParameters();
-
-
     }
 
     /*
@@ -456,23 +510,21 @@ jQuery(document).ready(function() {
     function GetQueryStringParameters() {
         var gallery_guid = getQueryStringParam("guid");
         var gallery_page = getQueryStringParam("gpage");
-        var search = getQueryStringParam("gsearch");
+        var search = getQueryStringParam("lsearch");
         var list_page = getQueryStringParam("lpage");
 
         //Set current gallery list page if needed
         if (kcw_gallery.list == null) kcw_gallery.list = {};
-        if (list_page != null) {
-            kcw_gallery.list.current = parseInt(list_page);
-        } else {
-            kcw_gallery.list.current = 1;
-        }
+        if (list_page != null) kcw_gallery.list.current = parseInt(list_page);
+        else                   kcw_gallery.list.current = 1;
+        
+        if (search != null) kcw_gallery.list.search = search;
+        else kcw_gallery.list.search = undefined;
 
         //Display the correct paging links
         if (gallery_guid != null) {
             ListActive = false;
             DisplayPagingLinks(kcw_gallery.gallery);
-            //jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List Page " + kcw_gallery.list.current);
-            jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List");
             jQuery("div.kcw-gallery-display").animate({opacity: 1});
         } else {
             ListActive = true;
@@ -487,6 +539,9 @@ jQuery(document).ready(function() {
     }
     //Set variables into the query string
     function SetQueryParameters(exclude_gallery) {
+        if (kcw_gallery.list.search != null) updateQueryStringParam("lsearch", kcw_gallery.list.search);
+        else removeQueryStringParam("lsearch");
+
         if (kcw_gallery.gallery == undefined || exclude_gallery != undefined) {
             var list_page = kcw_gallery.list.current;
             updateQueryStringParam("lpage", list_page);

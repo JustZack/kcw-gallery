@@ -30,6 +30,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
             $d["name"] = ($name);
             $d["nice_name"] = kcw_gallery_FilterName($name);
             $d["category"] = NULL;
+            $d["nice_category"] = NULL;
             $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
 
             $data[] = $d;

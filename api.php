@@ -5,9 +5,10 @@ include_once "img-helpers.php";
 
 $kcw_gallery_api_namespace = "kcwgallery";
 $kcw_gallery_api_url = home_url('wp-json/' . $kcw_gallery_api_namespace . '/v1/');
+//$kcw_gallery_api_url = "https://kustomcoachwerks.com/wp-json/kcwgallery/v1/";
 
-$kcw_gallery_thumbnail_width = 160;
-$kcw_gallery_thumbnail_height = 160;
+$kcw_gallery_thumbnail_width = 130;
+$kcw_gallery_thumbnail_height = 130;
 
 //Api request ran into error
 function kcw_gallery_api_Error($msg) {
@@ -22,6 +23,7 @@ function kcw_gallery_api_Success($data) {
     $data["time"] = time();
     return $data;
 }
+
 //Return a page of the given data
 function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
     $data = array();
@@ -30,7 +32,12 @@ function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
     $data["total"] = $total;
     $data["page"] = $page;
     $data["per_page"] = $per_page;
+
     $data[$data_key] = array();
+
+    $data["start"] = 0;
+    $data["end"] = 0;
+    if ($page < 1) return $data;
 
     $start = ($page - 1) * $per_page; $end = 0;
     if ($start >= $total) {
@@ -50,6 +57,7 @@ function kcw_gallery_api_Page($fulldata, $page, $per_page, $data_key) {
 
     return $data;
 }
+
 //Return the gallery list with an assumed first page
 function kcw_gallery_api_GetGalleryList() {
     $data = array();
@@ -63,6 +71,7 @@ function kcw_gallery_api_GetGalleryListPage($data) {
     $list_page = kcw_gallery_api_Page($list, $lpage, 40, "items");
     return kcw_gallery_api_Success($list_page);
 }
+
 //Return meta data about a given gallery
 function kcw_gallery_api_GetGalleryMeta($data) {
     $meta = kcw_gallery_GetGalleryData($data["guid"]);
@@ -72,6 +81,7 @@ function kcw_gallery_api_GetGalleryMeta($data) {
     unset($meta["basedir"]); unset($meta["thumbsdir"]);
     return kcw_gallery_api_Success($meta);
 }
+
 //Return the given gallery, with an assumed first page
 function kcw_gallery_api_GetGallery($data) {
     $data['gpage'] = 1;
@@ -120,6 +130,58 @@ function kcw_gallery_api_GetGalleryPage($data) {
     return kcw_gallery_api_Success($gallery_page);
 }
 
+//Filter bad meaningless characters out of a search string
+function kcw_gallery_api_FilterString($search) {
+    $search = preg_replace("/\%20/", ' ', $search);
+    $search = preg_replace("/[^A-Za-z0-9]+/", ' ', $search);
+    $search = strtolower($search);
+    return $search;
+}
+//Check if two strings contain eachother
+function kcw_gallery_api_SearchMatches($search, $possible_match) {
+    return strpos($search, $possible_match) > -1 || strpos($possible_match, $search) > -1;
+}
+//Return any galleries matching the given search string
+function kcw_gallery_Search($string) {
+    $list = kcw_gallery_GetListData();
+    $string = kcw_gallery_api_FilterString($string);
+    $search_list = array();
+    foreach ($list as $item) {
+        $name = kcw_gallery_api_FilterString($item["friendly_name"]);
+        if (kcw_gallery_api_SearchMatches($string, $name)) {
+            $search_list[] = $item;
+            continue;
+        }
+        //Break up the current gallery name based on its spaces
+        //And check if the search string matches any of those
+        /*$name = explode(' ', $name);
+        $search_arr = explode(' ', $string);
+        //foreach ($search_arr as $search_part) {
+            foreach ($name as $part) {
+                if (kcw_gallery_api_SearchMatches($string, $part)) {
+                    $search_list[] = $item;
+                    $fullbreak = true;
+                    break 1;
+                }
+            }*/
+        //}
+    }
+    return $search_list;
+}
+//Return any galleries matching the given search string
+function kcw_gallery_api_GetSearch($data) {
+    $data["lpage"] = 1;
+    return kcw_gallery_api_GetSearchPage($data);
+}
+//Return any galleries matching the given search string
+function kcw_gallery_api_GetSearchPage($data) {
+    $lpage = (int)$data["lpage"];
+    $list = kcw_gallery_Search($data["lsearch"]);
+    $list_page = kcw_gallery_api_Page($list, $lpage, 40, "items");
+    $list_page["search"] = ($data["lsearch"]);
+    return kcw_gallery_api_Success($list_page);
+}
+
 //Register all the API routes
 function kcw_gallery_api_RegisterRestRoutes() {
     global $kcw_gallery_api_namespace;
@@ -132,6 +194,16 @@ function kcw_gallery_api_RegisterRestRoutes() {
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/list/(?P<lpage>\d+)', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGalleryListPage',
+    ));
+    //Route for /list/search-string
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/list/(?P<lsearch>[^/]+)', array(
+        'methods' => 'GET',
+        'callback' => 'kcw_gallery_api_GetSearch',
+    ));
+    //Route for /list/search-string/page
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/list/(?P<lsearch>[^/]+)/(?P<lpage>\d+)', array(
+        'methods' => 'GET',
+        'callback' => 'kcw_gallery_api_GetSearchPage',
     ));
     //Route for /gallery-id
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.\(\)_h]+)', array(

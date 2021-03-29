@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.1.1
+* Version:           1.1.5
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.2.6");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.2.4");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.3.3");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.3.2");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -40,9 +40,14 @@ function kcw_gallery_BuildGalleryListItem($gallery) {
     else $html = sprintf($html, "");
     return $html;
 }
-function kcw_gallery_BuildGalleryListDisplay($lpage) {
-    $data = array(); $data["lpage"] = $lpage;
-    $list = kcw_gallery_api_GetGalleryListPage($data);
+function kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch) {
+    $data = array(); $data["lpage"] = $lpage; $list;
+    if (isset($lsearch)) {
+        $data["lsearch"] = $lsearch;
+        $list = kcw_gallery_api_GetSearchPage($data);
+    } else {
+        $list = kcw_gallery_api_GetGalleryListPage($data);
+    }
     for ($i = 0;$i < count($list["items"]);$i++) {
         if ($list["items"][$i]["visibility"] == "visible")
             $html .= kcw_gallery_BuildGalleryListItem($list["items"][$i]);
@@ -109,6 +114,12 @@ function kcw_gallery_SetJSData() {
     return $html;
 }
 
+function kcw_gallery_GetSearchHTML($search) {
+    $html = "<div class='kcw-gallery-search'>";
+    $html .= "<input type='text' aria-label='search' name='kcw-gallery-search' value='%s' placeholder='Search'>";
+    $html .= "<span class='dashicons dashicons-search'></span></div>";
+    return sprintf($html, $search);
+}
 function kcw_gallery_GetListHTML($list_html = null, $after = null) {
     $html = "<div class='kcw-gallery-list-container' style='%s'>";
     $html .= "<ul class='kcw-gallery-list'>%s</ul>";
@@ -125,7 +136,7 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
     $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
     $html .= "<div class='kcw-gallery-title'>%s</div>";
-    $html .= "<center><ul class='kcw-gallery-thumbs'>-%s</ul></center>";
+    $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
     $html .= "</div>%s";
     if ($title != null && $gallery_list_html != null && $after != null)
         return sprintf($html, "opacity: 0;", $title, $gallery_list_html, $after);
@@ -133,9 +144,10 @@ function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $a
         return sprintf($html, "opacity: 0;", "", "", "");
 }
 
-function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
+function kcw_gallery_DoDisplay($guid, $gpage, $lpage, $lsearch) {
     $html = "";
     $html .= kcw_gallery_SetJSData();
+    $html .= kcw_gallery_GetSearchHTML($lsearch);
     $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-top'></ul></div>";
     if (isset($guid)) {
         if (!isset($gpage)) $gpage = 1;
@@ -143,7 +155,7 @@ function kcw_gallery_DoDisplay($guid, $gpage, $lpage) {
         $html .= kcw_gallery_BuildGalleryDisplay($guid, $gpage);
     } else {
         if (!isset($lpage)) $lpage = 1;
-        $html .= kcw_gallery_BuildGalleryListDisplay($lpage);
+        $html .= kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch);
         $html .= kcw_gallery_GetGalleryHTML();
     }
     $html .= "<div class='kcw-gallery-pagination-wrapper'><ul class='kcw-gallery-pagination pagination-bottom'></ul></div>";
@@ -165,7 +177,7 @@ function kcw_gallery_GetLightbox() {
     $html .= "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
     $html .= "<img src='' class='kcw-gallery-lightbox-img'>";
     $html .= "<div class='kcw-gallery-lightbox-buttons'>";
-    $html .= "<span><a class='kcw-gallery-lightbox-full-res' href='' target='_blank'>Full Size<span class='dashicons dashicons-external'></span></a></span>";
+    $html .= "<span><a class='kcw-gallery-lightbox-full-res' href=''>Full Size<span class='dashicons dashicons-external'></span></a></span>";
     $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span></div>";
     $html .= "</div>";
     return $html;
@@ -183,10 +195,11 @@ function kcw_gallery_new_Init() {
     $guid = $_GET["guid"];
     $gpage = $_GET["gpage"];
     $lpage = $_GET["lpage"];
+    $lsearch = $_GET["lsearch"];
 
     $html = kcw_gallery_StartBlock();
 
-    $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage);
+    $html .= kcw_gallery_DoDisplay($guid, $gpage, $lpage, $lsearch);
     $html .= kcw_gallery_GetLoadingBox();
     $html .= kcw_gallery_GetLightbox();
 
