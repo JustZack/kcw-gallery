@@ -196,12 +196,12 @@ function kcw_gallery_api_RegisterRestRoutes() {
         'callback' => 'kcw_gallery_api_GetGalleryListPage',
     ));
     //Route for /list/search-string
-    register_rest_route( "$kcw_gallery_api_namespace/v1", '/list/(?P<lsearch>[^/]+)', array(
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/search/(?P<lsearch>[^/]+)', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetSearch',
     ));
-    //Route for /list/search-string/page
-    register_rest_route( "$kcw_gallery_api_namespace/v1", '/list/(?P<lsearch>[^/]+)/(?P<lpage>\d+)', array(
+    //Route for /search/search-string/page
+    register_rest_route( "$kcw_gallery_api_namespace/v1", '/search/(?P<lsearch>[^/]+)/(?P<lpage>\d+)', array(
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetSearchPage',
     ));

@@ -89,12 +89,19 @@ jQuery(document).ready(function() {
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[0] == undefined || kcw_gallery.list.search != search) {
-            ApiCall("list/", search, ShowGalleryListPage_callback);
+            ApiCall("search/", FilterSearch(search), ShowGalleryListPage_callback);
          } else {
             DisplayGalleryList(0);
          }
     }
 
+    function FilterSearch(search) {
+        search = search.replace(' ', '+');
+        search = search.replace('/', '');
+        search = search.replace('\\', '');
+        search = search.replace('/[^A-Za-z0-9]+/g', '');
+        return search;
+    }
 
     /*
     Functions dealing with displaying paging links
@@ -295,7 +302,7 @@ jQuery(document).ready(function() {
         jQuery("ul.kcw-gallery-list").empty();
         SetQueryParameters(true);
 
-        if (list.pages[lpage].length == 0) {
+        if (list.pages == undefined || list.pages[lpage].length == 0) {
             jQuery("h3.kcw-gallery-list-message").text("No results for " + jQuery("div.kcw-gallery-search input").val());
             jQuery("h3.kcw-gallery-list-message").css({display: "block"});
             jQuery("ul.kcw-gallery-pagination").css({display: "none"});
@@ -333,9 +340,13 @@ jQuery(document).ready(function() {
 
         if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
          || kcw_gallery.list.pages[lpage-1] == undefined) {
-             var params = "/"+lpage;
-             if (kcw_gallery.list.search != undefined) params = "/"+kcw_gallery.list.search+params;
-            ApiCall("list", params, ShowGalleryListPage_callback);
+            var params = "/"+lpage;
+            if (kcw_gallery.list.search != undefined) {
+                params = FilterSearch(kcw_gallery.list.search)+params
+                ApiCall("search/", params, ShowGalleryListPage_callback);
+            } else {
+                ApiCall("list", params, ShowGalleryListPage_callback);
+            }
          } else {
             kcw_gallery.list.current = lpage;
             DisplayGalleryList(lpage-1);
@@ -352,8 +363,36 @@ jQuery(document).ready(function() {
         if (current_request != null) current_request.abort();
         current_request = jQuery.get(url, then).done(function() {
         }).fail(function() {
+            FailedRequest(endpoint);
         }).always(function() {
+
         });
+    }
+
+    function FailedRequest(endpoint) {
+        //Search API error
+        if (endpoint.indexOf("search") > -1) {
+            NoSearchResults();
+            jQuery("div.kcw-gallery-display").css({display: "none"});
+            jQuery("div.kcw-gallery-display").animate({opacity: 0}, function() {
+                FinishActionFor("div.kcw-gallery-list-container");
+            });
+        } 
+        //List API error
+        else if (endpoint.indexOf("list") > -1) {
+            FinishActionFor("div.kcw-gallery-list-container");
+        } 
+        //Gallery API Error
+        else if (endpoint.length == 0){
+            FinishActionFor("div.kcw-gallery-display");
+        }
+    }
+
+    function NoSearchResults() {
+        jQuery("h3.kcw-gallery-list-message").text("No results for " + jQuery("div.kcw-gallery-search input").val());
+        jQuery("h3.kcw-gallery-list-message").css({display: "block"});
+        jQuery("ul.kcw-gallery-pagination").css({display: "none"});
+        jQuery("ul.kcw-gallery-list").css({display: "none"});
     }
 
     function LightboxFitToScreen(viewport_size, image_size) {
