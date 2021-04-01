@@ -84,15 +84,21 @@ jQuery(document).ready(function() {
     }
      //Perform the search. Alias for updateResults
     function ShowListSearch(search) {
-        jQuery("div.kcw-gallery-list-container").css({display: "block"});
-        ShowLoadingGif(null);
+        if (search.length == 0) {
+            kcw_gallery.list.pages = undefined;
+            kcw_gallery.list.search = undefined;
+            ShowGalleryListPage(1);
+        } else {
+            jQuery("div.kcw-gallery-list-container").css({display: "block"});
+            ShowLoadingGif(null);
 
-        if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
-         || kcw_gallery.list.pages[0] == undefined || kcw_gallery.list.search != search) {
-            ApiCall("search/", FilterSearch(search), ShowGalleryListPage_callback);
-         } else {
+            if (kcw_gallery.list == undefined || kcw_gallery.list.pages == undefined
+            || kcw_gallery.list.pages[0] == undefined || kcw_gallery.list.search != search) {
+                ApiCall("search/", FilterSearch(search), ShowGalleryListPage_callback);
+            } else {
             DisplayGalleryList(0);
-         }
+            }
+        }
     }
 
     function FilterSearch(search) {
@@ -302,7 +308,7 @@ jQuery(document).ready(function() {
         jQuery("ul.kcw-gallery-list").empty();
         SetQueryParameters(true);
 
-        if (list.pages == undefined || list.pages[lpage].length == 0) {
+        if (list.pages == undefined || list.pages[lpage] == undefined || list.pages[lpage].length == 0) {
             jQuery("h3.kcw-gallery-list-message").text("No results for " + jQuery("div.kcw-gallery-search input").val());
             jQuery("h3.kcw-gallery-list-message").css({display: "block"});
             jQuery("ul.kcw-gallery-pagination").css({display: "none"});
@@ -386,6 +392,8 @@ jQuery(document).ready(function() {
         else if (endpoint.length == 0){
             FinishActionFor("div.kcw-gallery-display");
         }
+
+        console.log("Request Failed");
     }
 
     function NoSearchResults() {
@@ -594,7 +602,8 @@ jQuery(document).ready(function() {
 
         if (kcw_gallery.gallery == undefined || exclude_gallery != undefined) {
             var list_page = kcw_gallery.list.current;
-            updateQueryStringParam("lpage", list_page);
+            if (list_page != undefined) updateQueryStringParam("lpage", list_page);
+            else removeQueryStringParam("lpage");
             removeQueryStringParam("guid");
             removeQueryStringParam("gpage");
         } else {

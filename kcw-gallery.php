@@ -11,8 +11,8 @@
 include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
-    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.3.5");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.3.4");
+    wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.3.6");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.3.5");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
