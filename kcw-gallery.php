@@ -192,6 +192,7 @@ function kcw_gallery_EndBlock() {
     return "</div>";
 }
 function kcw_gallery_new_Init() {
+
     kcw_gallery_enqueue_dependencies();
 
     $guid = $_GET["guid"];

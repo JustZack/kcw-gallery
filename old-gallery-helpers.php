@@ -1,6 +1,7 @@
 <?php
 
 include_once "file-helpers.php";
+include_once "formatting-helpers.php";
 
 function kcw_gallery_StringEndsWith_h($str) {
     $hpos = strpos($str, "_h");
@@ -82,16 +83,7 @@ function kcw_gallery_DetermineOldGalleryData($folderData) {
 
     return $data;
 }
-//Filter a name so it reads well
-function kcw_gallery_FilterName($gallery_name) {
-    if ($gallery_name == NULL) 
-        return NULL;
-    else {
-        $name = str_replace("-", " ", $gallery_name);
-        $name = ucwords($name);
-        return $name;
-    }
-}
+
 //Return data for the given gallery folder
 function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     $relativepath = "";

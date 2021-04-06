@@ -2,10 +2,11 @@
 
 include_once "cache-helpers.php";
 include_once "old-gallery-helpers.php";
+include_once "forums-gallery-helpers.php";
 
 function kcw_gallery_RootGalleryName() {
-    $galleryname = "KCW";
-    //$galleryname = "Gallery";
+    //$galleryname = "KCW";
+    $galleryname = "Gallery";
     return $galleryname;
 }
 
@@ -51,7 +52,18 @@ function kcw_gallery_BuildFilesystemGalleryData($guid) {
 }
 //Construct the list of forums gallerys
 function kcw_gallery_BuildForumsListData() {
-    return array();
+    $forumsgallery = kcw_gallery_BuildForumGalleryListData();
+    for ($i = 0;$i < count($forumsgallery);$i++) {
+        $category = $forumsgallery[$i]["category"];
+        $name = $forumsgallery[$i]["name"];
+        $hash = time();
+
+        $forumsgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $hash);
+    }
+    return $forumsgallery;
+}
+function kcw_gallery_BuildForumsGalleryData() {
+
 }
 function kcw_gallery_UpdateForumsListData($fromtime) {
     return array();
@@ -90,7 +102,10 @@ function kcw_gallery_GetListData() {
     if (!file_exists($list_file)) {
         $fs_list = kcw_gallery_BuildFilesystemListData();
         $forums_list = kcw_gallery_BuildForumsListData();
+
         $list = array_merge($fs_list, $forums_list);
+        var_dump($list);
+
         kcw_gallery_Cache($list_file, $list);
     } else {
         $list = kcw_gallery_GetCacheDataJSON($list_file);
