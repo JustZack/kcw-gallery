@@ -33,6 +33,8 @@ function kcw_gallery_DetermineListItemData($directory) {
 
     $directory["visibility"] = kcw_gallery_GetGalleryVisibility($directory);
 
+    unset($directory["dirs"]);
+
     return $directory;
 }
 
