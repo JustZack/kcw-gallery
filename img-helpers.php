@@ -95,6 +95,21 @@ function kcw_gallery_scaleImage($sourceFile, $destinationFile, $toWidth = null, 
     return $result;
 }
 
+function kcw_gallery_ComputeScaleRatioAuto($width, $height, $toWidth, $toHeight) {
+    $scale_ratio = 1;
+    
+    $scale_ratio_width = $width / $toWidth;
+    $scale_ratio_height = $height / $toHeight;
+
+    if ($width / $scale_ratio_width < $toWidth && $height / $scale_ratio_height < $toHeight) {
+        $scale_ratio = min($scale_ratio_width, $scale_ratio_height);
+    } else {
+        $scale_ratio = max($scale_ratio_width, $scale_ratio_height);
+    }
+
+    return $scale_ratio;
+}
+
 function kcw_gallery_ComputeScaleRatio($width, $height, $toWidth, $toHeight, $percent, $scaleAxis) {
     $scaleAxis = kcw_gallery_DetermineScaleAxis($toWidth, $toHeight, $percent, $scaleAxis);
     $scale_ratio = 1;
@@ -106,14 +121,7 @@ function kcw_gallery_ComputeScaleRatio($width, $height, $toWidth, $toHeight, $pe
     } elseif ($percent) {
         $scale_ratio = 100 / $percent;
     } else {
-        $scale_ratio_width = $width / $toWidth;
-        $scale_ratio_height = $height / $toHeight;
-
-        if ($width / $scale_ratio_width < $toWidth && $height / $scale_ratio_height < $toHeight) {
-            $scale_ratio = min($scale_ratio_width, $scale_ratio_height);
-        } else {
-            $scale_ratio = max($scale_ratio_width, $scale_ratio_height);
-        }
+        $scale_ratio = kcw_gallery_ComputeScaleRatioAuto($width, $height, $toWidth, $toHeight);
     }
 
     return $scale_ratio;
