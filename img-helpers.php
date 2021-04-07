@@ -1,4 +1,21 @@
 <?php
+
+function kcw_gallery_ShouldGenerateThumbnail($thumbfile, $desired_width, $desired_height) {
+    $create_thumb = false;
+    
+    if (file_exists($thumbfile)) {
+        $size = getimagesize($thumbfile);
+        if ($size != false && ($size[0] != $desired_width && $size[1] != $desired_height)) {
+            unlink($thumbfile);
+            $create_thumb = true;
+        }
+    } else {
+        $create_thumb = true;
+    }
+
+    return $create_thumb;
+}
+
 function kcw_gallery_generate_thumb($path, $width, $height) {
     $pinf = pathinfo($path);
     $name = $pinf["basename"];
@@ -12,7 +29,7 @@ function kcw_gallery_generate_thumb($path, $width, $height) {
     //Generate the right thumbnail
     //var_dump(scaleImage($path, $tpath, $width));
     
-    if (!scaleImage($path, $tpath, $width, $height)) {
+    if (!kcw_gallery_scaleImage($path, $tpath, $width, $height)) {
         die("Couldnt make thumbnail: " . $path . " [" . file_exists(dirname($tpath)) . "]");
     }
     return $tpath;
@@ -43,7 +60,7 @@ define('PNG_COMPRESSION_QUALITY', 6);
  * May take a value of {@link IMAGES_SCALE_AXIS_X}, {@link IMAGES_SCALE_AXIS_Y} or {@link IMAGES_SCALE_AXIS_BOTH}.
  * @return bool True on success or False on failure.
  */
-function scaleImage($sourceFile, $destinationFile, $toWidth = null, $toHeight = null, $percent = null, $scaleAxis = IMAGES_SCALE_AXIS_BOTH) {
+function kcw_gallery_scaleImage($sourceFile, $destinationFile, $toWidth = null, $toHeight = null, $percent = null, $scaleAxis = IMAGES_SCALE_AXIS_BOTH) {
     $toWidth = (int)$toWidth;
     $toHeight = (int)$toHeight;
     $percent = (int)$percent;
@@ -54,47 +71,12 @@ function scaleImage($sourceFile, $destinationFile, $toWidth = null, $toHeight = 
         && (file_exists(dirname($destinationFile)) || mkdir(dirname($destinationFile), 0777, true))) {
 
         $mime = getimagesize($sourceFile);
-
-        $mytype = $mime["mime"];
-        if (in_array($mytype, ['image/jpg', 'image/jpeg', 'image/pjpeg'])) {
-            $src_img = imagecreatefromjpeg($sourceFile);
-        } elseif ($mytype == 'image/png') {
-            $src_img = imagecreatefrompng($sourceFile);
-        } else if($mytype == 'image/webp') {
-            $src_img = imagecreatefromwebp($sourceFile);
-        } else if($mytype == 'image/gif') {
-            $src_img = imagecreatefromgif($sourceFile);
-        } else {
-            return false;
-        }
+        $src_img = kcw_gallery_GetSrcImg($sourceFile, $mime["mime"]);
+        if (!$src_img) return false;
 
         $original_width = imagesx($src_img);
         $original_height = imagesy($src_img);
-
-        if ($scaleAxis == IMAGES_SCALE_AXIS_BOTH) {
-            if (!($toWidth | $percent)) {
-                $scaleAxis = IMAGES_SCALE_AXIS_Y;
-            } elseif (!($toHeight | $percent)) {
-                $scaleAxis = IMAGES_SCALE_AXIS_X;
-            }
-        }
-
-        if ($scaleAxis == IMAGES_SCALE_AXIS_X && $toWidth) {
-            $scale_ratio = $original_width / $toWidth;
-        } elseif ($scaleAxis == IMAGES_SCALE_AXIS_Y && $toHeight) {
-            $scale_ratio = $original_height / $toHeight;
-        } elseif ($percent) {
-            $scale_ratio = 100 / $percent;
-        } else {
-            $scale_ratio_width = $original_width / $toWidth;
-            $scale_ratio_height = $original_height / $toHeight;
-
-            if ($original_width / $scale_ratio_width < $toWidth && $original_height / $scale_ratio_height < $toHeight) {
-                $scale_ratio = min($scale_ratio_width, $scale_ratio_height);
-            } else {
-                $scale_ratio = max($scale_ratio_width, $scale_ratio_height);
-            }
-        }
+        $scale_ratio = kcw_gallery_ComputeScaleRatio($original_width, $original_height, $toWidth, $toHeight, $percent, $scaleAxis);
 
         $scale_width = $original_width / $scale_ratio;
         $scale_height = $original_height / $scale_ratio;
@@ -111,5 +93,65 @@ function scaleImage($sourceFile, $destinationFile, $toWidth = null, $toHeight = 
     }
 
     return $result;
+}
+
+function kcw_gallery_ComputeScaleRatioAuto($width, $height, $toWidth, $toHeight) {
+    $scale_ratio = 1;
+    
+    $scale_ratio_width = $width / $toWidth;
+    $scale_ratio_height = $height / $toHeight;
+
+    if ($width / $scale_ratio_width < $toWidth && $height / $scale_ratio_height < $toHeight) {
+        $scale_ratio = min($scale_ratio_width, $scale_ratio_height);
+    } else {
+        $scale_ratio = max($scale_ratio_width, $scale_ratio_height);
+    }
+
+    return $scale_ratio;
+}
+
+function kcw_gallery_ComputeScaleRatio($width, $height, $toWidth, $toHeight, $percent, $scaleAxis) {
+    $scaleAxis = kcw_gallery_DetermineScaleAxis($toWidth, $toHeight, $percent, $scaleAxis);
+    $scale_ratio = 1;
+
+    if ($scaleAxis == IMAGES_SCALE_AXIS_X && $toWidth) {
+        $scale_ratio = $width / $toWidth;
+    } elseif ($scaleAxis == IMAGES_SCALE_AXIS_Y && $toHeight) {
+        $scale_ratio = $height / $toHeight;
+    } elseif ($percent) {
+        $scale_ratio = 100 / $percent;
+    } else {
+        $scale_ratio = kcw_gallery_ComputeScaleRatioAuto($width, $height, $toWidth, $toHeight);
+    }
+
+    return $scale_ratio;
+
+}
+
+function kcw_gallery_DetermineScaleAxis($width, $height, $percent, $scaleAxis) {
+    if ($scaleAxis == IMAGES_SCALE_AXIS_BOTH) {
+        if (!($width | $percent)) {
+            $scaleAxis = IMAGES_SCALE_AXIS_Y;
+        } elseif (!($height | $percent)) {
+            $scaleAxis = IMAGES_SCALE_AXIS_X;
+        }
+    }
+    return $scaleAxis;
+}
+
+function kcw_gallery_GetSrcImg($path, $mimetype) {
+    $src_img = false;
+    
+    if (in_array($mimetype, ['image/jpg', 'image/jpeg', 'image/pjpeg'])) {
+        $src_img = imagecreatefromjpeg($path);
+    } elseif ($mimetype == 'image/png') {
+        $src_img = imagecreatefrompng($path);
+    } else if($mimetype == 'image/webp') {
+        $src_img = imagecreatefromwebp($path);
+    } else if($mimetype == 'image/gif') {
+        $src_img = imagecreatefromgif($path);
+    }
+
+    return $src_img;
 }
 ?>

@@ -61,6 +61,12 @@ function kcw_gallery_GetFolderData($folder, $show_files = false) {
     }
     return $data;
 }
+
+//Check if the given folder name is invalid
+function kcw_gallery_isFolderNameValid($name) {
+    return !($name == '.' || $name == '..' || $name == 'thumbs');
+}
+
 //Recurse over the given folder to get all data within it
 function kcw_gallery_GetFolderData_recursive($folder) {
     //Build up the data array
@@ -69,20 +75,43 @@ function kcw_gallery_GetFolderData_recursive($folder) {
     //$data["path"] = $folder . '/';
     
     $data["files"] = 0;
+    $data["dirs"] = array();
     //Get all files in the directory
     $files = kcw_gallery_GetFiles($folder);
     foreach($files as $file) {
         $name = kcw_gallery_GetFolderName($file);
         //Skip current, parent, and thumbnails dir 
-        if ($name == '.' || $name == '..' || $name == 'thumbs') continue;
+        if (!kcw_gallery_isFolderNameValid($name)) continue;
+
         //If its a dir, get that folders information
-        if (is_dir($file)) { 
-            if (!isset($data["dirs"])) $data["dirs"] = array();
-            $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file); 
-        }
+        if (is_dir($file)) $data['dirs'][] = kcw_gallery_GetFolderData_recursive($file); 
         //Otherwise append the full path of the file to the files array
         else if (kcw_gallery_FileIsImage($file)) $data['files']++;
     }
+    return $data;
+}
+
+function kcw_gallery_GetProjectsInDirectory($folderdata, $parent) {
+    $data = array();
+
+    if ($parent == NULL) $parent = $folderdata["name"];
+    else                 $parent .= '/' . $folderdata["name"];
+
+    foreach ($folderdata["dirs"] as $dir) {
+        //var_dump($dir);
+        $tmpd = kcw_gallery_GetFoldersWithFiles($dir, $parent);
+        if ($tmpd != NULL) $data[] = $tmpd;
+    }
+
+    return $data;
+}
+
+function kcw_gallery_GetProject($folderdata, $parent) {
+    $data = array();
+    $data["name"] = $folderdata["name"];
+    $data["category"] = $parent == NULL ? $data["name"] : $parent;
+    $data["files"] = $folderdata["files"];
+    
     return $data;
 }
 
@@ -93,26 +122,11 @@ function kcw_gallery_GetFoldersWithFiles($folderdata, $parent = NULL) {
     $data = NULL;
 
     //More than one directory => projects in this category
-    if ($n_dirs > 0) {
-        if ($parent == NULL) $parent = $folderdata["name"];
-        else                 $parent .= '/' . $folderdata["name"];
+    if ($n_dirs > 0) $data = kcw_gallery_GetProjectsInDirectory($folderdata, $parent);
 
-        foreach ($folderdata["dirs"] as $dir) {
-            //var_dump($dir);
-            $tmpd = kcw_gallery_GetFoldersWithFiles($dir, $parent);
-            if ($tmpd != NULL) {
-                if ($data == NULL) $data = array();
-                $data[] = $tmpd;
-            }
-        }
-    } 
     //More than one file => project directory
-    if ($n_files > 0) {
-        $data = array();
-        $data["name"] = $folderdata["name"];
-        $data["category"] = $parent == NULL ? $data["name"] : $parent;
-        $data["files"] = $folderdata["files"];
-    } 
+    if ($n_files > 0) $data = kcw_gallery_GetProject($folderdata, $parent);
+
     //No directories or files => skip
     //if (($n_files == 0 || $n_dirs == 0)) { echo 'a'; var_dump($data); echo 'b';}
     return $data;
