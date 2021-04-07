@@ -1,4 +1,21 @@
 <?php
+
+function kcw_gallery_ShouldGenerateThumbnail($thumbfile, $desired_width, $desired_height) {
+    $create_thumb = false;
+    
+    if (file_exists($thumbfile)) {
+        $size = getimagesize($thumbfile);
+        if ($size != false && ($size[0] != $desired_width && $size[1] != $desired_height)) {
+            unlink($thumbfile);
+            $create_thumb = true;
+        }
+    } else {
+        $create_thumb = true;
+    }
+
+    return $create_thumb;
+}
+
 function kcw_gallery_generate_thumb($path, $width, $height) {
     $pinf = pathinfo($path);
     $name = $pinf["basename"];

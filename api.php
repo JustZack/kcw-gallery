@@ -96,19 +96,9 @@ function kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $images) {
         $imgfile = $gallery["basedir"] . $img["name"];
         $pinf = pathinfo($imgfile);
         $thumbfile = $gallery["thumbsdir"] . $pinf["filename"] . ".jpg";
-        $create_thumb = false;
-        //If the file exists,
-        if (file_exists($thumbfile)) {
-            $size = getimagesize($thumbfile);
-            if ($size != false && ($size[0] != $kcw_gallery_thumbnail_width && $size[1] != $kcw_gallery_thumbnail_height)) {
-                unlink($thumbfile);
-                $create_thumb = true;
-            }
-        } else {
-            $create_thumb = true;
-        }
 
-        if ($create_thumb) $folder = kcw_gallery_generate_thumb($imgfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
+        $should_create_thumb = kcw_gallery_ShouldGenerateThumbnail($thumbfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
+        if ($should_create_thumb) $folder = kcw_gallery_generate_thumb($imgfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
     }
 }
 //Return the given page of the given gallery id
