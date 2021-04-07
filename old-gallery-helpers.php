@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 include_once "file-helpers.php";
 include_once "formatting-helpers.php";
@@ -17,6 +17,28 @@ function kcw_gallery_GetGalleryVisibility($gal) {
      }
 }
 
+function kcw_gallery_DetermineListItemData($directory) {
+    $name = $directory["name"];
+    $category = $directory["category"];
+
+    if (isset($category))
+        $directory["friendly_name"] = kcw_gallery_FilterName($category . " / " . $name);
+    else
+        $directory["friendly_name"] = kcw_gallery_FilterName($name);
+    
+    $directory["name"] = $name;
+    $directory["nice_name"] = kcw_gallery_FilterName($name);
+
+    $directory["category"] = $category;
+    $directory["nice_category"] = kcw_gallery_FilterName($category);
+
+    $directory["visibility"] = kcw_gallery_GetGalleryVisibility($directory);
+
+    unset($directory["dirs"]);
+
+    return $directory;
+}
+
 //Construct the gallery data list array given the folder data
 function kcw_gallery_GetOldGalleryListData($folderdata) {    
     $data = array();
@@ -25,16 +47,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
         $tmpd;
         if ($folderdata[$i]["files"] > 0) {
             $d = $folderdata[$i];
-        
-            $name = $d["name"];
-            $d["friendly_name"] = kcw_gallery_FilterName($name); 
-            $d["name"] = ($name);
-            $d["nice_name"] = kcw_gallery_FilterName($name);
-            $d["category"] = NULL;
-            $d["nice_category"] = NULL;
-            $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
-
-            $data[] = $d;
+            $data[] = kcw_gallery_DetermineListItemData($d);
         }
         else {
             $tmpd = kcw_gallery_GetFoldersWithFiles($folderdata[$i]);
@@ -43,15 +56,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
                 foreach ($tmpd as $d) {
                     if ($d != NULL) {
                         //if (!isset($d["category"])) var_dump($d);
-                        $cat = $d["category"]; $name = $d["name"];
-                        $d["friendly_name"] = kcw_gallery_FilterName($cat . " / " . $name); 
-                        $d["name"] = ($name);
-                        $d["nice_name"] = kcw_gallery_FilterName($name);
-                        $d["category"] = ($cat); 
-                        $d["nice_category"] = kcw_gallery_FilterName($cat); 
-                        $d["visibility"] = kcw_gallery_GetGalleryVisibility($d);
-                        
-                        $data[] = $d;
+                        $data[] = kcw_gallery_DetermineListItemData($d);
                     }
                 }
             }

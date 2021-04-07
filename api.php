@@ -87,6 +87,20 @@ function kcw_gallery_api_GetGallery($data) {
     $data['gpage'] = 1;
     return kcw_gallery_api_GetGalleryPage($data); 
 }
+
+function kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $images) {
+    global $kcw_gallery_thumbnail_width;
+    global $kcw_gallery_thumbnail_height;
+    //Be sure all the thumbnails for this page exist
+    foreach ($images as $img) {
+        $imgfile = $gallery["basedir"] . $img["name"];
+        $pinf = pathinfo($imgfile);
+        $thumbfile = $gallery["thumbsdir"] . $pinf["filename"] . ".jpg";
+
+        $should_create_thumb = kcw_gallery_ShouldGenerateThumbnail($thumbfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
+        if ($should_create_thumb) $folder = kcw_gallery_generate_thumb($imgfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
+    }
+}
 //Return the given page of the given gallery id
 function kcw_gallery_api_GetGalleryPage($data) {
     $guid = $data['guid'];
@@ -107,25 +121,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
     
-    //Be sure all the thumbnails for this page exist
-    foreach ($gallery_page["images"] as $img) {
-        $imgfile = $gallery["basedir"] . $img["name"];
-        $pinf = pathinfo($imgfile);
-        $thumbfile = $gallery["thumbsdir"] . $pinf["filename"] . ".jpg";
-        $create_thumb = false;
-        //If the file exists,
-        if (file_exists($thumbfile)) {
-            $size = getimagesize($thumbfile);
-            if ($size != false && ($size[0] != $kcw_gallery_thumbnail_width && $size[1] != $kcw_gallery_thumbnail_height)) {
-                unlink($thumbfile);
-                $create_thumb = true;
-            }
-        } else {
-            $create_thumb = true;
-        }
-
-        if ($create_thumb) $folder = kcw_gallery_generate_thumb($imgfile, $kcw_gallery_thumbnail_width, $kcw_gallery_thumbnail_height);
-    }
+    kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
 
     return kcw_gallery_api_Success($gallery_page);
 }
@@ -182,8 +178,7 @@ function kcw_gallery_api_GetSearchPage($data) {
     return kcw_gallery_api_Success($list_page);
 }
 
-//Register all the API routes
-function kcw_gallery_api_RegisterRestRoutes() {
+function kcw_gallery_RegisterListRoutes() {
     global $kcw_gallery_api_namespace;
     //Route for /list
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/list', array(
@@ -195,6 +190,9 @@ function kcw_gallery_api_RegisterRestRoutes() {
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetGalleryListPage',
     ));
+}
+function kcw_gallery_RegisterSearchRoutes() {
+    global $kcw_gallery_api_namespace;
     //Route for /list/search-string
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/search/(?P<lsearch>[^/]+)', array(
         'methods' => 'GET',
@@ -205,6 +203,9 @@ function kcw_gallery_api_RegisterRestRoutes() {
         'methods' => 'GET',
         'callback' => 'kcw_gallery_api_GetSearchPage',
     ));
+}
+function kcw_gallery_RegisterGalleryRoutes() {
+    global $kcw_gallery_api_namespace;
     //Route for /gallery-id
     register_rest_route( "$kcw_gallery_api_namespace/v1", '/(?P<guid>[a-zA-Z0-9-\.\(\)_h]+)', array(
         'methods' => 'GET',
@@ -221,6 +222,13 @@ function kcw_gallery_api_RegisterRestRoutes() {
         'callback' => 'kcw_gallery_api_GetGalleryPage',
     ));
 }
+//Register all the API routes
+function kcw_gallery_api_RegisterRestRoutes() {
+    kcw_gallery_RegisterListRoutes();
+    kcw_gallery_RegisterSearchRoutes();
+    kcw_gallery_RegisterGalleryRoutes();
+}
+
 add_action( 'rest_api_init', "kcw_gallery_api_RegisterRestRoutes");
 
 ?>
