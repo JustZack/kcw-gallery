@@ -309,10 +309,7 @@ jQuery(document).ready(function() {
         SetQueryParameters(true);
 
         if (list.pages == undefined || list.pages[lpage] == undefined || list.pages[lpage].length == 0) {
-            jQuery("h3.kcw-gallery-list-message").text("No results for " + jQuery("div.kcw-gallery-search input").val());
-            jQuery("h3.kcw-gallery-list-message").css({display: "block"});
-            jQuery("ul.kcw-gallery-pagination").css({display: "none"});
-            jQuery("ul.kcw-gallery-list").css({display: "none"});
+            NoSearchResults();
         } else {
             jQuery("h3.kcw-gallery-list-message").text("");
             jQuery("h3.kcw-gallery-list-message").css({display: "none"});
