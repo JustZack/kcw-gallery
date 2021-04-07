@@ -54,7 +54,7 @@ function kcw_gallery_scaleImage($sourceFile, $destinationFile, $toWidth = null, 
         && (file_exists(dirname($destinationFile)) || mkdir(dirname($destinationFile), 0777, true))) {
 
         $mime = getimagesize($sourceFile);
-        $src_img = kcw_gallery_GetSrcImg($mime["mime"], $sourceFile);
+        $src_img = kcw_gallery_GetSrcImg($sourceFile, $mime["mime"]);
         if (!$src_img) return false;
 
         $original_width = imagesx($src_img);
@@ -118,13 +118,13 @@ function kcw_gallery_GetSrcImg($path, $mimetype) {
     $src_img = false;
     
     if (in_array($mimetype, ['image/jpg', 'image/jpeg', 'image/pjpeg'])) {
-        $src_img = imagecreatefromjpeg($sourceFile);
+        $src_img = imagecreatefromjpeg($path);
     } elseif ($mimetype == 'image/png') {
-        $src_img = imagecreatefrompng($sourceFile);
+        $src_img = imagecreatefrompng($path);
     } else if($mimetype == 'image/webp') {
-        $src_img = imagecreatefromwebp($sourceFile);
+        $src_img = imagecreatefromwebp($path);
     } else if($mimetype == 'image/gif') {
-        $src_img = imagecreatefromgif($sourceFile);
+        $src_img = imagecreatefromgif($path);
     }
 
     return $src_img;
