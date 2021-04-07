@@ -80,6 +80,7 @@ function kcw_gallery_GetListStatusData() {
     if (!file_exists($stat_file)) {
         $status["filesystem"] = 0;
         $status["forums"] = $hourfromnow;
+
         kcw_gallery_Cache($stat_file, $status);
     } else {
         $status = kcw_gallery_GetCacheDataJSON($stat_file);
@@ -91,38 +92,38 @@ function kcw_gallery_UpdateListStatusData($status) {
     kcw_gallery_Cache($stat_file, $status);
 }
 
+function kcw_gallery_GetSingleListData($file, $callback) {
+    $list;
+    if (!file_exists($file)) {
+        //Build the list data
+        $list = $callback();
+        //Cache
+        kcw_gallery_Cache($file, $list);
+    } else {
+        //Read
+        $list = kcw_gallery_GetCacheDataJSON($file);
+    }
+    return $list;
+}
+
 //Return the complete and UP TO DATE list of gallery 'folders'
 function kcw_gallery_GetListData() {
     $status = kcw_gallery_GetListStatusData();
     $list_file = kcw_gallery_GetCacheFile("list");
-    //Create time variables for later use
-    $now = time();
-    $hourfromnow = $now + (60 * 60);
-    $list = array();
+    
+    //if (file_exists($list_file)) unlink($list_file);
+    
     if (!file_exists($list_file)) {
-        $fs_list = kcw_gallery_BuildFilesystemListData();
-        $forums_list = kcw_gallery_BuildForumsListData();
+        $files_file = kcw_gallery_GetCacheFile("files-list");
+        $forums_file = kcw_gallery_GetCacheFile("forums-list");
 
-        $list = array_merge($fs_list, $forums_list);
-        var_dump($list);
+        $files_list = kcw_gallery_GetSingleListData($files_file, "kcw_gallery_BuildFilesystemListData");
+        $forums_list = kcw_gallery_GetSingleListData($forums_file, "kcw_gallery_BuildForumsListData");
 
+        $list = array_merge($files_list, $forums_list);
         kcw_gallery_Cache($list_file, $list);
     } else {
         $list = kcw_gallery_GetCacheDataJSON($list_file);
-    }
-
-    //Update the forums gallery list if it is out of date
-    if ($status["forums"] < $now) {
-        //Get any new gallery data from the forums
-        $new = kcw_gallery_UpdateForumsListData($status);
-        if (count($new) > 0) {
-            //Update the list cache
-            $list = array_merge($list, $new);
-            kcw_gallery_Cache($list_file, $list);
-        }
-        //Update the status cache
-        $status["forums"] = $now;
-        kcw_gallery_UpdateListStatusData($status);
     }
 
     return $list;
