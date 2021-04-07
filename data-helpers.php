@@ -106,13 +106,18 @@ function kcw_gallery_GetSingleListData($file, $callback) {
     return $list;
 }
 
+function kcw_gallery_ValidateListCache() {
+    //$list_file = kcw_gallery_GetCacheFile("list");
+    //$status = kcw_gallery_GetListStatusData();
+    //if (file_exists($list_file)) unlink($list_file);
+}
+
 //Return the complete and UP TO DATE list of gallery 'folders'
 function kcw_gallery_GetListData() {
-    $status = kcw_gallery_GetListStatusData();
     $list_file = kcw_gallery_GetCacheFile("list");
-    
-    //if (file_exists($list_file)) unlink($list_file);
-    
+
+    kcw_gallery_ValidateListCache();
+
     if (!file_exists($list_file)) {
         $files_file = kcw_gallery_GetCacheFile("files-list");
         $forums_file = kcw_gallery_GetCacheFile("forums-list");

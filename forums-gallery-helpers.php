@@ -8,6 +8,7 @@ function kcw_gallery_Query($sql) {
     return $selection;
 }
 
+//$kcw_gallery_WantedForums = "('', '', '')";
 function kcw_gallery_QueryAllForums(){
     global $wpdb;
     $fields = "ID, post_author, post_date, post_type, post_name";
@@ -28,6 +29,7 @@ function kcw_gallery_QueryTopicsFor($forum_id) {
     return kcw_gallery_Query($query);
 }
 
+//$kcw_gallery_WantedAuthors = "('', '', '')";
 function kcw_gallery_QueryRepliesFor($topic_id) {
     global $wpdb;
     $fields = "ID, post_author, post_date, post_type, post_name, post_content";
