@@ -51,8 +51,6 @@ function kcw_gallery_GetImagesInReply($reply_content) {
     $start = -1;
     $end = -1;
 
-    var_dump($reply_content);
-
     do {
         $start = strpos($reply_content, $stok, $start+1); 
         $end = strpos($reply_content, $etok, $end+1);
@@ -62,7 +60,18 @@ function kcw_gallery_GetImagesInReply($reply_content) {
     return $images;
 }
 
-function kcw_gallery_CountImagesFor($replies) {
+function kcw_gallery_GetImagesIn($replies) {
+    $images = array();
+
+    foreach ($replies as $reply) {
+        $to_add = kcw_gallery_GetImagesInReply($reply["post_content"]);
+        $images = array_merge($images, $to_add);
+    }
+
+    return $images;
+}
+
+function kcw_gallery_CountImagesIn($replies) {
     $num_images = 0;
 
     foreach ($replies as $reply)
@@ -86,8 +95,7 @@ function kcw_gallery_QueryGalleryTopicList() {
             $gtopic['created'] = strtotime($topic['post_date']);
             
             $replies = kcw_gallery_QueryRepliesFor($topic['ID']);
-            $gtopic['images'] = kcw_gallery_CountImagesFor($replies);
-
+            $gtopic['images'] = kcw_gallery_CountImagesIn($replies);
             $gallery_topics[] = $gtopic;
         }
     }
@@ -96,22 +104,13 @@ function kcw_gallery_QueryGalleryTopicList() {
 }
 
 function kcw_gallery_QueryGalleryTopic($topic_id) {
-    $topic_replies = array();
-    
-    $replies = kcw_gallery_QueryRepliesFor($topic_id);
-    foreach ($replies as $reply) $topic_replies[] = $reply;
-
-    return $topic_replies;
+    return kcw_gallery_QueryRepliesFor($topic_id);
 }
 
-function kcw_gallery_DetermineTopicData() {
+function kcw_gallery_DetermineTopicData($replies) {
     return null;
 }
 
-
-function kcw_gallery_QueryImgCount() {
-    return null;
-}
 
 function kcw_gallery_DetermineForumListItemData($gallery) {
     $list_item = array();
@@ -146,10 +145,35 @@ function kcw_gallery_BuildForumGalleryListData() {
     return $list_data;
 }
 
-function kcw_Gallery_BuildForumGalleryData($topic_id) {
-    $replies = kcw_gallery_QueryGalleryTopic($topic_id);
+function kcw_Gallery_BuildForumGalleryData($topic) {
+    var_dump($topic);
+    $replies = kcw_gallery_QueryGalleryTopic($topic);
+    $images = kcw_gallery_GetImagesIn($replies);
+    //var_dump($topic_id);
+    //var_dump($replies);
+    //var_dump($images);
+    return $images;
 
-    return $replies;
+
+
+    //$folderData = kcw_gallery_GetFolderData($folder, true);
+    $data = kcw_gallery_DetermineOldGalleryData($folderData);
+
+    //Not positive this is working
+    //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
+    $data["uid"] = $topic["uid"];
+    $data["created"] = $topic["created"];
+    $data["friendly_name"] = $topic["friendly_name"];
+    $data["visibility"] = $topic["visibility"];
+    $data["name"] = kcw_gallery_FilterName($topic["name"]);
+    
+    $data["category"] = kcw_gallery_FilterName($topic["category"]);
+
+    $data["baseurl"] = $baseurl;
+    $data["thumbsurl"] = $baseurl . 'thumbs/';
+    $data["basedir"] = $folder;
+    $data["thumbsdir"] = $folder . 'thumbs/';
+    return $data;
 }
 
 ?>

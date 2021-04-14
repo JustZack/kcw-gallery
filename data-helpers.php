@@ -18,8 +18,8 @@ function kcw_gallery_RootUrl() {
     return wp_get_upload_dir()["baseurl"] . '/' . kcw_gallery_RootGalleryName();
 }
 
-function kcw_gallery_BuildUid($cat, $name, $dirtime) {
-    $uid = $cat . '.' . $name . '.' . dechex($dirtime); 
+function kcw_gallery_BuildUid($cat, $name, $dirtime, $type) {
+    $uid = $cat . '.' . $name . '.' . dechex($dirtime) . '.' . $type; 
     $uid = str_replace(' ', '-', $uid);
     return $uid;
 }
@@ -35,7 +35,7 @@ function kcw_gallery_BuildFilesystemListData() {
         else $path = kcw_gallery_RootFolder() . '/' . $name;
 
         $dirtime = $oldgallery[$i]["created"];
-        $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $dirtime);
+        $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $dirtime, "file");
     }
     return $oldgallery;
 }
@@ -56,14 +56,24 @@ function kcw_gallery_BuildForumsListData() {
     for ($i = 0;$i < count($forumsgallery);$i++) {
         $category = $forumsgallery[$i]["category"];
         $name = $forumsgallery[$i]["name"];
-        $time = strtotime($forumsgallery[$i]["created"]);
+        $time = $forumsgallery[$i]["created"];
 
-        $forumsgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $time);
+        $forumsgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $time, "topic");
     }
     return $forumsgallery;
 }
-function kcw_gallery_BuildForumsGalleryData() {
+function kcw_gallery_BuildForumsGalleryData($guid) {
+    $list = kcw_gallery_BuildForumsListData();
+    $gallery = NULL;
+    foreach ($list as $item) {
+        if ($item["uid"] == $guid) {
+            $gallery = kcw_Gallery_BuildForumGalleryData($item);
+            break;
+        }
+    }
+    return $gallery;
 
+    return kcw_Gallery_BuildForumGalleryData($guid);
 }
 function kcw_gallery_UpdateForumsListData($fromtime) {
     return array();
@@ -106,30 +116,44 @@ function kcw_gallery_GetSingleListData($file, $callback) {
     return $list;
 }
 
+//Delete invalid list cache failes
 function kcw_gallery_ValidateListCache() {
     //$list_file = kcw_gallery_GetCacheFile("list");
     //$status = kcw_gallery_GetListStatusData();
     //if (file_exists($list_file)) unlink($list_file);
 }
 
+function kcw_gallery_BuildMultiCache($cache_name, $other_caches, $other_callbacks) {
+    $main_cache = kcw_gallery_GetCacheFile($cache_name);
+    $main_data = array();
+
+    if (!file_exists($main_cache)) {
+        for ($i = 0; $i < count($other_caches); $i++) {
+            $cache_file = kcw_gallery_GetCacheFile($other_caches[$i]);
+            
+            $data = array();
+            if (!file_exists($cache_file)) {
+                $data = kcw_gallery_GetSingleListData($cache_file, $other_callbacks[$i]);
+            } else {
+                $data = kcw_gallery_GetCacheDataJSON($cache_file);
+            }
+
+            $main_data = array_merge($main_data, $data);
+        }
+
+        kcw_gallery_Cache($main_cache, $main_data);
+    } else {
+        $main_data = kcw_gallery_GetCacheDataJSON($main_cache);
+    }
+
+    return $main_data;
+}
+
 //Return the complete and UP TO DATE list of gallery 'folders'
 function kcw_gallery_GetListData() {
-    $list_file = kcw_gallery_GetCacheFile("list");
-
     kcw_gallery_ValidateListCache();
-
-    if (!file_exists($list_file)) {
-        $files_file = kcw_gallery_GetCacheFile("files-list");
-        $forums_file = kcw_gallery_GetCacheFile("forums-list");
-
-        $files_list = kcw_gallery_GetSingleListData($files_file, "kcw_gallery_BuildFilesystemListData");
-        $forums_list = kcw_gallery_GetSingleListData($forums_file, "kcw_gallery_BuildForumsListData");
-
-        $list = array_merge($files_list, $forums_list);
-        kcw_gallery_Cache($list_file, $list);
-    } else {
-        $list = kcw_gallery_GetCacheDataJSON($list_file);
-    }
+    $list = kcw_gallery_BuildMultiCache("list", ["files-list",                          "forums-list"], 
+                                                ["kcw_gallery_BuildFilesystemListData", "kcw_gallery_BuildForumsListData"]);
 
     return $list;
 }
@@ -139,7 +163,13 @@ function kcw_gallery_GetGalleryData($guid) {
     $gallery_data = NULL;
 
     if (!file_exists($g_file)) {
-        $gallery_data = kcw_gallery_BuildFilesystemGalleryData($guid);
+        $ext = substr($guid, strrpos($guid, "."));
+        if ($ext == ".topic") {
+            $gallery_data = kcw_gallery_BuildForumsGalleryData($guid);
+        } else if ($ext == ".file") {
+            $gallery_data = kcw_gallery_BuildFilesystemGalleryData($guid);
+        }
+
         if ($gallery_data != NULL) kcw_gallery_Cache($g_file, $gallery_data);
     } else {
         $gallery_data = kcw_gallery_GetCacheDataJSON($g_file);
