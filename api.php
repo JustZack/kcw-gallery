@@ -128,8 +128,8 @@ function kcw_gallery_api_GetGalleryPage($data) {
 
 //Filter bad meaningless characters out of a search string
 function kcw_gallery_api_FilterString($search) {
-    $search = preg_replace("/\%20/", ' ', $search);
-    $search = preg_replace("/[^A-Za-z0-9]+/", ' ', $search);
+    $search = preg_replace("/\%20/", '', $search);
+    $search = preg_replace("/[^A-Za-z0-9]+/", '', $search);
     $search = strtolower($search);
     return $search;
 }
@@ -140,11 +140,11 @@ function kcw_gallery_api_SearchMatches($search, $possible_match) {
 //Return any galleries matching the given search string
 function kcw_gallery_Search($string) {
     $list = kcw_gallery_GetListData();
-    $string = kcw_gallery_api_FilterString($string);
+    $filtered = kcw_gallery_api_FilterString($string);
     $search_list = array();
     foreach ($list as $item) {
         $name = kcw_gallery_api_FilterString($item["friendly_name"]);
-        if (kcw_gallery_api_SearchMatches($string, $name)) {
+        if (kcw_gallery_api_SearchMatches($filtered, $name)) {
             $search_list[] = $item;
             continue;
         }

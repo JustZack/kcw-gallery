@@ -30,11 +30,11 @@ function kcw_gallery_BuildFilesystemListData() {
         $category = $oldgallery[$i]["category"];
         $name = $oldgallery[$i]["name"];
 
-        $path;
+        $path = null;
         if ($category != 'top') $path = kcw_gallery_RootFolder() . '/' . $category . '/' . $name;
         else $path = kcw_gallery_RootFolder() . '/' . $name;
 
-        $dirtime = filectime($path);
+        $dirtime = $oldgallery[$i]["created"];
         $oldgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $dirtime);
     }
     return $oldgallery;
@@ -56,9 +56,9 @@ function kcw_gallery_BuildForumsListData() {
     for ($i = 0;$i < count($forumsgallery);$i++) {
         $category = $forumsgallery[$i]["category"];
         $name = $forumsgallery[$i]["name"];
-        $hash = time();
+        $time = strtotime($forumsgallery[$i]["created"]);
 
-        $forumsgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $hash);
+        $forumsgallery[$i]["uid"] = kcw_gallery_BuildUid($category, $name, $time);
     }
     return $forumsgallery;
 }
@@ -78,7 +78,7 @@ function kcw_gallery_GetListStatusData() {
     //Get the status of the cache
     $status = array();
     if (!file_exists($stat_file)) {
-        $status["filesystem"] = 0;
+        $status["files"] = 0;
         $status["forums"] = $hourfromnow;
 
         kcw_gallery_Cache($stat_file, $status);
@@ -93,7 +93,7 @@ function kcw_gallery_UpdateListStatusData($status) {
 }
 
 function kcw_gallery_GetSingleListData($file, $callback) {
-    $list;
+    $list = null;
     if (!file_exists($file)) {
         //Build the list data
         $list = $callback();

@@ -34,6 +34,9 @@ function kcw_gallery_DetermineListItemData($directory) {
 
     $directory["visibility"] = kcw_gallery_GetGalleryVisibility($directory);
 
+    $folder = kcw_gallery_RootFolder() . '/' . $category . '/' . $name;
+    $directory["created"] = filemtime($folder);
+
     unset($directory["dirs"]);
 
     return $directory;
@@ -44,7 +47,6 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
     $data = array();
     //var_dump($folderdata);
     for($i = 0;$i < count($folderdata);$i++) {
-        $tmpd;
         if ($folderdata[$i]["files"] > 0) {
             $d = $folderdata[$i];
             $data[] = kcw_gallery_DetermineListItemData($d);
@@ -104,6 +106,7 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     //Not positive this is working
     //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
     $data["uid"] = $gallery["uid"];
+    $data["created"] = filemtime($folder);
     $data["friendly_name"] = $gallery["friendly_name"];
     $data["visibility"] = $gallery["visibility"];
     $data["name"] = kcw_gallery_FilterName($gallery["name"]);

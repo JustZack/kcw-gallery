@@ -76,6 +76,7 @@ function kcw_gallery_GetFolderData_recursive($folder) {
     
     $data["files"] = 0;
     $data["dirs"] = array();
+
     //Get all files in the directory
     $files = kcw_gallery_GetFiles($folder);
     foreach($files as $file) {
@@ -150,7 +151,7 @@ function kcw_gallery_SortFilesByTakenTime($files) {
         if ($minj != $i) {
             $tmp = $files[$i];
             $files[$i] = $files[$minj];
-            $files[$minj] = $tmpl;
+            $files[$minj] = $tmp;
         }
     }
     return $files;
