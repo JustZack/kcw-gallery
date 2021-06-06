@@ -103,9 +103,9 @@ jQuery(document).ready(function() {
 
     function FilterSearch(search) {
         search = search.replace(' ', '+');
-        search = search.replace('/', '');
-        search = search.replace('\\', '');
-        search = search.replace('/[^A-Za-z0-9]+/g', '');
+        search = search.replace('/', ' ');
+        search = search.replace('\\', ' ');
+        search = search.replace('/[^A-Za-z0-9\s]+/g', '');
         return search;
     }
 
