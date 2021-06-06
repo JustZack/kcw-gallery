@@ -57,7 +57,7 @@ function kcw_gallery_GetList($lpage, $lsearch) {
 }
 
 function kcw_gallery_GetListDisplayHtml($list) {
-    $html;
+    $html = "";
     
     for ($i = 0;$i < count($list["items"]);$i++) {
         if ($list["items"][$i]["visibility"] == "visible")
