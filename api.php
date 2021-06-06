@@ -125,44 +125,55 @@ function kcw_gallery_api_GetGalleryPage($data) {
 
     return kcw_gallery_api_Success($gallery_page);
 }
-
 //Filter bad meaningless characters out of a search string
 function kcw_gallery_api_FilterString($search) {
-    $search = preg_replace("/\%20/", '', $search);
-    $search = preg_replace("/[^A-Za-z0-9]+/", '', $search);
+    $search = preg_replace("/(%20|\+|\s)/", " ", $search);
+    $search = preg_replace("/[^A-Za-z0-9\s]/", "", $search);
     $search = strtolower($search);
     return $search;
 }
 //Check if two strings contain eachother
+function kcw_gallery_api_StringsMatch($a, $b) {
+    //Both zero length = match
+    if (!strlen($a) && !strlen($b)) return true;
+    //Exactly one zero length = no match
+    else if (!strlen($a) xor !strlen($b)) return false;
+    //Either one contains the other = match
+    return strpos($a, $b) > -1 || strpos($b, $a) > -1;
+}
+//Compute how similar the search array is to the possible match array
+function kcw_gallery_api_ComputeLikeness($search, $possible_match) {
+    //Convert string to array of strings
+    $search = explode(" ", $search); $possible_match = explode(" ", $possible_match);
+    //Keep track of matches
+    $total_matches = 0;
+    //Iterate over all parts and track likeness
+    foreach ($search as $spart)
+        foreach ($possible_match as $pmpart)
+            if (kcw_gallery_api_StringsMatch($spart, $pmpart)) 
+                { $total_matches++; break; }
+    //Return # of matches / # of search words
+    return $total_matches / (1.0*count($search));
+}
+//Check if either the search or possible match are similar
 function kcw_gallery_api_SearchMatches($search, $possible_match) {
-    return strpos($search, $possible_match) > -1 || strpos($possible_match, $search) > -1;
+    //Search contains video title OR Video title contains search 
+    if (kcw_gallery_api_StringsMatch($search, $possible_match)) return true;
+    //compare likeness of the two arrays and ensure it is >= 33.3%
+    else return kcw_gallery_api_ComputeLikeness($search, $possible_match) >= .333;
 }
 //Return any galleries matching the given search string
-function kcw_gallery_Search($string) {
+function kcw_gallery_api_Search($string) {
     $list = kcw_gallery_GetListData();
-    $filtered = kcw_gallery_api_FilterString($string);
-    $search_list = array();
-    foreach ($list as $item) {
-        $name = kcw_gallery_api_FilterString($item["friendly_name"]);
-        if (kcw_gallery_api_SearchMatches($filtered, $name)) {
-            $search_list[] = $item;
-            continue;
-        }
-        //Break up the current gallery name based on its spaces
-        //And check if the search string matches any of those
-        /*$name = explode(' ', $name);
-        $search_arr = explode(' ', $string);
-        //foreach ($search_arr as $search_part) {
-            foreach ($name as $part) {
-                if (kcw_gallery_api_SearchMatches($string, $part)) {
-                    $search_list[] = $item;
-                    $fullbreak = true;
-                    break 1;
-                }
-            }*/
-        //}
+    if (isset($string) && strlen($string) > 0) {
+        $filtered = kcw_gallery_api_FilterString($string);
+        $search_list = array();
+        foreach ($list as $item)
+            if (kcw_gallery_api_SearchMatches($filtered, kcw_gallery_api_FilterString($item["friendly_name"])))
+                $search_list[] = $item;
+        $list = $search_list;
     }
-    return $search_list;
+    return $list;
 }
 //Return any galleries matching the given search string
 function kcw_gallery_api_GetSearch($data) {
@@ -172,7 +183,7 @@ function kcw_gallery_api_GetSearch($data) {
 //Return any galleries matching the given search string
 function kcw_gallery_api_GetSearchPage($data) {
     $lpage = (int)$data["lpage"];
-    $list = kcw_gallery_Search($data["lsearch"]);
+    $list = kcw_gallery_api_Search($data["lsearch"]);
     $list_page = kcw_gallery_api_Page($list, $lpage, 40, "items");
     $list_page["search"] = ($data["lsearch"]);
     return kcw_gallery_api_Success($list_page);
