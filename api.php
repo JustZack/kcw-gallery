@@ -150,7 +150,7 @@ function kcw_gallery_api_ComputeLikeness($search, $possible_match) {
     //Iterate over all parts and track likeness
     foreach ($search as $spart)
         foreach ($possible_match as $pmpart)
-            if (kcw_movies_api_StringsMatch($spart, $pmpart)) 
+            if (kcw_gallery_api_StringsMatch($spart, $pmpart)) 
                 { $total_matches++; break; }
     //Return # of matches / # of search words
     return $total_matches / (1.0*count($search));
