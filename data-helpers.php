@@ -149,7 +149,7 @@ function kcw_gallery_BuildMultiCache($cache_name, $other_caches, $other_callback
     return $main_data;
 }
 
-//Return the complete and UP TO DATE list of gallery 'folders'
+//Return the complete and UP TO DATE list of galleries
 function kcw_gallery_GetListData() {
     kcw_gallery_ValidateListCache();
     $list = kcw_gallery_BuildMultiCache("list", ["files-list",                          "forums-list"], 

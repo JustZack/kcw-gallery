@@ -108,20 +108,19 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery = kcw_gallery_GetGalleryData($guid);
     global $kcw_gallery_thumbnail_width;
     global $kcw_gallery_thumbnail_height;
-
     if ($gallery == NULL) return kcw_gallery_api_Error("Unrecognized Gallery UID: " . $guid . ", with Page: " . $gpage);
     //Get the right page
     $gallery_page = kcw_gallery_api_Page($gallery["images"], $gpage, 42, "images");
     //Build the response
     $gallery_page["uid"] = $guid;
     $gallery_page["name"] = $gallery["name"];
+    $gallery_page["type"] = $gallery["type"];
     $gallery_page["category"] = $gallery["category"];
     $gallery_page["friendly_name"] = $gallery["friendly_name"];
     $gallery_page["visibility"] = $gallery["visibility"];
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
-    
-    kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
+    if (isset($gallery["baseurl"])) kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
 
     return kcw_gallery_api_Success($gallery_page);
 }

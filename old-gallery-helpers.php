@@ -70,6 +70,7 @@ function kcw_gallery_GetOldGalleryListData($folderdata) {
 function kcw_gallery_BuildOldGalleryListData($root) {
     $folderdata = kcw_gallery_GetFolderData($root);
     $data = kcw_gallery_GetOldGalleryListData($folderdata);
+    //$data['type'] = "file";
     return $data;
 }
 
@@ -105,6 +106,7 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
 
     //Not positive this is working
     //$data["images"] = kcw_gallery_SortFilesByTakenTime($data["images"]);
+    $data['type'] = "file";
     $data["uid"] = $gallery["uid"];
     $data["created"] = filemtime($folder);
     $data["friendly_name"] = $gallery["friendly_name"];
