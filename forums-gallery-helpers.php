@@ -1,5 +1,6 @@
 <?php
 
+include_once "file-helpers.php";
 include_once "formatting-helpers.php";
 
 function kcw_gallery_Query($sql) {
@@ -45,11 +46,40 @@ function kcw_gallery_QueryRepliesFor($topic_id) {
     return kcw_gallery_Query($query);
 }
 
-function kcw_gallery_GetMediaInReply($reply_content) {
+function kcw_gallery_GetOriginalImageURL($image_url) {
+    $site_url = site_url('');
+    $site_url = substr($site_url, strpos($site_url, "://") + 3);
+    //If the image pack contains our site url
+    if (strpos($image_url, $site_url) > -1) {
+        //Replace the default wordpress sizings with original path
+        $image_url = preg_replace("/(-[\d]+x[\d]+)/",  '', $image_url);
+        //Replace the wordpress image cdn sizings with original path
+        $image_url = preg_replace("/(\?.*w=[\d]+)/",  '', $image_url);
+    }
+    return $image_url;
+}
+
+function kcw_gallery_FilterSourceString($media_str, $tok) {
+    //Extract the src link from img and iframe
+    $srcpos = strpos($media_str, "src=", strlen($tok));
+    $srcend = strpos($media_str, "\"", $srcpos + strlen($tok) + 1) - (strlen($tok) + 1);
+    $link = substr($media_str, $srcpos + 5, $srcend - $srcpos);
+    
+    //Check if the source is an image type
+    global $kcw_gallery_known_image_types;
+    foreach ($kcw_gallery_known_image_types as $type)
+        if (strpos($link, $type) > -1) {
+            $link = kcw_gallery_GetOriginalImageURL($link);
+        }
+    
+    return $link;
+}
+
+function kcw_gallery_GetMediaInReply($reply_content, $post_time) {
     $media = array();
-    $toks["img"] = ["<img", "/>", 'src="', '"'];
-    $toks["iframe"] = ["<iframe", "/>"];
-    $toks["embed"] = ["[embed]", "[/embed]"];
+    $toks["img"] = ["<img", "/>"];
+    $toks["iframe"] = ["<iframe"];
+    //$toks["embed"] = ["[embed]", "[/embed]"];
     $start = 0;
     $end = -1;
 
@@ -59,11 +89,12 @@ function kcw_gallery_GetMediaInReply($reply_content) {
             $start = strpos($reply_content, $tok[0], $start);
             $end = strpos($reply_content, $tok[1], $start) + strlen($tok[1]);
             $media_str = substr($reply_content, $start, $end - $start);
-            //$srcpos = strpos($img_str, $tok[0]);
-            //$srcend = strpos($img_str, $toks["src"][1], $srcpos+5);
-            //$img_link = substr($img_str, $srcpos, $srcend - $srcpos);
-            //$media[] = $img_link;
-            $media[] = $media_str;
+
+            $item["name"] = kcw_gallery_FilterSourceString($media_str, $tok[0]);
+            $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
+            $item["taken"] = strtotime($post_time);
+
+            $media[] = $item;
             $start = $end;
         } else {
             $start = -1;
@@ -76,7 +107,7 @@ function kcw_gallery_GetMediaIn($replies) {
     $images = array();
 
     foreach ($replies as $reply) {
-        $to_add = kcw_gallery_GetMediaInReply($reply["post_content"]);
+        $to_add = kcw_gallery_GetMediaInReply($reply["post_content"], $reply["post_date_gmt"]);
         $images = array_merge($images, $to_add);
     }
 
@@ -89,6 +120,7 @@ function kcw_gallery_CountMediaIn($replies) {
     foreach ($replies as $reply) {
         $media_count += substr_count($reply["post_content"], "<img");
         $media_count += substr_count($reply["post_content"], "<iframe");
+        //$media_count += substr_count($reply["post_content"], "[embed]");
     }
 
     return $media_count;
