@@ -120,7 +120,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery_page["visibility"] = $gallery["visibility"];
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
-    if (isset($gallery["baseurl"])) kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
+    if (strlen($gallery["baseurl"]) > 0) kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
 
     return kcw_gallery_api_Success($gallery_page);
 }

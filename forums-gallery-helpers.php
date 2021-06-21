@@ -52,14 +52,14 @@ function kcw_gallery_GetOriginalImageURL($image_url) {
     //If the image pack contains our site url
     if (strpos($image_url, $site_url) > -1) {
         //Replace the default wordpress sizings with original path
-        $image_url = preg_replace("/(-[\d]+x[\d]+)/",  '', $image_url);
+        $image_url = preg_replace("/(-[\d]+x[\d]+)/", '', $image_url);
         //Replace the wordpress image cdn sizings with original path
         $image_url = preg_replace("/(\?.*w=[\d]+)/",  '', $image_url);
     }
     return $image_url;
 }
 
-function kcw_gallery_FilterSourceString($media_str, $tok) {
+function kcw_gallery_FilterMediaString($media_str, $tok) {
     //Extract the src link from img and iframe
     $srcpos = strpos($media_str, "src=", strlen($tok));
     $srcend = strpos($media_str, "\"", $srcpos + strlen($tok) + 1) - (strlen($tok) + 1);
@@ -90,7 +90,7 @@ function kcw_gallery_GetMediaInReply($reply_content, $post_time) {
             $end = strpos($reply_content, $tok[1], $start) + strlen($tok[1]);
             $media_str = substr($reply_content, $start, $end - $start);
 
-            $item["name"] = kcw_gallery_FilterSourceString($media_str, $tok[0]);
+            $item["name"] = kcw_gallery_FilterMediaString($media_str, $tok[0]);
             $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
             $item["taken"] = strtotime($post_time);
 
@@ -210,10 +210,8 @@ function kcw_Gallery_BuildForumGalleryData($topic) {
     $data["images"] = $images;
     $data["category"] = kcw_gallery_FilterName($topic["category"]);
 
-    //$data["baseurl"] = $baseurl;
-    //$data["thumbsurl"] = $baseurl . 'thumbs/';
-    //$data["basedir"] = $folder;
-    //$data["thumbsdir"] = $folder . 'thumbs/';
+    $data["baseurl"] = "";
+    $data["thumbsurl"] = "";
     return $data;
 }
 
