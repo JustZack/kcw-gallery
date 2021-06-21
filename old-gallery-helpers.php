@@ -115,8 +115,8 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     
     $data["category"] = kcw_gallery_FilterName($gallery["category"]);
 
-    $data["baseurl"] = $baseurl;
-    $data["thumbsurl"] = $baseurl . 'thumbs/';
+    $data["baseurl"] = "$baseurl{0}";
+    $data["thumbsurl"] = $baseurl . 'thumbs/{0}';
     $data["basedir"] = $folder;
     $data["thumbsdir"] = $folder . 'thumbs/';
     return $data;
