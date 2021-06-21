@@ -211,10 +211,10 @@ jQuery(document).ready(function() {
     }
 
     function BuildThumbnail(thumbsurl, imgurl, imgname) {
-        var img = imgurl + imgname;
+        var img = imgurl.format(imgname)
 
         var filename =  imgname.substring(0, imgname.lastIndexOf("."));
-        var thumb = thumbsurl + filename + ".jpg";
+        var thumb = thumbsurl.format(filename + ".jpg");
         var html = "<li><a data-src='" + img + "'>" +
                     "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
                     "</a></li>";
@@ -666,4 +666,12 @@ jQuery(document).ready(function() {
         }
         return url;
     }
+
+    String.prototype.format = function() {
+        a = this;
+        for (k in arguments) {
+          a = a.replace("{" + k + "}", arguments[k])
+        }
+        return a
+      }
 });
