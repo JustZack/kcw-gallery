@@ -86,10 +86,11 @@ function kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch) {
 }
 
 function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl) {
-    $url = $baseurl . $image["name"];
-    $fname = pathinfo($image["name"])["filename"];
-    $turl = $thumburl . $fname . ".jpg";
-    
+    $url = str_replace("{0}", $image["name"], $baseurl);
+    $pathinf = pathinfo($image["name"]);
+    $fname = $pathinf["filename"];
+    $path = $pathinf["dirname"] . "/";
+    $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
     $html = "<li><a data-src='$url'>";
     $html .= "<img src='$turl'>";
     $html .= "</a></li>";

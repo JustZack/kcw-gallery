@@ -210,8 +210,8 @@ function kcw_Gallery_BuildForumGalleryData($topic) {
     $data["images"] = $images;
     $data["category"] = kcw_gallery_FilterName($topic["category"]);
 
-    $data["baseurl"] = "";
-    $data["thumbsurl"] = "";
+    $data["baseurl"] = "{0}";
+    $data["thumbsurl"] = "{0}?w=130";
     return $data;
 }
 

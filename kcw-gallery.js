@@ -198,6 +198,7 @@ jQuery(document).ready(function() {
                 kcw_gallery.gallery.total = data.total;
                 kcw_gallery.gallery.per_page = data.per_page;
                 kcw_gallery.gallery.uid = data.uid;
+                kcw_gallery.gallery.type = data.type;
                 kcw_gallery.gallery.name = data.name;
                 kcw_gallery.gallery.friendly_name = data.friendly_name;
                 kcw_gallery.gallery.baseurl = data.baseurl;
@@ -460,7 +461,14 @@ jQuery(document).ready(function() {
         //Use a specifically sized version of the chosen image (if not localhost/dev)
         var resized_img_url = full_img_url;
         if (full_img_url.indexOf("://localhost/") == -1) {
-            resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
+            var type = kcw_gallery.gallery.type;
+            if (type == "file") {
+                //Add wordpress image hosting url
+                resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
+            } else if (type == "topic") {
+                //do nothing?
+            }
+            //Lightbox image is always 1100px
             resized_img_url += "?w=1100&ssl=1";
             console.log(resized_img_url);
         }
