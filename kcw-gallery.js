@@ -211,12 +211,17 @@ jQuery(document).ready(function() {
         kcw_gallery.gallery.pages[data.page-1] = data.images;
     }
 
-    function BuildThumbnail(thumbsurl, imgurl, imgname) {
-        var img = imgurl.format(imgname)
-
-        var filename =  imgname.substring(0, imgname.lastIndexOf("."));
-        var thumb = thumbsurl.format(filename + ".jpg");
-        var html = "<li><a data-src='" + img + "'>" +
+    function BuildThumbnail(thumbsurl, imgurl, img) {
+        var imgsrc, thumb;
+        if (img.type == "img") {
+            imgsrc = imgurl.format(img.name)
+            var filename =  img.name.substring(0, img.name.lastIndexOf("."));
+            thumb = thumbsurl.format(filename + ".jpg");
+        } else {
+            imgsrc = img.name;
+            thumb = img.thumb;
+        }
+        var html = "<li><a data-src='" + imgsrc + "'>" +
                     "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
                     "</a></li>";
         return html;
@@ -238,7 +243,7 @@ jQuery(document).ready(function() {
         //Do the display stuff
         jQuery("ul.kcw-gallery-thumbs").empty();
         for (var i = 0;i < gal.pages[gpage].length;i++) {
-            var elem = BuildThumbnail(gal.thumbsurl, gal.baseurl, page[i].name);
+            var elem = BuildThumbnail(gal.thumbsurl, gal.baseurl, page[i]);
             jQuery("ul.kcw-gallery-thumbs").append(elem);
         }
 

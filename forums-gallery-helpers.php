@@ -61,10 +61,9 @@ function kcw_gallery_GetOriginalImageURL($image_url) {
 
 function kcw_gallery_FilterMediaString($media_str, $tok) {
     //Extract the src link from img and iframe
-    $srcpos = strpos($media_str, "src=", strlen($tok));
-    $srcend = strpos($media_str, "\"", $srcpos + strlen($tok) + 1) - (strlen($tok) + 1);
-    $link = substr($media_str, $srcpos + 5, $srcend - $srcpos);
-    
+    $srcpos = strpos($media_str, "src=") + 5;
+    $srcend = strpos($media_str, "\"", $srcpos);
+    $link = substr($media_str, $srcpos, $srcend - $srcpos);
     //Check if the source is an image type
     global $kcw_gallery_known_image_types;
     foreach ($kcw_gallery_known_image_types as $type)
@@ -78,27 +77,32 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
 function kcw_gallery_GetMediaInReply($reply_content, $post_time) {
     $media = array();
     $toks["img"] = ["<img", "/>"];
-    $toks["iframe"] = ["<iframe"];
+    $toks["iframe"] = ["<iframe", "</iframe>"];
     //$toks["embed"] = ["[embed]", "[/embed]"];
-    $start = 0;
-    $end = -1;
 
     foreach ($toks as $tok) {
-        
-        if (strpos($reply_content, $tok[0], $start) > -1) {
+        $start = 0;
+        $end = -1;
+        do {
             $start = strpos($reply_content, $tok[0], $start);
-            $end = strpos($reply_content, $tok[1], $start) + strlen($tok[1]);
-            $media_str = substr($reply_content, $start, $end - $start);
+            if ($start !== false) {
+                $end = strpos($reply_content, $tok[1], $start) + strlen($tok[1]);
+                $media_str = substr($reply_content, $start, $end - $start);
 
-            $item["name"] = kcw_gallery_FilterMediaString($media_str, $tok[0]);
-            $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
-            $item["taken"] = strtotime($post_time);
+                $item["name"] = kcw_gallery_FilterMediaString($media_str, $tok[0]);
+                $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
+                $item["taken"] = strtotime($post_time);
+                if ($item["type"] == "iframe") {
+                    if (strpos($item["name"], "youtube") !== false) {
+                        $id = substr($item["name"], strrpos($item["name"], "/") + 1);
+                        $item["thumb"] = "https://i.ytimg.com/vi/$id/default.jpg";
+                    }
+                }
 
-            $media[] = $item;
-            $start = $end;
-        } else {
-            $start = -1;
-        }
+                $media[] = $item;
+                $start = $end;
+            }
+        } while ($start !== false);
     }
     return $media;
 }

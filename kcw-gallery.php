@@ -86,11 +86,16 @@ function kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch) {
 }
 
 function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl) {
-    $url = str_replace("{0}", $image["name"], $baseurl);
-    $pathinf = pathinfo($image["name"]);
-    $fname = $pathinf["filename"];
-    $path = $pathinf["dirname"] . "/";
-    $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
+    if ($image["type"] == "img") {
+        $url = str_replace("{0}", $image["name"], $baseurl);
+        $pathinf = pathinfo($image["name"]);
+        $fname = $pathinf["filename"];
+        $path = $pathinf["dirname"] . "/";
+        $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
+    } else if ($image["type"] == "iframe") {
+        $url = $image["name"];
+        $turl = $image["thumb"];
+    }
     $html = "<li><a data-src='$url'>";
     $html .= "<img src='$turl'>";
     $html .= "</a></li>";
