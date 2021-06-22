@@ -200,6 +200,7 @@ jQuery(document).ready(function() {
                 kcw_gallery.gallery.per_page = data.per_page;
                 kcw_gallery.gallery.uid = data.uid;
                 kcw_gallery.gallery.type = data.type;
+                kcw_gallery.gallery.permalink = data.permalink;
                 kcw_gallery.gallery.name = data.name;
                 kcw_gallery.gallery.friendly_name = data.friendly_name;
                 kcw_gallery.gallery.baseurl = data.baseurl;
@@ -241,6 +242,7 @@ jQuery(document).ready(function() {
         jQuery("a.kcw-gallery-list-home span.kcw-gallery-list-home-name").text("List");
 
         jQuery("div.kcw-gallery-title").text(gal.friendly_name);
+        jQuery("a.kcw-gallery-title-link").attr("href", gal.permalink);
 
         //Do the display stuff
         jQuery("ul.kcw-gallery-thumbs").empty();

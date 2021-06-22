@@ -120,6 +120,7 @@ function kcw_gallery_api_GetGalleryPage($data) {
     $gallery_page["visibility"] = $gallery["visibility"];
     $gallery_page["baseurl"] = $gallery["baseurl"];
     $gallery_page["thumbsurl"] = $gallery["thumbsurl"];
+    if (isset($gallery["permalink"])) $gallery_page["permalink"] = $gallery["permalink"];
 
     if (strlen(str_replace("{0}", "", $gallery["baseurl"])) > 0) kcw_gallery_api_GenerateThumbnailsIfNeeded($gallery, $gallery_page["images"]);
 

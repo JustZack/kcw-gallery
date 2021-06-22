@@ -120,6 +120,7 @@ function kcw_gallery_BuildOldGalleryData($gallery, $rootdir, $baseurl) {
     $data["thumbsurl"] = $baseurl . 'thumbs/{0}';
     $data["basedir"] = $folder;
     $data["thumbsdir"] = $folder . 'thumbs/';
+    $data["permalink"] = "#";
     return $data;
 }
 

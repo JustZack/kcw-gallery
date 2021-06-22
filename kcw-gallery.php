@@ -122,8 +122,9 @@ function kcw_gallery_BuildGalleryDisplay($guid, $gpage) {
     $after = kcw_gallery_PutJSData(json_encode($gallery), "gallery");
 
     $title = $gallery["friendly_name"];
+    $permalink = $gallery["permalink"];
 
-    return kcw_gallery_GetGalleryHTML($title, $html, $after);
+    return kcw_gallery_GetGalleryHTML($title, $permalink, $html, $after);
 }
 
 function kcw_gallery_PutJSData($data, $key) {
@@ -156,19 +157,19 @@ function kcw_gallery_GetListHTML($list_html = null, $after = null) {
     if ($list_html != null && $after != null) return sprintf($html, "opacity: 0;", $list_html, $after);
     else                                    return sprintf($html, "opacity: 0;", "", "");
 }
-function kcw_gallery_GetGalleryHTML($title = null, $gallery_list_html = null, $after = null) {
+function kcw_gallery_GetGalleryHTML($title = null, $permalink = null, $gallery_list_html = null, $after = null) {
     $html = "<div class='kcw-gallery-display' style='%s'>";
     $html .= "<a class='kcw-gallery-list-home'>";
     $html .= "<span class='dashicons dashicons-undo'></span>";
     $html .= "<span class='kcw-gallery-list-home-name'>List</span>";
     $html .= "</a>";
-    $html .= "<div class='kcw-gallery-title'>%s</div>";
+    $html .= "<a class='kcw-gallery-title-link' href='%s'><div class='kcw-gallery-title'>%s</div></a>";
     $html .= "<center><ul class='kcw-gallery-thumbs'>%s</ul></center>";
     $html .= "</div>%s";
     if ($title != null && $gallery_list_html != null && $after != null)
-        return sprintf($html, "opacity: 0;", $title, $gallery_list_html, $after);
+        return sprintf($html, "opacity: 0;", $permalink, $title, $gallery_list_html, $after);
     else
-        return sprintf($html, "opacity: 0;", "", "", "");
+        return sprintf($html, "opacity: 0;", "", "", "", "");
 }
 
 function kcw_gallery_DoDisplay($guid, $gpage, $lpage, $lsearch) {

@@ -213,7 +213,7 @@ function kcw_Gallery_BuildForumGalleryData($topic) {
     $data["name"] = kcw_gallery_FilterName($topic["name"]);
     $data["images"] = $images;
     $data["category"] = kcw_gallery_FilterName($topic["category"]);
-
+    $data["permalink"] = get_post_permalink($topic["post_id"]);
     $data["baseurl"] = "{0}";
     $data["thumbsurl"] = "{0}?w=130";
     return $data;
