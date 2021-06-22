@@ -158,7 +158,7 @@ div.kcw-gallery-lightbox-wrapper {
     z-index: 999999;
 }
 
-div.kcw-gallery-lightbox-wrapper img {
+div.kcw-gallery-lightbox-wrapper .kcw-gallery-lightbox-content {
     padding: 5px;
 }
 
@@ -176,8 +176,8 @@ div.kcw-gallery-lightbox-background {
 
 div.kcw-gallery-lightbox-buttons {
     border-top: 1px solid #ccc;
-    height: 45px;
-    padding-top: 5px;
+    height: 55px;
+    padding-top: 0px;
     background-color: #ccc;
 }
 div.kcw-gallery-lightbox-buttons > span{
@@ -206,7 +206,7 @@ div.kcw-gallery-lightbox-buttons > span:last-child{
     float:right;
 }
 div.kcw-gallery-lightbox-buttons .dashicons {
-    margin-top: 2px;
+    margin-top: 4px;
     font-size: 25px;
 }
 
