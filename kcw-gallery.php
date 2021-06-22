@@ -96,7 +96,7 @@ function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl) {
         $url = $image["name"];
         $turl = $image["thumb"];
     }
-    $html = "<li><a data-src='$url'>";
+    $html = "<li><a data-type='" . $image["type"] . "' data-src='$url'>";
     $html .= "<img src='$turl'>";
     $html .= "</a></li>";
 
@@ -199,7 +199,7 @@ function kcw_gallery_GetLoadingBox() {
 function kcw_gallery_GetLightbox() {
     $html = "<div class='kcw-gallery-lightbox-background'></div>";
     $html .= "<div class='kcw-gallery-lightbox-wrapper' style='top: -999px;left: -999px;opacity: 0'>";
-    $html .= "<img src='' class='kcw-gallery-lightbox-img'>";
+    $html .= "<div class='kcw-gallery-lightbox-content'></div>";
     $html .= "<div class='kcw-gallery-lightbox-buttons'>";
     $html .= "<span><a class='kcw-gallery-lightbox-full-res' href=''>Full Size<span class='dashicons dashicons-external'></span></a></span>";
     $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span></div>";

@@ -10,13 +10,14 @@ jQuery(document).ready(function() {
     });
     jQuery("a.kcw-gallery-lightbox-embed").click(function() {
         var embed = jQuery(this).data("embed");
-        prompt("Copy this code to embed the image.", embed);
+        prompt("Copy this code to embed the video.", embed);
     });
     jQuery("ul.kcw-gallery-thumbs").on('click', 'li a', function(e) {
         if (!isLoading) {
             if (LightboxActive) HideLightbox();
             var url = jQuery(this).data('src');
-            ShowLightbox(url);
+            var type = jQuery(this).data('type');
+            ShowLightbox(url, type);
         }
         e.stopPropagation();
     });
@@ -212,7 +213,7 @@ jQuery(document).ready(function() {
     }
 
     function BuildThumbnail(thumbsurl, imgurl, img) {
-        var imgsrc, thumb;
+        var imgsrc, thumb, type = img.type;
         if (img.type == "img") {
             imgsrc = imgurl.format(img.name)
             var filename =  img.name.substring(0, img.name.lastIndexOf("."));
@@ -221,7 +222,7 @@ jQuery(document).ready(function() {
             imgsrc = img.name;
             thumb = img.thumb;
         }
-        var html = "<li><a data-src='" + imgsrc + "'>" +
+        var html = "<li><a data-type='" + type + "' data-src='" + imgsrc + "'>" +
                     "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
                     "</a></li>";
         return html;
@@ -422,14 +423,14 @@ jQuery(document).ready(function() {
         return fit;
     }
 
-    function LightboxLoad_callback(full_img_url) {
+    function LightboxLoad_callback() {
         //Show the background first
         jQuery("div.kcw-gallery-lightbox-background").css({display: "block"});
         jQuery("div.kcw-gallery-lightbox-background").animate({opacity: "85%"});
 
         //Get image size
-        var iw = jQuery("img.kcw-gallery-lightbox-img").width();
-        var ih = jQuery("img.kcw-gallery-lightbox-img").height();
+        var iw = jQuery(".kcw-gallery-lightbox-img").width();
+        var ih = jQuery(".kcw-gallery-lightbox-img").height();
         var image_size = {width: iw, height: ih};
         //Get window size
         var ww = jQuery(window).outerWidth();
@@ -438,7 +439,7 @@ jQuery(document).ready(function() {
         //Compute optimal size of image
         var size = LightboxFitToScreen(viewport_size, image_size);
         //Set image size
-        jQuery("img.kcw-gallery-lightbox-img").css({width: size.width, height: size.height});
+        jQuery(".kcw-gallery-lightbox-img").css({width: size.width, height: size.height});
 
         //Get wrapper size
         var lw = jQuery("div.kcw-gallery-lightbox-wrapper").outerWidth();
@@ -459,46 +460,70 @@ jQuery(document).ready(function() {
         var code = "<img src='" + resized_img_url + "' width='800' height='600'>";
         return code;
     }
-    function ShowLightbox(full_img_url) {
+    function ShowLightbox(full_img_url, media_type) {
         ShowLoadingGif(null);
-        
+        jQuery("div.kcw-gallery-lightbox-content").empty();
+
         LightboxActive = true;
         //Use a specifically sized version of the chosen image (if not localhost/dev)
         var resized_img_url = full_img_url;
-        if (full_img_url.indexOf("://localhost/") == -1) {
-            var type = kcw_gallery.gallery.type;
-            if (type == "file") {
-                //Add wordpress image hosting url
-                resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
-            } else if (type == "topic") {
-                //do nothing?
+        if (media_type == "img") {
+            jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', resized_img_url);
+            jQuery("div a.kcw-gallery-lightbox-full-res").css('display', "inline-block");
+
+            jQuery("div a.kcw-gallery-lightbox-embed").data('embed', "");
+            jQuery("div a.kcw-gallery-lightbox-embed").css('display', "none");
+
+
+            if (full_img_url.indexOf("://localhost/") == -1) {
+                var gtype = kcw_gallery.gallery.type;
+                if (gtype == "file") {
+                    //Add wordpress image hosting url
+                    resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
+                }
+                //Lightbox image is always 1100px
+                resized_img_url += "?w=1100&ssl=1";
             }
-            //Lightbox image is always 1100px
-            resized_img_url += "?w=1100&ssl=1";
-            console.log(resized_img_url);
+            
+    
+            var img = new Image();
+            img.src = resized_img_url;
+            img.onload = (function(){
+                $img = jQuery("<img class='kcw-gallery-lightbox-img'/>");
+                $img.attr('src', resized_img_url);
+                jQuery("div.kcw-gallery-lightbox-content").append($img);
+                LightboxLoad_callback(); 
+            });
+        } else if (media_type == "iframe") {
+
+            jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', "");
+            jQuery("div a.kcw-gallery-lightbox-full-res").css('display', "none");
+
+            jQuery("div a.kcw-gallery-lightbox-embed").data('embed', resized_img_url);
+            jQuery("div a.kcw-gallery-lightbox-embed").css('display', "inline-block");
+
+            $iframe = jQuery("<iframe class='kcw-gallery-lightbox-img'></iframe>");
+            $iframe.attr('src', resized_img_url);
+            jQuery("div.kcw-gallery-lightbox-content").append($iframe);
+
+            $iframe.load(function(){
+                LightboxLoad_callback(); 
+            });
         }
 
-        jQuery("div a.kcw-gallery-lightbox-full-res").attr('href', resized_img_url);
+        
 
-        jQuery("div a.kcw-gallery-lightbox-embed").data('embed', BuildEmbedCode(resized_img_url));
-
-        var img = new Image();
-        img.src = resized_img_url;
-        img.onload = (function(){
-            jQuery("img.kcw-gallery-lightbox-img").attr('src', resized_img_url);
-            LightboxLoad_callback(full_img_url); 
-        });
     }
 
     function HideLightbox() {
+
         LightboxActive = false;
         jQuery("a.kcw-gallery-lightbox-full-res").attr('href', '');
         jQuery("a.kcw-gallery-lightbox-embed").data('embed', '');
 
         jQuery("div.kcw-gallery-lightbox-wrapper").animate({opacity: 0}, function(){
-            jQuery("img.kcw-gallery-lightbox-img").attr('src', "");
+            jQuery("div.kcw-gallery-lightbox-content").empty();
             jQuery("div.kcw-gallery-lightbox-wrapper").css({top: -999, left: -999});
-            jQuery("img.kcw-gallery-lightbox-img").attr("style", "");
         });
 
         jQuery("div.kcw-gallery-lightbox-background").animate({opacity: 0}, function(){

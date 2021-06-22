@@ -277,9 +277,9 @@ div.kcw-gallery-search:hover {
     cursor: text;
 }
 
-a.kcw-gallery-lightbox-embed {
+/*a.kcw-gallery-lightbox-embed {
     display: none;
-}
+}*/
 
 
 @media only screen and (max-aspect-ratio: 4/3) {
