@@ -86,6 +86,7 @@ function kcw_gallery_DetermineOldGalleryData($folderData) {
         $f["name"] = kcw_gallery_GetFileName($file);
         $exif = kcw_gallery_GetExifData($file);
         $f["taken"] = $exif["taken"];
+        $f["type"] = "img";
         $data["images"][] = $f;
     }
 

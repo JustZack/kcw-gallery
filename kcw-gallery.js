@@ -214,10 +214,11 @@ jQuery(document).ready(function() {
 
     function BuildThumbnail(thumbsurl, imgurl, img) {
         var imgsrc, thumb, type = img.type;
-        if (img.type == "img") {
+        if (type == "img") {
             imgsrc = imgurl.format(img.name)
             var filename =  img.name.substring(0, img.name.lastIndexOf("."));
             thumb = thumbsurl.format(filename + ".jpg");
+            console.log(thumbsurl);
         } else {
             imgsrc = img.name;
             thumb = img.thumb;
