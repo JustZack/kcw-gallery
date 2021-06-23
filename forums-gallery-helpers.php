@@ -1,6 +1,6 @@
 <?php
 
-include_once "env_helpers.php";
+include_once "env-helpers.php";
 include_once "file-helpers.php";
 include_once "formatting-helpers.php";
 
@@ -30,7 +30,7 @@ function kcw_gallery_QueryAllForums(){
         $allowed_forums = kcw_gallery_AllowedForumIDs();
         $where = "where post_type = 'forum' and ID in $allowed_forums";
     }
-    
+
     $query = "select $fields from {$wpdb->posts} $where $orderby";
     return kcw_gallery_Query($query);
 }
