@@ -1,5 +1,6 @@
 <?php
 
+include_once "env_helpers.php";
 include_once "file-helpers.php";
 include_once "formatting-helpers.php";
 
@@ -25,8 +26,10 @@ function kcw_gallery_QueryAllForums(){
     $orderby = "order by post_date_gmt";
     $where = "where post_type = 'forum'";
     
-    $allowed_forums = kcw_gallery_AllowedForumIDs();
-    $where = "where post_type = 'forum' and ID in $allowed_forums";
+    if (kcw_gallery_IsLive()) {
+        $allowed_forums = kcw_gallery_AllowedForumIDs();
+        $where = "where post_type = 'forum' and ID in $allowed_forums";
+    }
     
     $query = "select $fields from {$wpdb->posts} $where $orderby";
     return kcw_gallery_Query($query);
@@ -50,10 +53,12 @@ function kcw_gallery_QueryRepliesFor($topic_id) {
     $where = "where post_type in ('topic', 'reply')";
     $where .= " and (ID = '$topic_id' or post_parent = '$topic_id')";
     $where .= " and post_status = 'publish'";
-
-    $allowed_authors = kcw_gallery_AllowedAuthorIDs();
-    $where .= " and post_author in $allowed_authors";
-
+    
+    if (kcw_gallery_IsLive()) {
+        $allowed_authors = kcw_gallery_AllowedAuthorIDs();
+        $where .= " and post_author in $allowed_authors";
+    }
+    
     $query = $select . $where . $orderby;
     return kcw_gallery_Query($query);
 }
