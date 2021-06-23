@@ -17,7 +17,8 @@ jQuery(document).ready(function() {
             if (LightboxActive) HideLightbox();
             var url = jQuery(this).data('src');
             var type = jQuery(this).data('type');
-            ShowLightbox(url, type);
+            var permalink = jQuery(this).data('permalink');
+            ShowLightbox(url, type, permalink);
         }
         e.stopPropagation();
     });
@@ -219,12 +220,11 @@ jQuery(document).ready(function() {
             imgsrc = imgurl.format(img.name)
             var filename =  img.name.substring(0, img.name.lastIndexOf("."));
             thumb = thumbsurl.format(filename + ".jpg");
-            console.log(thumbsurl);
         } else {
             imgsrc = img.name;
             thumb = img.thumb;
         }
-        var html = "<li><a data-type='" + type + "' data-src='" + imgsrc + "'>" +
+        var html = "<li><a data-type='" + type + "' data-src='" + imgsrc + "' data-permalink='" + img.permalink + "'>" +
                     "<img width='" + 320 + "' height='" + 180 + "' src='" + thumb + "'>" +
                     "</a></li>";
         return html;
@@ -463,7 +463,7 @@ jQuery(document).ready(function() {
         var code = "<img src='" + resized_img_url + "' width='800' height='600'>";
         return code;
     }
-    function ShowLightbox(full_img_url, media_type) {
+    function ShowLightbox(full_img_url, media_type, permalink) {
         ShowLoadingGif(null);
         jQuery("div.kcw-gallery-lightbox-content").empty();
 
@@ -476,10 +476,9 @@ jQuery(document).ready(function() {
 
             jQuery("div a.kcw-gallery-lightbox-embed").data('embed', "");
             jQuery("div a.kcw-gallery-lightbox-embed").css('display', "none");
-
-
+                
+            var gtype = kcw_gallery.gallery.type;
             if (full_img_url.indexOf("://localhost/") == -1) {
-                var gtype = kcw_gallery.gallery.type;
                 if (gtype == "file") {
                     //Add wordpress image hosting url
                     resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
@@ -488,6 +487,13 @@ jQuery(document).ready(function() {
                 resized_img_url += "?w=1100&ssl=1";
             }
             
+            if (gtype == "topic") {
+                jQuery("div a.kcw-gallery-lightbox-permalink").attr('href', permalink);
+                jQuery("div a.kcw-gallery-lightbox-permalink").css('display', "inline-block");
+            } else {
+                jQuery("div a.kcw-gallery-lightbox-permalink").attr('href', "");
+                jQuery("div a.kcw-gallery-lightbox-permalink").css('display', "none");
+            }
     
             var img = new Image();
             img.src = resized_img_url;

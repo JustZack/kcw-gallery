@@ -65,7 +65,7 @@ function kcw_gallery_BuildForumsListData() {
     return $forumsgallery;
 }
 function kcw_gallery_BuildForumsGalleryData($guid) {
-    $list = kcw_gallery_BuildForumsListData();
+    $list = kcw_gallery_GetListData();
     $gallery = NULL;
     foreach ($list as $item) {
         if ($item["uid"] == $guid) {

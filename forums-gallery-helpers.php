@@ -130,7 +130,8 @@ function kcw_gallery_GetMediaIn($replies) {
     foreach ($replies as $reply) {
         $to_add = kcw_gallery_GetMediaInReply($reply["post_content"], $reply["post_date_gmt"]);
         for ($i = 0;$i < count($to_add);$i++) 
-            $to_add[$i]["permalink"] = get_post_permalink($reply["ID"]);
+            //Get the url to the reply within the topic for this image
+            $to_add[$i]["permalink"] = bbp_get_reply_url($reply["ID"]);
         $images = array_merge($images, $to_add);
     }
 
@@ -176,11 +177,6 @@ function kcw_gallery_QueryGalleryTopic($topic) {
     return kcw_gallery_QueryRepliesFor($topic["post_id"]);
 }
 
-function kcw_gallery_DetermineTopicData($replies) {
-    return null;
-}
-
-
 function kcw_gallery_DetermineForumListItemData($gallery) {
     $list_item = array();
 
@@ -218,11 +214,8 @@ function kcw_gallery_BuildForumGalleryListData() {
 }
 
 function kcw_Gallery_BuildForumGalleryData($topic) {
-    //var_dump($topic);
     $replies = kcw_gallery_QueryGalleryTopic($topic);
     $images = kcw_gallery_GetMediaIn($replies);
-
-    //var_dump($images);
 
     $data["uid"] = $topic["uid"];
     $data['type'] = "topic";
