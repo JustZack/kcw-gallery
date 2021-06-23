@@ -28,7 +28,7 @@ function kcw_gallery_QueryAllForums(){
     
     if (kcw_gallery_IsLive()) {
         $allowed_forums = kcw_gallery_AllowedForumIDs();
-        $where = "where post_type = 'forum' and ID in $allowed_forums";
+        $where .= " and ID in $allowed_forums";
     }
 
     $query = "select $fields from {$wpdb->posts} $where $orderby";
@@ -49,24 +49,24 @@ function kcw_gallery_QueryRepliesFor($topic_id) {
     global $wpdb;
     $fields = "ID, post_author, post_date_gmt, post_type, post_parent, post_name, post_content";
     $select = "select $fields from {$wpdb->posts} ";
-    $orderby = "order by post_date_gmt";
     $where = "where post_type in ('topic', 'reply')";
     $where .= " and (ID = '$topic_id' or post_parent = '$topic_id')";
     $where .= " and post_status = 'publish'";
+    $orderby = "order by post_date_gmt";
     
     if (kcw_gallery_IsLive()) {
         $allowed_authors = kcw_gallery_AllowedAuthorIDs();
         $where .= " and post_author in $allowed_authors";
     }
     
-    $query = $select . $where . $orderby;
+    $query = "$select $where $orderby";
     return kcw_gallery_Query($query);
 }
 
 function kcw_gallery_GetOriginalImageURL($image_url) {
     $site_url = site_url('');
     $site_url = substr($site_url, strpos($site_url, "://") + 3);
-    //If the image pack contains our site url
+    //If the image url contains our site url
     if (strpos($image_url, $site_url) > -1) {
         //Replace the default wordpress sizings with original path
         $image_url = preg_replace("/(-[\d]+x[\d]+)/", '', $image_url);

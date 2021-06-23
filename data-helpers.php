@@ -86,12 +86,12 @@ function kcw_gallery_GetListStatusData() {
     $stat_file = kcw_gallery_GetCacheFile("list-status");
     //Create time variables for later use
     $now = time();
-    $hourfromnow = $now + (60 * 60);
+    $hoursfromnow = $now + (60 * 60 * 12);
     //Get the status of the cache
     $status = array();
     if (!file_exists($stat_file)) {
         $status["files"] = 0;
-        $status["forums"] = $hourfromnow;
+        $status["forums"] = $hoursfromnow;
 
         kcw_gallery_Cache($stat_file, $status);
     } else {
@@ -120,9 +120,13 @@ function kcw_gallery_GetSingleListData($file, $callback) {
 
 //Delete invalid list cache failes
 function kcw_gallery_ValidateListCache() {
-    //$list_file = kcw_gallery_GetCacheFile("list");
-    //$status = kcw_gallery_GetListStatusData();
-    //if (file_exists($list_file)) unlink($list_file);
+    $list_file = kcw_gallery_GetCacheFile("list");
+    $status = kcw_gallery_GetListStatusData();
+    if ($status["forums"] < time()) { 
+        $status["forums"] = time() + (60 * 60 * 12);
+        kcw_gallery_UpdateListStatusData($status);
+        unlink($list_file);
+    }
 }
 
 function kcw_gallery_BuildMultiCache($cache_name, $other_caches, $other_callbacks) {
