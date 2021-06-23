@@ -9,40 +9,52 @@ function kcw_gallery_Query($sql) {
     return $selection;
 }
 
+function kcw_gallery_AllowedAuthorIDs() {
+    /* (Audrey, Gretchen, Franz, John, Pat) */
+    return "(55, 56, 61, 52, 82)";
+}
+function kcw_gallery_AllowedForumIDs() {
+    /* (Complete, Current) project forums */
+    return "(205, 297)";
+}
+
 //$kcw_gallery_WantedForums = "('', '', '')";
 function kcw_gallery_QueryAllForums(){
     global $wpdb;
     $fields = "ID, post_author, post_date, post_type, post_name";
     $orderby = "order by post_date_gmt";
-    $query = "select $fields from {$wpdb->posts} where post_type = 'forum' $orderby";
+    $where = "where post_type = 'forum'";
+    
+    $allowed_forums = kcw_gallery_AllowedForumIDs();
+    $where = "where post_type = 'forum' and ID in $allowed_forums";
+    
+    $query = "select $fields from {$wpdb->posts} $where $orderby";
     return kcw_gallery_Query($query);
 }
 
 function kcw_gallery_QueryTopicsFor($forum_id) {
     global $wpdb;
-    $fields = "post_id as ID, meta_value as forum_id";
-    $select = "select $fields from {$wpdb->postmeta} ";
-    $where = "where meta_key = '_bbp_forum_id' and meta_value = '$forum_id'";
-    $query = $select . $where;
-    $topics = kcw_gallery_Query($query);
-
     $fields = "ID, post_author, post_date, post_type, post_name";
     $orderby = "order by post_date_gmt";
-    $query = "select $fields from {$wpdb->posts} where post_type = 'topic' $orderby";
+    $where = "where post_type = 'topic' and post_parent = $forum_id";
+    $query = "select $fields from {$wpdb->posts} $where $orderby";
     return kcw_gallery_Query($query);
 }
 
 //$kcw_gallery_WantedAuthors = "('', '', '')";
 function kcw_gallery_QueryRepliesFor($topic_id) {
     global $wpdb;
-    $fields = "ID, post_author, post_date_gmt, post_type, post_name, post_content";
+    $fields = "ID, post_author, post_date_gmt, post_type, post_parent, post_name, post_content";
     $select = "select $fields from {$wpdb->posts} ";
     $orderby = "order by post_date_gmt";
-    $where = "where post_type in ('topic', 'reply') and (ID = '$topic_id' or post_parent = '$topic_id')";
-    $where .= "and post_status = 'publish'";
+    $where = "where post_type in ('topic', 'reply')";
+    $where .= " and (ID = '$topic_id' or post_parent = '$topic_id')";
+    $where .= " and post_status = 'publish'";
+
+    $allowed_authors = kcw_gallery_AllowedAuthorIDs();
+    $where .= " and post_author in $allowed_authors";
 
     $query = $select . $where . $orderby;
-    ($query);
     return kcw_gallery_Query($query);
 }
 
@@ -112,6 +124,8 @@ function kcw_gallery_GetMediaIn($replies) {
 
     foreach ($replies as $reply) {
         $to_add = kcw_gallery_GetMediaInReply($reply["post_content"], $reply["post_date_gmt"]);
+        for ($i = 0;$i < count($to_add);$i++) 
+            $to_add[$i]["permalink"] = get_post_permalink($reply["ID"]);
         $images = array_merge($images, $to_add);
     }
 
