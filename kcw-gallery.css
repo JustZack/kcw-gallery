@@ -199,9 +199,6 @@ div.kcw-gallery-lightbox-buttons > span a:hover {
     color: white;
 }
 
-div.kcw-gallery-lightbox-buttons > span:last-child{
-    float:right;
-}
 div.kcw-gallery-lightbox-buttons .dashicons {
     margin-top: 4px;
     font-size: 25px;
