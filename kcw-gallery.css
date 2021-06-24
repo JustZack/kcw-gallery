@@ -199,9 +199,6 @@ div.kcw-gallery-lightbox-buttons > span a:hover {
     color: white;
 }
 
-div.kcw-gallery-lightbox-buttons > span:first-child{
-    width: 50%;
-}
 div.kcw-gallery-lightbox-buttons > span:last-child{
     float:right;
 }

@@ -204,8 +204,8 @@ function kcw_gallery_GetLightbox() {
     $html .= "<div class='kcw-gallery-lightbox-content'></div>";
     $html .= "<div class='kcw-gallery-lightbox-buttons'>";
     $html .= "<span><a class='kcw-gallery-lightbox-full-res' href=''>Full Size<span class='dashicons dashicons-external'></span></a></span>";
-    $html .= "<span><a class='kcw-gallery-lightbox-permalink' href=''>Original Post<span class='dashicons dashicons-format-chat'></span></a></span>";
-    $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span></div>";
+    $html .= "<span><a class='kcw-gallery-lightbox-embed'>Embed<span class='dashicons dashicons-shortcode'></span></a></span>";
+    $html .= "<span><a class='kcw-gallery-lightbox-permalink' href=''>Original Post<span class='dashicons dashicons-format-chat'></span></a></span></div>";
     $html .= "</div>";
     return $html;
 }
