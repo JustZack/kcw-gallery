@@ -120,11 +120,13 @@ function kcw_gallery_GetSingleListData($file, $callback) {
 
 //Delete invalid list cache failes
 function kcw_gallery_ValidateListCache() {
-    $list_file = kcw_gallery_GetCacheFile("list");
     $status = kcw_gallery_GetListStatusData();
     if ($status["forums"] < time()) { 
         $status["forums"] = time() + (60 * 60 * 12);
         kcw_gallery_UpdateListStatusData($status);
+        $list_file = kcw_gallery_GetCacheFile("list");
+        $forums_list_file = kcw_gallery_GetCacheFile("forums-list");
+        unlink($forums_list_file);
         unlink($list_file);
     }
 }
@@ -146,7 +148,7 @@ function kcw_gallery_BuildMultiCache($cache_name, $other_caches, $other_callback
 
             $main_data = array_merge($main_data, $data);
         }
-
+        
         kcw_gallery_Cache($main_cache, $main_data);
     } else {
         $main_data = kcw_gallery_GetCacheDataJSON($main_cache);
@@ -158,8 +160,8 @@ function kcw_gallery_BuildMultiCache($cache_name, $other_caches, $other_callback
 //Return the complete and UP TO DATE list of galleries
 function kcw_gallery_GetListData() {
     kcw_gallery_ValidateListCache();
-    $list = kcw_gallery_BuildMultiCache("list", ["files-list",                          "forums-list"], 
-                                                ["kcw_gallery_BuildFilesystemListData", "kcw_gallery_BuildForumsListData"]);
+    $list = kcw_gallery_BuildMultiCache("list", ["forums-list",                          "files-list"], 
+                                                ["kcw_gallery_BuildForumsListData", "kcw_gallery_BuildFilesystemListData"]);
 
     return $list;
 }

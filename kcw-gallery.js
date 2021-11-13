@@ -218,8 +218,17 @@ jQuery(document).ready(function() {
         var imgsrc, thumb, type = img.type;
         if (type == "img") {
             imgsrc = imgurl.format(img.name)
-            var filename =  img.name.substring(0, img.name.lastIndexOf("."));
-            thumb = thumbsurl.format(filename + ".jpg");
+            if (kcw_gallery.gallery.type == "file") {
+                var filename =  img.name.substring(0, img.name.lastIndexOf("."));
+                thumb = thumbsurl.format(filename + ".jpg");
+            } else {
+                thumb = thumbsurl.format(img.name);
+                if (thumb.indexOf(".wp.com") == -1 && thumb.indexOf("localhost") == -1) {
+                    //Add wordpress image hosting url
+                    thumb =  thumb.replace("https://", "https://i2.wp.com/");
+                }
+            }
+
         } else {
             imgsrc = img.name;
             thumb = img.thumb;
@@ -479,7 +488,7 @@ jQuery(document).ready(function() {
                 
             var gtype = kcw_gallery.gallery.type;
             if (full_img_url.indexOf("://localhost/") == -1) {
-                if (gtype == "file") {
+                if (full_img_url.indexOf(".wp.com") == -1) {
                     //Add wordpress image hosting url
                     resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
                 }

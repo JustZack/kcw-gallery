@@ -81,10 +81,12 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
     $srcpos = strpos($media_str, "src=") + 5;
     $srcend = strpos($media_str, "\"", $srcpos);
     $link = substr($media_str, $srcpos, $srcend - $srcpos);
+    $filtered_link = substr($link, 0, strpos($link, "?"));
+    $ext = substr($link, strrpos($filtered_link, "."));
     //Check if the source is an image type
     global $kcw_gallery_known_image_types;
     foreach ($kcw_gallery_known_image_types as $type)
-        if (strpos($link, $type) > -1) {
+        if (strpos($ext, $type) > -1) {
             $link = kcw_gallery_GetOriginalImageURL($link);
         }
     
@@ -97,6 +99,8 @@ function kcw_gallery_GetMediaInReply($reply_content, $post_time) {
     $toks["iframe"] = ["<iframe", "</iframe>"];
     //$toks["embed"] = ["[embed]", "[/embed]"];
 
+    //$reply_content = kcw_gallery_FilterReply($reply_content);
+    
     foreach ($toks as $tok) {
         $start = 0;
         $end = -1;
@@ -107,16 +111,20 @@ function kcw_gallery_GetMediaInReply($reply_content, $post_time) {
                 $media_str = substr($reply_content, $start, $end - $start);
 
                 $item["name"] = kcw_gallery_FilterMediaString($media_str, $tok[0]);
-                $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
-                $item["taken"] = strtotime($post_time);
-                if ($item["type"] == "iframe") {
-                    if (strpos($item["name"], "youtube") !== false) {
-                        $id = substr($item["name"], strrpos($item["name"], "/") + 1);
-                        $item["thumb"] = "https://i.ytimg.com/vi/$id/default.jpg";
-                    }
-                }
+                if ($item["name"] !== NULL) {
 
-                $media[] = $item;
+                    $item["type"] = substr($tok[0], 1, strlen($tok[0]) - 1);
+                    $item["taken"] = strtotime($post_time);
+                    if ($item["type"] == "iframe") {
+                        if (strpos($item["name"], "youtube") !== false) {
+                            $id = substr($item["name"], strrpos($item["name"], "/") + 1);
+                            $item["thumb"] = "https://i.ytimg.com/vi/$id/default.jpg";
+                        }
+                    }
+
+
+                    $media[] = $item;
+                }
                 $start = $end;
             }
         } while ($start !== false);
@@ -143,11 +151,26 @@ function kcw_gallery_CountMediaIn($replies) {
 
     foreach ($replies as $reply) {
         $media_count += substr_count($reply["post_content"], "<img");
-        $media_count += substr_count($reply["post_content"], "<iframe");
+        $media_count += substr_count($reply["post_content"], "youtu.be/");
+        $media_count += substr_count($reply["post_content"], "youtube.com/");
         //$media_count += substr_count($reply["post_content"], "[embed]");
     }
 
     return $media_count;
+}
+
+function kcw_gallery_FilterReply($reply_content) {
+    $new_reply = $reply_content;
+    do {
+        $quote = strpos($new_reply, "<blockquote");
+        if ($quote !== false) {
+            $quote_end = strpos($new_reply, "</blockquote>");
+            $new_reply = substr($new_reply, 0, $quote);
+            $new_reply .= substr($new_reply, $quote_end + strlen("</blockquote>"));
+        }
+    } while (strpos($new_reply, "<blockquote") !== false);
+
+    return $new_reply;
 }
 
 function kcw_gallery_QueryGalleryTopicList() {
@@ -166,7 +189,8 @@ function kcw_gallery_QueryGalleryTopicList() {
             
             $replies = kcw_gallery_QueryRepliesFor($topic['ID']);
             $gtopic['images'] = kcw_gallery_CountMediaIn($replies);
-            $gallery_topics[] = $gtopic;
+
+            if ($gtopic['images'] > 0) $gallery_topics[] = $gtopic;
         }
     }
 
@@ -227,7 +251,7 @@ function kcw_Gallery_BuildForumGalleryData($topic) {
     $data["category"] = kcw_gallery_FilterName($topic["category"]);
     $data["permalink"] = get_post_permalink($topic["post_id"]);
     $data["baseurl"] = "{0}";
-    $data["thumbsurl"] = "{0}?w=130";
+    $data["thumbsurl"] = "{0}?w=130&ssl=1";
     return $data;
 }
 
