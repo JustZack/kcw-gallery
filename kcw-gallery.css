@@ -48,6 +48,9 @@ ul.kcw-gallery-list li:hover {
 ul.kcw-gallery-list li a {
     font-size: 20px;
     margin-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
 }
 a.kcw-gallery-list-category {
     position: absolute;
@@ -275,6 +278,9 @@ div.kcw-gallery-search:hover {
     display: none;
 }*/
 
+a.kcw-gallery-list-title {
+    max-width: 40vw;
+}
 
 @media only screen and (max-aspect-ratio: 4/3) {
     ul.kcw-gallery-thumbs li img {
@@ -288,6 +294,9 @@ div.kcw-gallery-search:hover {
     ul.kcw-gallery-pagination li a {
         padding: 5px 12.5px;
         font-size: 25px;
+    }
+    a.kcw-gallery-list-title {
+        max-width: 35vw;
     }
 }
 @media only screen and (max-aspect-ratio: 1/1) {
@@ -303,6 +312,9 @@ div.kcw-gallery-search:hover {
     ul.kcw-gallery-pagination li a {
         padding: 3px 10px;
         font-size: 20px;
+    }
+    a.kcw-gallery-list-title {
+        max-width: 35vw;
     }
 }
 @media only screen and (max-aspect-ratio: 3/4) {
@@ -323,6 +335,9 @@ div.kcw-gallery-search:hover {
         padding: 0px 5px;
         font-size: 20px;
     }
+    a.kcw-gallery-list-title {
+        max-width: 35vw;
+    }
 }
 
 @media only screen and (max-width: 1300px) {
@@ -332,6 +347,9 @@ div.kcw-gallery-search:hover {
     ul.kcw-gallery-pagination li a {
         padding: 0px 5px;
         font-size: 25px;
+    }
+    a.kcw-gallery-list-title {
+        max-width: 35vw;
     }
 }
 
@@ -352,6 +370,9 @@ div.kcw-gallery-search:hover {
     ul.kcw-gallery-list li {
         padding: 7px 5px;
     }
+    a.kcw-gallery-list-title {
+        max-width: 35vw;
+    }
 }
 
 @media only screen and (max-width: 700px) {
@@ -364,6 +385,9 @@ div.kcw-gallery-search:hover {
     }
     div.kcw-gallery-title {
         float: none;
+    }
+    a.kcw-gallery-list-title {
+        max-width: 50vw;
     }
 }
 
@@ -380,6 +404,9 @@ div.kcw-gallery-search:hover {
     }
     a.kcw-gallery-list-category {
         opacity: 0;
+    }
+    a.kcw-gallery-list-title {
+        max-width: 55vw;
     }
 }
 
