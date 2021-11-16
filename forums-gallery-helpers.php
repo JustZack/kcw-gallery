@@ -234,6 +234,8 @@ function kcw_gallery_BuildForumGalleryListData() {
     foreach ($galleries as $gallery) {
         $list_data[] = kcw_gallery_DetermineForumListItemData($gallery);
     }
+    //List is from oldest to newest, so reverse it to put newest at the top
+    $list_data = array_reverse($list_data);
     return $list_data;
 }
 
