@@ -81,7 +81,7 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
     $srcpos = strpos($media_str, "src=") + 5;
     $srcend = strpos($media_str, "\"", $srcpos);
     $link = substr($media_str, $srcpos, $srcend - $srcpos);
-    if (strpos($link, "emoji") !== FALSE) {
+    if (strpos($link, "s.w.org/images/core/emoji/") !== FALSE) {
         return NULL;
     }
     $filtered_link = substr($link, 0, strpos($link, "?"));
