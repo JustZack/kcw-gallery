@@ -87,7 +87,8 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
     global $kcw_gallery_known_image_types;
     foreach ($kcw_gallery_known_image_types as $type)
         if (strpos($ext, $type) > -1) {
-            $link = kcw_gallery_GetOriginalImageURL($link);
+            if (strpos($link, "s.w.org/images/core/emoji/") === false)
+                $link = kcw_gallery_GetOriginalImageURL($link);
         }
     
     return $link;
