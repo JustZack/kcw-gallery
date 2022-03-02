@@ -81,14 +81,16 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
     $srcpos = strpos($media_str, "src=") + 5;
     $srcend = strpos($media_str, "\"", $srcpos);
     $link = substr($media_str, $srcpos, $srcend - $srcpos);
+    if (strpos($link, "emoji") !== FALSE) {
+        return NULL;
+    }
     $filtered_link = substr($link, 0, strpos($link, "?"));
     $ext = substr($link, strrpos($filtered_link, "."));
     //Check if the source is an image type
     global $kcw_gallery_known_image_types;
     foreach ($kcw_gallery_known_image_types as $type)
         if (strpos($ext, $type) > -1) {
-            if (strpos($link, "s.w.org/images/core/emoji/") === false)
-                $link = kcw_gallery_GetOriginalImageURL($link);
+            $link = kcw_gallery_GetOriginalImageURL($link);
         }
     
     return $link;
