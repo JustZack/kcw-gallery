@@ -114,12 +114,12 @@ jQuery(document).ready(function() {
     /*
     Functions dealing with displaying paging links
     */
-    function BuildPagingLink(j, current, elippsis) {
+    function BuildPagingLink(j, current, elipsis) {
         var li_elem = "<li data-page='" + (j+1) + "'>";
         li_elem += "<a";
         if (current) li_elem += " class='current_page'";
         li_elem += ">";
-        if (elippsis) li_elem += "...";
+        if (elipsis) li_elem += "...";
         else li_elem += ""+(j+1);
         li_elem += "</a></li>";
         return li_elem;
@@ -493,7 +493,7 @@ jQuery(document).ready(function() {
                     resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
                 }
                 //Lightbox image is always 1100px
-                resized_img_url += "?w=1100&ssl=1";
+                resized_img_url += "?w=1100";
             }
             
             if (gtype == "topic") {
