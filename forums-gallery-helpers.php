@@ -254,7 +254,7 @@ function kcw_Gallery_BuildForumGalleryData($topic) {
     $data["category"] = kcw_gallery_FilterName($topic["category"]);
     $data["permalink"] = get_post_permalink($topic["post_id"]);
     $data["baseurl"] = "{0}";
-    $data["thumbsurl"] = "{0}?w=130";
+    $data["thumbsurl"] = "{0}?w=130&ssl=1";
     return $data;
 }
 

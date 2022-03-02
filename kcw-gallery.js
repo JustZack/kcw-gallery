@@ -493,7 +493,7 @@ jQuery(document).ready(function() {
                     resized_img_url =  full_img_url.replace("https://", "https://i2.wp.com/");
                 }
                 //Lightbox image is always 1100px
-                resized_img_url += "?w=1100";
+                resized_img_url += "?w=1100&ssl=1";
             }
             
             if (gtype == "topic") {
