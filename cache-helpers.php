@@ -37,9 +37,10 @@ function kcw_gallery_DeleteCache($type) {
     if (file_exists($file)) unlink($file);
 }
 
+//Invalidate cache files for the given topic (list, forums-list, topic-cache)
 function kcw_gallery_InvalidateTopicCache($topic_id) {
     $forums_list_file = kcw_gallery_GetCacheFile("forums-list");
-    
+
     if (file_exists($forums_list_file)) {
         $forums_list = kcw_gallery_GetCacheDataJSON($forums_list_file);
         $topic_cache_uid = -1;
