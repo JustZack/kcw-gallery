@@ -238,4 +238,22 @@ function kcw_gallery_Init() {
     echo $html;
 }
 add_shortcode("kcw-gallery", 'kcw_gallery_Init');
+
+//Handle a new reply 
+function kcw_gallery_new_reply_handler($reply_id,$topic_id,$forum_id,$anonymous_data,$reply_author, $bool, $reply_to) {
+    //Is this forum allowed to be part of the gallery
+    if (kcw_gallery_IsAllowedForumID($forum_id)) {
+        //Is this author allowed to be part of the gallery
+        if (kcw_gallery_IsAllowedAuthorID($reply_author)) {
+            //Invalidate the gallery cache for the given topic
+            var_dump($reply_id);
+            var_dump($topic_id);
+            var_dump($forum_id);
+            var_dump($reply_author);
+        }
+    }
+}
+//Hook into the bbpress new reply action. 10 = top priority, 7 arguments
+add_action("bbp_new_reply", "kcw_gallery_new_reply_handler", 10, 7)
+
 ?>

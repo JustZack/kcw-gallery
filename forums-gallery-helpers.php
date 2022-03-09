@@ -14,9 +14,22 @@ function kcw_gallery_AllowedAuthorIDs() {
     /* (Audrey, Gretchen, Franz, John, Pat) */
     return "(55, 56, 61, 52, 82)";
 }
+//Check if an author's posts are allowed to be used in the gallery
+function kcw_gallery_IsAllowedAuthorID($id) {
+    if (kcw_gallery_IsLive()) {
+        return strpos(kcw_gallery_AllowedAuthorIDs(), "".$id) > -1;
+    } else return true;
+}
+
 function kcw_gallery_AllowedForumIDs() {
     /* (Complete, Current) project forums */
     return "(205, 297)";
+}
+//Check if a forum id is allowed to be used in the gallery
+function kcw_gallery_IsAllowedForumID($id) {
+    if (kcw_gallery_IsLive()) {
+        return strpos(kcw_gallery_AllowedForumIDs(), "".$id) > -1;
+    } else return true;
 }
 
 //$kcw_gallery_WantedForums = "('', '', '')";
@@ -242,7 +255,7 @@ function kcw_gallery_BuildForumGalleryListData() {
     return $list_data;
 }
 
-function kcw_Gallery_BuildForumGalleryData($topic) {
+function kcw_gallery_BuildForumGalleryData($topic) {
     $replies = kcw_gallery_QueryGalleryTopic($topic);
     $images = kcw_gallery_GetMediaIn($replies);
 
