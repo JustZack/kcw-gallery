@@ -18,7 +18,9 @@ function kcw_gallery_AllowedAuthorIDs() {
 function kcw_gallery_IsAllowedAuthorID($id) {
     if (kcw_gallery_IsLive()) {
         return strpos(kcw_gallery_AllowedAuthorIDs(), "".$id) > -1;
-    } else return true;
+    } else {
+        return true;
+    }
 }
 
 function kcw_gallery_AllowedForumIDs() {
@@ -29,7 +31,9 @@ function kcw_gallery_AllowedForumIDs() {
 function kcw_gallery_IsAllowedForumID($id) {
     if (kcw_gallery_IsLive()) {
         return strpos(kcw_gallery_AllowedForumIDs(), "".$id) > -1;
-    } else return true;
+    } else {
+        return true;
+    }
 }
 
 //$kcw_gallery_WantedForums = "('', '', '')";

@@ -256,6 +256,6 @@ function kcw_gallery_new_reply_handler($reply_id,$topic_id,$forum_id,$anonymous_
     }
 }
 //Hook into the bbpress new reply action. 10 = top priority, 7 arguments
-add_action("bbp_new_reply", "kcw_gallery_new_reply_handler", 10, 7)
+add_action("bbp_new_reply", "kcw_gallery_new_reply_handler", 10, 7);
 
 ?>
