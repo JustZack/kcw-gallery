@@ -37,4 +37,28 @@ function kcw_gallery_DeleteCache($type) {
     if (file_exists($file)) unlink($file);
 }
 
+function kcw_gallery_InvalidateTopicCache($topic_id) {
+    $forums_list_file = kcw_gallery_GetCacheFile("forums-list");
+    
+    if (file_exists($forums_list_file)) {
+        $forums_list = kcw_gallery_GetCacheDataJSON($forums_list_file);
+        $topic_cache_uid = -1;
+
+        //Find the topic data in the list
+        foreach ($forums_list as $forum) {
+            if ($forum["post_id"] == "".$topic_id) {
+                $topic_cache_uid = $forum["uid"];
+                break;
+            }
+        }
+
+        //Found the cache file
+        if ($topic_cache_uid != -1) {
+            kcw_gallery_DeleteCache($topic_cache_uid);
+            kcw_gallery_DeleteCache("forums-list");
+            kcw_gallery_DeleteCache("list");
+        }
+    }
+    
+}
 ?>
