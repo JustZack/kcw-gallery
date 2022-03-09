@@ -216,7 +216,7 @@ function kcw_gallery_StartBlock() {
 function kcw_gallery_EndBlock() {
     return "</div>";
 }
-function kcw_gallery_new_Init() {
+function kcw_gallery_Init() {
 
     kcw_gallery_enqueue_dependencies();
 
@@ -237,5 +237,5 @@ function kcw_gallery_new_Init() {
     $html .= kcw_gallery_EndBlock();
     echo $html;
 }
-add_shortcode("kcw-gallery", 'kcw_gallery_new_Init');
+add_shortcode("kcw-gallery", 'kcw_gallery_Init');
 ?>
