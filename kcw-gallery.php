@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.2.95
+* Version:           1.3.0
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -257,5 +257,7 @@ function kcw_gallery_new_reply_handler($reply_id, $topic_id, $forum_id, $anonymo
         }
     }
 }
+//Hook into the bbpress new reply action. 10 = top priority, 7 arguments
+add_action("bbp_new_reply", "kcw_gallery_new_reply_handler", 10, 7);
 
 ?>
