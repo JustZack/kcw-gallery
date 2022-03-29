@@ -10,13 +10,31 @@ function kcw_gallery_Query($sql) {
     return $selection;
 }
 
+//Set of wordpress authors allowed in the gallery
 function kcw_gallery_AllowedAuthorIDs() {
     /* (Audrey, Gretchen, Franz, John, Pat) */
     return "(55, 56, 61, 52, 82)";
 }
+//Set of BBpress forums (The 'bucket' for topics) allowed in the gallery
 function kcw_gallery_AllowedForumIDs() {
     /* (Complete, Current) project forums */
     return "(205, 297)";
+}
+//Check if an author's posts are allowed to be used in the gallery
+function kcw_gallery_IsAllowedAuthorID($id) {
+    if (kcw_gallery_IsLive()) {
+        return strpos(kcw_gallery_AllowedAuthorIDs(), "".$id) > -1;
+    } else {
+        return true;
+    }
+}
+//Check if a forum id is allowed to be used in the gallery
+function kcw_gallery_IsAllowedForumID($id) {
+    if (kcw_gallery_IsLive()) {
+        return strpos(kcw_gallery_AllowedForumIDs(), "".$id) > -1;
+    } else {
+        return true;
+    }
 }
 
 //$kcw_gallery_WantedForums = "('', '', '')";
