@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.2.91
+* Version:           1.2.95
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -238,4 +238,24 @@ function kcw_gallery_new_Init() {
     echo $html;
 }
 add_shortcode("kcw-gallery", 'kcw_gallery_new_Init');
+
+
+//Handle a new reply 
+function kcw_gallery_new_reply_handler($reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, $bool, $reply_to) {
+    //Is this forum allowed to be part of the gallery
+    if (kcw_gallery_IsAllowedForumID($forum_id)) {
+        //Is this author allowed to be part of the gallery
+        if (kcw_gallery_IsAllowedAuthorID($reply_author)) {
+            //Does this post have any images in it?
+            $the_post = get_post($reply_id)->post_content;
+            if (strpos($the_post, "<img") > -1) {
+                //Invalidate the gallery cache for the given topic id
+                kcw_gallery_InvalidateTopicCache($topic_id);
+                //Rebuild the list of topics
+                kcw_gallery_GetListData();
+            }
+        }
+    }
+}
+
 ?>
