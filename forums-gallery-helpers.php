@@ -152,12 +152,8 @@ function kcw_gallery_GetMediaIn($replies) {
 function kcw_gallery_CountMediaIn($replies) {
     $media_count = 0;
 
-    foreach ($replies as $reply) {
-        $media_count += substr_count($reply["post_content"], "<img");
-        $media_count += substr_count($reply["post_content"], "youtu.be/");
-        $media_count += substr_count($reply["post_content"], "youtube.com/");
-        //$media_count += substr_count($reply["post_content"], "[embed]");
-    }
+    foreach ($replies as $reply)
+        $media_count += count(kcw_gallery_GetMediaInReply($reply["post_content"], $reply["post_date_gmt"]));
 
     return $media_count;
 }
