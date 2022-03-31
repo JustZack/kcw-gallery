@@ -12,8 +12,8 @@ function kcw_gallery_Query($sql) {
 
 //Set of wordpress authors allowed in the gallery
 function kcw_gallery_AllowedAuthorIDs() {
-    /* (Audrey, Gretchen, Franz, John, Pat) */
-    return "(55, 56, 61, 52, 82)";
+    /* (Audrey, Gretchen, Franz, John, Pat, Riley, Zack) */
+    return "(55, 56, 61, 52, 82, 88082, 4)";
 }
 //Set of BBpress forums (The 'bucket' for topics) allowed in the gallery
 function kcw_gallery_AllowedForumIDs() {
