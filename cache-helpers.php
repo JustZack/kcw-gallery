@@ -62,4 +62,5 @@ function kcw_gallery_InvalidateTopicCache($topic_id) {
     }
     
 }
+
 ?>

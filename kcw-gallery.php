@@ -237,16 +237,18 @@ function kcw_gallery_Init() {
     $html .= kcw_gallery_EndBlock();
     echo $html;
 }
-add_shortcode("kcw-gallery", 'kcw_gallery_Init');
+add_shortcode("kcw-gallery", 'kcw_gallery_new_Init');
+
 
 //Handle a new reply 
-function kcw_gallery_new_reply_handler($reply_id,$topic_id,$forum_id,$anonymous_data,$reply_author, $bool, $reply_to) {
+function kcw_gallery_new_reply_handler($reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, $bool, $reply_to) {
     //Is this forum allowed to be part of the gallery
     if (kcw_gallery_IsAllowedForumID($forum_id)) {
         //Is this author allowed to be part of the gallery
         if (kcw_gallery_IsAllowedAuthorID($reply_author)) {
             //Does this post have any images in it?
-            if (strpos(get_post($reply_id)->post_content, "<img") > -1) {
+            $the_post = get_post($reply_id)->post_content;
+            if (strpos($the_post, "<img") > -1) {
                 //Invalidate the gallery cache for the given topic id
                 kcw_gallery_InvalidateTopicCache($topic_id);
                 //Rebuild the list of topics

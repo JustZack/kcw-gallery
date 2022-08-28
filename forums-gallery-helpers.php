@@ -10,9 +10,16 @@ function kcw_gallery_Query($sql) {
     return $selection;
 }
 
+//Set of wordpress authors allowed in the gallery
 function kcw_gallery_AllowedAuthorIDs() {
-    /* (Audrey, Gretchen, Franz, John, Pat) */
-    return "(55, 56, 61, 52, 82)";
+    /* (Audrey, Gretchen, Franz, John, Pat, Riley, Zack) */
+    return "(55, 56, 61, 52, 82, 88082, 4)";
+}
+
+//Set of BBpress forums (The 'bucket' for topics) allowed in the gallery
+function kcw_gallery_AllowedForumIDs() {
+    /* (Complete, Current) project forums */
+    return "(205, 297)";
 }
 //Check if an author's posts are allowed to be used in the gallery
 function kcw_gallery_IsAllowedAuthorID($id) {
@@ -21,11 +28,6 @@ function kcw_gallery_IsAllowedAuthorID($id) {
     } else {
         return true;
     }
-}
-
-function kcw_gallery_AllowedForumIDs() {
-    /* (Complete, Current) project forums */
-    return "(205, 297)";
 }
 //Check if a forum id is allowed to be used in the gallery
 function kcw_gallery_IsAllowedForumID($id) {
@@ -169,12 +171,8 @@ function kcw_gallery_GetMediaIn($replies) {
 function kcw_gallery_CountMediaIn($replies) {
     $media_count = 0;
 
-    foreach ($replies as $reply) {
-        $media_count += substr_count($reply["post_content"], "<img");
-        $media_count += substr_count($reply["post_content"], "youtu.be/");
-        $media_count += substr_count($reply["post_content"], "youtube.com/");
-        //$media_count += substr_count($reply["post_content"], "[embed]");
-    }
+    foreach ($replies as $reply)
+        $media_count += count(kcw_gallery_GetMediaInReply($reply["post_content"], $reply["post_date_gmt"]));
 
     return $media_count;
 }
