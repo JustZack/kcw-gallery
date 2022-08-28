@@ -15,6 +15,7 @@ function kcw_gallery_AllowedAuthorIDs() {
     /* (Audrey, Gretchen, Franz, John, Pat, Riley, Zack) */
     return "(55, 56, 61, 52, 82, 88082, 4)";
 }
+
 //Set of BBpress forums (The 'bucket' for topics) allowed in the gallery
 function kcw_gallery_AllowedForumIDs() {
     /* (Complete, Current) project forums */
@@ -256,7 +257,7 @@ function kcw_gallery_BuildForumGalleryListData() {
     return $list_data;
 }
 
-function kcw_Gallery_BuildForumGalleryData($topic) {
+function kcw_gallery_BuildForumGalleryData($topic) {
     $replies = kcw_gallery_QueryGalleryTopic($topic);
     $images = kcw_gallery_GetMediaIn($replies);
 

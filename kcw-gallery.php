@@ -216,7 +216,7 @@ function kcw_gallery_StartBlock() {
 function kcw_gallery_EndBlock() {
     return "</div>";
 }
-function kcw_gallery_new_Init() {
+function kcw_gallery_Init() {
 
     kcw_gallery_enqueue_dependencies();
 
