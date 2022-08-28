@@ -184,13 +184,13 @@ function kcw_gallery_CountMediaIn($replies) {
 function kcw_gallery_FilterReply($reply_content) {
     $new_reply = $reply_content;
     do {
-        $quote = strpos($new_reply, "<blockquote");
+        $quote = strpos($new_reply, "[quote");
         if ($quote !== false) {
-            $quote_end = strpos($new_reply, "</blockquote>");
+            $quote_end = strpos($new_reply, "[/quote]")+strlen("[/quote]");
             $new_reply = substr($new_reply, 0, $quote);
-            $new_reply .= substr($new_reply, $quote_end + strlen("</blockquote>"));
+            $new_reply .= substr($new_reply, $quote_end);
         }
-    } while (strpos($new_reply, "<blockquote") !== false);
+    } while (strpos($new_reply, "[quote") !== false);
 
     return $new_reply;
 }
