@@ -12,7 +12,7 @@ include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
     wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.4.6");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.4.6");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.4.8");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -85,14 +85,21 @@ function kcw_gallery_BuildGalleryListDisplay($lpage, $lsearch) {
     return kcw_gallery_GetListHTML($html, $after);
 }
 
-function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl) {
+function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl, $gtype) {
     $type = $image["type"];
     if ($type == "img") {
         $url = str_replace("{0}", $image["name"], $baseurl);
-        $pathinf = pathinfo($image["name"]);
-        $fname = $pathinf["filename"];
-        $path = $pathinf["dirname"] . "/";
-        $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
+        if ($gtype == "file") {
+            $pathinf = pathinfo($image["name"]);
+            $fname = $pathinf["filename"]; $path = $pathinf["dirname"] . "/";
+            $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
+        } else {
+            $turl = str_replace("{0}", $image["name"], $thumburl);
+            if (strpos($turl, ".wp.com") == false && strpos($turl, "localhost") == false) {
+                //Add wordpress image hosting url
+                $turl = str_replace("https://", "https://i2.wp.com/", $turl);
+            }
+        }
     } else if ($image["type"] == "iframe") {
         $url = $image["name"];
         $turl = $image["thumb"];
@@ -110,7 +117,7 @@ function kcw_gallery_BuildGalleryDisplay($guid, $gpage) {
     $gallery = kcw_gallery_api_GetGalleryPage($data);
     $base = $gallery["baseurl"]; $thumbs = $gallery["thumbsurl"];
     foreach ($gallery["images"] as $image)
-        $html .= kcw_gallery_BuildGalleryThumbnail($image, $base, $thumbs);
+        $html .= kcw_gallery_BuildGalleryThumbnail($image, $base, $thumbs, $gallery["type"]);
 
     $gallery["pages"] = array();
     $gallery["pages"][$gallery["page"] - 1] = $gallery["images"];
@@ -237,7 +244,7 @@ function kcw_gallery_Init() {
     $html .= kcw_gallery_EndBlock();
     echo $html;
 }
-add_shortcode("kcw-gallery", 'kcw_gallery_new_Init');
+add_shortcode("kcw-gallery", 'kcw_gallery_Init');
 
 
 //Handle a new reply 

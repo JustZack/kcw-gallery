@@ -103,6 +103,10 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
     if (strpos($link, "s.w.org/images/core/emoji/") !== FALSE) {
         return NULL;
     }
+    if (filter_var($link, FILTER_VALIDATE_URL) === FALSE) {
+        return NULL;
+    }
+    /*
     $filtered_link = substr($link, 0, strpos($link, "?"));
     $ext = substr($link, strrpos($filtered_link, "."));
     //Check if the source is an image type
@@ -111,7 +115,7 @@ function kcw_gallery_FilterMediaString($media_str, $tok) {
         if (strpos($ext, $type) > -1) {
             $link = kcw_gallery_GetOriginalImageURL($link);
         }
-    
+    */
     return $link;
 }
 
