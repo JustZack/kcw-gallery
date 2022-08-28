@@ -97,7 +97,7 @@ function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl, $gtype) 
             //Cut off anything past the first '?'
             $turl = $image["name"];
             $q_pos = strpos($turl, "?");
-            if ($q_pos > -1) $turl = substr($turl, 0, );
+            if ($q_pos > -1) $turl = substr($turl, 0, $q_pos);
 
             $turl = str_replace("{0}", $turl, $thumburl);
             if (strpos($turl, ".wp.com") == false && strpos($turl, "localhost") == false) {
