@@ -222,7 +222,14 @@ jQuery(document).ready(function() {
                 var filename =  img.name.substring(0, img.name.lastIndexOf("."));
                 thumb = thumbsurl.format(filename + ".jpg");
             } else {
-                thumb = thumbsurl.format(img.name);
+                //Cut off anything past the first '?'
+                thumb = img.name;
+                var q_pos = thumb.indexOf("?");
+                if (q_pos > -1) thumb = thumb.substring(0, q_pos);
+
+                console.log(img.name);
+                console.log(thumb);
+                thumb = thumbsurl.format(thumb);
                 if (thumb.indexOf(".wp.com") == -1 && thumb.indexOf("localhost") == -1) {
                     //Add wordpress image hosting url
                     thumb =  thumb.replace("https://", "https://i2.wp.com/");
@@ -601,8 +608,8 @@ jQuery(document).ready(function() {
     }
     //Finish an action by scrolling to the active element and hiding the loading gif
     function FinishActionFor(elem) {
-        var offset = 0;
-        jQuery("html, body").animate({scrollTop: offset}, 400);
+        //var offset = jQuery(elem).position().top-150;
+        //jQuery("html, body").animate({scrollTop: offset}, 400);
 
         HideLoadingGif();
 

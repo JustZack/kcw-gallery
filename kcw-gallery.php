@@ -2,7 +2,7 @@
 /*
 * Plugin Name:       KCW Gallery
 * Description:       Provide a home for all KCW image uploads
-* Version:           1.3.0
+* Version:           1.3.11
 * Requires at least: 5.2
 * Requires PHP:      7.2
 * Author:            Zack Jones
@@ -12,7 +12,7 @@ include_once "api.php";
 
 function  kcw_gallery_register_dependencies() {
     wp_register_style("kcw-gallery", plugins_url("kcw-gallery.css", __FILE__), null, "1.4.6");
-    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.4.8");
+    wp_register_script("kcw-gallery", plugins_url("kcw-gallery.js", __FILE__), array('jquery'), "1.4.81");
 }
 add_action("wp_enqueue_scripts", "kcw_gallery_register_dependencies");
 
@@ -94,7 +94,12 @@ function kcw_gallery_BuildGalleryThumbnail($image, $baseurl, $thumburl, $gtype) 
             $fname = $pathinf["filename"]; $path = $pathinf["dirname"] . "/";
             $turl = str_replace("{0}", $path . $fname . ".jpg", $thumburl);
         } else {
-            $turl = str_replace("{0}", $image["name"], $thumburl);
+            //Cut off anything past the first '?'
+            $turl = $image["name"];
+            $q_pos = strpos($turl, "?");
+            if ($q_pos > -1) $turl = substr($turl, 0, );
+
+            $turl = str_replace("{0}", $turl, $thumburl);
             if (strpos($turl, ".wp.com") == false && strpos($turl, "localhost") == false) {
                 //Add wordpress image hosting url
                 $turl = str_replace("https://", "https://i2.wp.com/", $turl);
